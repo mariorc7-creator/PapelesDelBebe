@@ -35,6 +35,13 @@
       "text": "La adultez es ese juego donde el dinero se va más rápido que los planes, y tú sigues apostando… con la esperanza de que al menos haya cerveza al final.",
       "bufferId": "6ae59ccbceb491e585e3935c",
       "dueAt": "2026-11-01T20:15:00.000Z"
+    },
+    {
+      "date": "2026-10-31",
+      "slot": "evening",
+      "text": "En internet, pedir un certificado para el bebé es como enseñarle a andar: un paso firme, mil caídas, y al final, lloras igual pero con sello oficial.",
+      "bufferId": "6ae62510cf3a3112f3b4f63d",
+      "dueAt": "2026-11-02T08:15:00.000Z"
     }
   ]
 }
