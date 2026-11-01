@@ -42,6 +42,13 @@
       "text": "En internet, pedir un certificado para el bebé es como enseñarle a andar: un paso firme, mil caídas, y al final, lloras igual pero con sello oficial.",
       "bufferId": "6ae62510cf3a3112f3b4f63d",
       "dueAt": "2026-11-02T08:15:00.000Z"
+    },
+    {
+      "date": "2026-11-01",
+      "slot": "morning",
+      "text": "En España, la siesta no es pereza, es innovación energética: pausa estratégica para que el drama nacional rinda más. Energía renovable y popular.",
+      "bufferId": "6ae6efe421c807e9d5a925a0",
+      "dueAt": "2026-11-02T18:15:00.000Z"
     }
   ]
 }
