@@ -49,6 +49,13 @@
       "text": "En España, la siesta no es pereza, es innovación energética: pausa estratégica para que el drama nacional rinda más. Energía renovable y popular.",
       "bufferId": "6ae6efe421c807e9d5a925a0",
       "dueAt": "2026-11-02T18:15:00.000Z"
+    },
+    {
+      "date": "2026-11-01",
+      "slot": "evening",
+      "text": "Ser primerizo es aprender que nadie pidió tu opinión, pero todos te la dan gratis; la ventaja: al final nadie puede quejarse si ignoras sus consejos.",
+      "bufferId": "6ae776b44c17af1b87128616",
+      "dueAt": "2026-11-03T08:15:00.000Z"
     }
   ]
 }
