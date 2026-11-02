@@ -100,7 +100,7 @@ function generateSitemap() {
   ]);
   const urls = [];
   function contentLastmod(html) {
-    const matches = [...html.matchAll(/<time\\b[^>]*datetime=["'](\\d{4}-\\d{2}-\\d{2})["'][^>]*>/gi), ...html.matchAll(/"dateModified"\\s*:\\s*"(\\d{4}-\\d{2}-\\d{2})"/gi)].map(m => m[1]);
+    const matches = [...html.matchAll(/<time\b[^>]*datetime=["'](\d{4}-\d{2}-\d{2})["'][^>]*>/gi), ...html.matchAll(/"dateModified"\s*:\s*"(\d{4}-\d{2}-\d{2})"/gi)].map(m => m[1]);
     const today = new Date().toISOString().slice(0, 10);
     const valid = matches.filter(d => !Number.isNaN(Date.parse(d)) && d <= today);
     return valid.length ? valid.sort().at(-1) : null;
