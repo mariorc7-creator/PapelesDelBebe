@@ -47,18 +47,19 @@ if(today==='2026-10-29' && slot==='morning'){
 }
 const recent=history.posts.slice(-45).map(x=>x.text).join(' | ').slice(-8000);
 const themes={
- morning:['trabajo y reuniones absurdas','tecnología y contradicciones digitales','dinero y vida adulta','costumbres españolas','ocio, deporte y rutinas','servicio al cliente y burocracia','expectativas frente a realidad'],
- evening:['crianza con humor observacional','guarderías y conciliación','trámites e internet administrativo','primerizos y consejos no pedidos','economía familiar','momentos cotidianos con niños','ayudas y documentación sin cifras concretas']
+ morning:['chiste malo original sobre pañales','juego de palabras sobre bebés','chiste corto de guardería','humor de padres primerizos','biberones y chupetes con remate absurdo','chiste sobre dormir con bebés','adivinanza infantil graciosa'],
+ evening:['ocurrencias de niños pequeños','padres agotados pero felices','rabietas con cariño','conciliación familiar y caos divertido','preparativos y compras del bebé','trámites de nacimiento en clave cómica','momentos tiernos y graciosos de crianza']
 };
 const dayNumber=Math.floor(Date.parse(today+'T00:00:00Z')/86400000);
 const topic=themes[slot][dayNumber%7];
 const role=slot==='morning'
- ? 'Humor social cotidiano, simpático, con ingenio y buen rollo; no hace falta hablar de bebés si la idea es buena.'
- : 'Humor amable sobre crianza, familia y trámites; cercano y divertido, que conecte naturalmente con Papeles del Bebé.';
-const instructions=`Eres la voz de @PapelesDelBebe en X España. Crea UN tweet con una observación ORIGINAL, aguda, simpática y divertida, con un remate inesperado que arranque una sonrisa; suena a persona con gracia, nunca a IA corporativa. Tema del día: ${topic}. ${role}
-Máximo 155 caracteres contando emojis. Mejor 65 a 125. Ningún saludo, cliché de café, pregunta retórica de relleno, eslogan, listas, ni emojis obligatorios. No repitas estructuras y chistes previos.
-Nunca inventes cifras, legislación, ayudas, noticias, declaraciones ni tendencias. No bromear sobre fallecidos o accidentes, ni insultar, ridiculizar o atacar a ninguna persona o colectivo. Evita el tono troll, las pullas, el desprecio y el sarcasmo agresivo. Prioriza humor observacional, ternura con picardía y complicidad. Que el lector sonría y quiera compartirlo. Sin hashtags de tendencia no verificados. No pongas URL. Una sola frase o dos frases naturales. Devuelve solo el tweet.
-Historial reciente (evita ideas y remates equivalentes): ${recent||'vacío'}`;
+ ? 'Un chiste malo ORIGINAL que haga reír por lo malo: juego de palabras, diálogo divertido, pregunta-respuesta absurda o remate inesperado sobre bebés y padres. No repetir el chiste de los pañales hasta arriba.'
+ : 'Humor observacional sobre crianza con un giro divertido y natural. No repetir cada día el mismo formato de pregunta-respuesta.';
+const instructions=`Eres la voz simpática, ocurrente y cercana de Papeles del Bebé en X España. Escribe UN tuit original, divertido y compartible. Tema: ${topic}. ${role}
+Que sea HUMOR: chistes malos buenos, humor blanco con picardía, juegos de palabras, escenas de bebés, guarderías, padres primerizos y vida familiar. Evita moralinas, consejos aburridos, mensajes motivacionales y tono de anuncio. Varía el tipo de chiste y el remate.
+Longitud del texto principal de 40 a 120 caracteres, para dejar sitio al hashtag que añade automáticamente el programa. No escribas ningún hashtag ni arroba. Puedes usar un emoji o dos, pero no es obligatorio.
+No burlarse de víctimas, accidentes, fallecidos o personas vulnerables. Nada de ataques personales, desprecio, sarcasmo agresivo ni bromas inventando cifras o derechos. No poner links. Escribe solo el texto del tuit.
+Historial reciente (evita ideas y remates similares): ${recent||'vacío'}`;
 async function generate(){
  const r=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({model:process.env.OPENAI_MODEL||'gpt-4.1-mini',instructions,input:'Escribe un tweet nuevo para '+slot+'; tema '+topic+'. Cada intento debe tener una idea distinta. Intento creativo.',max_output_tokens:190,store:false})});
  if(!r.ok)throw Error('OpenAI HTTP '+r.status+': '+(await r.text()).slice(0,350));
@@ -68,9 +69,12 @@ async function generate(){
 let message='';
 const normalize=t=>t.toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').replace(/[^a-z0-9 ]/g,'').replace(/\\s+/g,' ').trim();
 const prev=history.posts.map(p=>normalize(p.text));
+const fixedHashtag='#humorDePadres';
 for(let n=0;n<3;n++){
- const c=(await generate()).replace(/^["“]|["”]$/g,'').trim();
- if(c && [...c].length<=155 && [...c].length>=35 && !prev.includes(normalize(c)) && !/https?:\/\//i.test(c) && !/^#/m.test(c) && !/[\n]{3}/.test(c)){message=c;break;}
+ const raw=(await generate()).replace(/^[\"“]|[\"”]$/g,'').trim();
+ const joke=raw.replace(/#[A-Za-zÀ-ÿ0-9_]+/g,'').replace(/\\s+/g,' ').trim();
+ const candidate=joke+'\\n\\n'+fixedHashtag;
+ if(joke && [...joke].length>=35 && [...joke].length<=125 && [...candidate].length<=175 && !prev.includes(normalize(candidate)) && !/https?:\\/\\//i.test(joke)){message=candidate;break;}
 }
 if(!message)throw Error('La IA no generó un tweet válido. Se omite publicación.');
 // Solo generar texto nuevo: nunca sustituir por contenido fijo.
