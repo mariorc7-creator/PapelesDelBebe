@@ -13,7 +13,9 @@ function applyPageFixes(html, relPath) {
     '/tarxeta-benvida-2026/': '/tarxeta-benvida/',
     '/ayuda-nacimiento-valencia-2026/': '/ayuda-nacimiento-valencia/',
     '/permiso-nacimiento-cuidado-menor-2026/': '/permiso-nacimiento-cuidado-menor/',
-    '/ayuda-nacimiento-cataluna-2026/': '/ayuda-nacimiento-cataluna/'
+    '/ayuda-nacimiento-cataluna-2026/': '/ayuda-nacimiento-cataluna/',
+    '/ayudas-nacimiento-cataluna-2026/': '/ayudas-nacimiento-cataluna/',
+    '/ca/ajut-naixement-catalunya-2026/': '/ca/ajut-naixement-catalunya/'
   };
   for (const [oldPath,newPath] of Object.entries(permalinkMoves)) {
     html=html.split('href="'+oldPath+'"').join('href="'+newPath+'"');
@@ -91,11 +93,32 @@ function audit(dir) {
 }
 
 
+// Publicar URLs permanentes conservando el contenido de las guías existentes.
+function generateEvergreenRegionalPages() {
+  const moves = [
+    ['ayudas-nacimiento-cataluna-2026', 'ayudas-nacimiento-cataluna'],
+    ['ca/ajut-naixement-catalunya-2026', 'ca/ajut-naixement-catalunya']
+  ];
+  for (const [oldSlug, newSlug] of moves) {
+    const oldFile = path.join(OUT, oldSlug, 'index.html');
+    if (!fs.existsSync(oldFile)) throw new Error('Falta página origen: ' + oldSlug);
+    const newFile = path.join(OUT, newSlug, 'index.html');
+    if (fs.existsSync(newFile)) throw new Error('Ya existe destino: ' + newSlug);
+    let html = fs.readFileSync(oldFile, 'utf8');
+    html = html.split('https://www.papelesdelbebe.es/' + oldSlug + '/').join('https://www.papelesdelbebe.es/' + newSlug + '/');
+    html = html.split('/' + oldSlug + '/').join('/' + newSlug + '/');
+    html = applyPageFixes(html, newSlug + '/index.html');
+    ensureDir(path.dirname(newFile));
+    fs.writeFileSync(newFile, html);
+  }
+}
+
 function generateSitemap() {
   const host = 'https://www.papelesdelbebe.es';
   const excluded = new Set([
     'ayuda-nacimiento-cataluna-2026','ayuda-nacimiento-valencia-2026',
     'permiso-nacimiento-cuidado-menor-2026','tarxeta-benvida-2026',
+    'ayudas-nacimiento-cataluna-2026','ca/ajut-naixement-catalunya-2026',
     'mi-plan','herramientas/que-me-falta'
   ]);
   const urls = [];
@@ -130,5 +153,6 @@ function generateSitemap() {
 }
 
 copyAll();
+generateEvergreenRegionalPages();
 generateSitemap();
 audit(OUT);
