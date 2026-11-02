@@ -72,6 +72,34 @@ function applyPageFixes(html, relPath) {
     }
   }
 
+  // Fecha editorial real de las guías revisadas en esta ronda (02/11/2026).
+  // No modificar fechas de páginas que no se han revisado.
+  const revisedPages = new Set([
+    'titulo-familia-monoparental-navarra/index.html',
+    'tarjeta-sanitaria-bebe-la-rioja/index.html',
+    'titulo-familia-numerosa-murcia/index.html',
+    'deduccion-nacimiento-castilla-la-mancha-2026/index.html',
+    'tarjeta-sanitaria-bebe-comunitat-valenciana/index.html',
+    'tarjeta-sanitaria-bebe-galicia/index.html',
+    'titulo-familia-numerosa-andalucia/index.html',
+    'titulo-familia-numerosa-la-rioja/index.html',
+    'titulo-familia-monoparental-comunitat-valenciana/index.html',
+    'ayuda-partos-multiples-aragon/index.html',
+    'ayuda-partos-multiples-aragon-2026/index.html',
+    'comunidades/andalucia/index.html',
+    'comunidades/navarra/index.html',
+    'comunidades/cataluna/index.html',
+    'comunidades/extremadura/index.html'
+  ]);
+  if (revisedPages.has(rel)) {
+    // Eliminar los bloques de revisión anteriores para evitar dos fechas contradictorias.
+    html = html.replace(/<p\b[^>]*class=["'][^"']*revision-sitio[^"']*["'][^>]*>[\s\S]*?<\/p>/gi, '');
+    html = html.replace(/<p>\s*Revisado:\s*\d{1,2}\/\d{1,2}\/\d{4}\.?(?:\s*)<\/p>/gi, '');
+    html = html.replace(/<div\b[^>]*class=["'][^"']*aviso-importante[^"']*["'][^>]*>\s*Revisado el [^<]*<\/div>/gi, '');
+    const revision = '<p class="revision revision-sitio">Última revisión: <time datetime="2026-11-02">2 de noviembre de 2026</time></p>';
+    if (/<\/main>/i.test(html)) html = html.replace(/<\/main>/i, revision + '</main>');
+  }
+
   // Retirar la promoción del checklist antiguo de todas las páginas generadas.
   // El panel de trámites es el destino vigente; las herramientas imprimibles se conservan.
   if (/^comunidades\/[^/]+\/index\.html$/.test(rel)) {
