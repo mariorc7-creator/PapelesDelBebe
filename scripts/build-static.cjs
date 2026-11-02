@@ -43,18 +43,18 @@ function applyPageFixes(html, relPath) {
 
   // Plantilla editorial única: adaptar guías antiguas sin modificar su contenido ni SEO.
   // Herramientas, formularios y páginas legales conservan su estructura funcional.
-  if (!/^(herramientas|aviso-legal|privacidad|cookies|terminos|gestoria|mi-panel|checklist|premium)\\//.test(rel) &&
-      /<main>\\s*<article class="contenido-informativo">/i.test(html) &&
-      !/<section class="hero(?:\\s|")/i.test(html)) {
-    const match = html.match(/<main>\\s*<article class="contenido-informativo">([\\s\\S]*?)<\\/article>\\s*<\\/main>/i);
+  if (!/^(herramientas|aviso-legal|privacidad|cookies|terminos|gestoria|mi-panel|checklist|premium)\//.test(rel) &&
+      /<main>\s*<article class="contenido-informativo">/i.test(html) &&
+      !/<section class="hero(?:\s|")/i.test(html)) {
+    const match = html.match(/<main>\s*<article class="contenido-informativo">([\s\S]*?)<\/article>\s*<\/main>/i);
     if (match) {
       let article = match[1];
-      const h1 = article.match(/<h1[^>]*>[\\s\\S]*?<\\/h1>/i);
+      const h1 = article.match(/<h1[^>]*>[\s\S]*?<\/h1>/i);
       if (h1) {
-        const crumb = article.match(/^\\s*<p>\\s*<a href="\\/">Inicio<\\/a>[\\s\\S]*?<\\/p>/i);
+        const crumb = article.match(/^\s*<p>\s*<a href="\/">Inicio<\/a>[\s\S]*?<\/p>/i);
         if (crumb) article = article.replace(crumb[0], '');
         article = article.replace(h1[0], '');
-        const intro = article.match(/^\\s*<p>([\\s\\S]*?)<\\/p>/i);
+        const intro = article.match(/^\s*<p>([\s\S]*?)<\/p>/i);
         let subtitle = '';
         if (intro) {
           subtitle = intro[1];
