@@ -99,6 +99,12 @@ function generateSitemap() {
     'mi-plan','herramientas/que-me-falta'
   ]);
   const urls = [];
+  function contentLastmod(html) {
+    const matches = [...html.matchAll(/<time\\b[^>]*datetime=["'](\\d{4}-\\d{2}-\\d{2})["'][^>]*>/gi), ...html.matchAll(/"dateModified"\\s*:\\s*"(\\d{4}-\\d{2}-\\d{2})"/gi)].map(m => m[1]);
+    const today = new Date().toISOString().slice(0, 10);
+    const valid = matches.filter(d => !Number.isNaN(Date.parse(d)) && d <= today);
+    return valid.length ? valid.sort().at(-1) : null;
+  }
   walk(OUT, full => {
     const rel = path.relative(OUT, full).replace(/\\/g, '/');
     if (rel !== 'index.html' && !rel.endsWith('/index.html')) return;
@@ -111,13 +117,13 @@ function generateSitemap() {
                       html.match(/<link[^>]+href=["']([^"']+)["'][^>]+rel=["']canonical/i);
     const url = host + (slug ? '/' + slug + '/' : '/');
     if (canonical && canonical[1].replace(/\/$/, '') !== url.replace(/\/$/, '')) return;
-    urls.push(url);
+    urls.push({url, lastmod: contentLastmod(html)});
   });
-  urls.sort();
+  urls.sort((a,b) => a.url.localeCompare(b.url));
   const escapeXml = value => value.replace(/&/g, '&amp;').replace(/</g, '&lt;');
   const xml = '<?xml version="1.0" encoding="UTF-8"?>\n' +
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
-    urls.map(url => '  <url><loc>' + escapeXml(url) + '</loc></url>').join('\n') +
+    urls.map(({url,lastmod}) => '  <url><loc>' + escapeXml(url) + '</loc>' + (lastmod ? '<lastmod>' + lastmod + '</lastmod>' : '') + '</url>').join('\n') +
     '\n</urlset>\n';
   fs.writeFileSync(path.join(OUT, 'sitemap.xml'), xml);
   console.log('Sitemap generado: ' + urls.length + ' URLs canonicas.');
