@@ -4,6 +4,26 @@
   "outputDirectory": "dist",
   "redirects": [
     {
+      "source": "/ca/ajut-naixement-catalunya-2026",
+      "destination": "/ca/ajut-naixement-catalunya/",
+      "permanent": true
+    },
+    {
+      "source": "/ca/ajut-naixement-catalunya-2026/",
+      "destination": "/ca/ajut-naixement-catalunya/",
+      "permanent": true
+    },
+    {
+      "source": "/ayudas-nacimiento-cataluna-2026",
+      "destination": "/ayudas-nacimiento-cataluna/",
+      "permanent": true
+    },
+    {
+      "source": "/ayudas-nacimiento-cataluna-2026/",
+      "destination": "/ayudas-nacimiento-cataluna/",
+      "permanent": true
+    },
+    {
       "source": "/ayuda-nacimiento-cataluna-2026/",
       "destination": "/ayuda-nacimiento-cataluna/",
       "permanent": true
