@@ -24,15 +24,15 @@ function applyPageFixes(html, relPath) {
   // Identidad de marca consistente en los resultados de Google.
   // Google puede elegir otro nombre; WebSite y og:site_name son señales, no garantías.
   if (!/<meta[^>]+name=["']application-name["']/i.test(html)) {
-    html = html.replace(/<\/head>/i, '<meta name="application-name" content="Papeles del Bebé">\\n</head>');
+    html = html.replace(/<\/head>/i, '<meta name="application-name" content="Papeles del Bebé">\n</head>');
   }
   if (!/<meta[^>]+property=["']og:site_name["']/i.test(html)) {
-    html = html.replace(/<\/head>/i, '<meta property="og:site_name" content="Papeles del Bebé">\\n</head>');
+    html = html.replace(/<\/head>/i, '<meta property="og:site_name" content="Papeles del Bebé">\n</head>');
   }
-  html = html.replace(/<link\\s+rel=["']icon["'][^>]*>/gi, '');
-  html = html.replace(/<\/head>/i, '<link rel="icon" type="image/svg+xml" sizes="any" href="/logo-papeles-bebe.svg">\\n</head>');
+  html = html.replace(/<link\s+rel=["']icon["'][^>]*>/gi, '');
+  html = html.replace(/<\/head>/i, '<link rel="icon" type="image/svg+xml" sizes="any" href="/logo-papeles-bebe.svg">\n</head>');
   if (rel === 'index.html' && !html.includes('"@type":"WebSite"')) {
-    html = html.replace(/<\/head>/i, '<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Papeles del Bebé","alternateName":"Papeles del Bebe","url":"https://www.papelesdelbebe.es/"}</script>\\n</head>');
+    html = html.replace(/<\/head>/i, '<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Papeles del Bebé","alternateName":"Papeles del Bebe","url":"https://www.papelesdelbebe.es/"}</script>\n</head>');
   }
 
   // Enlaces internos directos hacia las versiones perennes.
