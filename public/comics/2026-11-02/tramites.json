@@ -1,0 +1,23 @@
+{
+  "title": "Ayudas familiares: el puzzle que no quieres montar",
+  "caption": "¿Ayudas familiares? Mejor llévate un diccionario y paciencia. En papelesdelbebe.es tienes más guías que un GPS familiar.",
+  "panels": [
+    {
+      "text": "¿Sabes que hay ayudas por tener bebé?",
+      "action": "Pablo mira un cartel oficial con mil logos y letra microscópica, cejas alzadas."
+    },
+    {
+      "text": "Vale, tengo que pedir cita en... ¿la sombra de la sombra?",
+      "action": "Pablo al teléfono, con cara de estar llamando a una cueva secreta; calendario con citas llenas."
+    },
+    {
+      "text": "¿Y ahora me piden copia de mi certificado de no sé qué?",
+      "action": "Pablo sostiene una montaña de papeles, bebé en brazos jugando con un sello gigante."
+    },
+    {
+      "text": "¡Perfecto! Con suerte, el abono llega cuando el bebé es adulto.",
+      "action": "Pablo con cara de resignación mientras el bebé, ya teenager, usa la pila de papeles como castillo."
+    }
+  ],
+  "id": "tramites"
+}
