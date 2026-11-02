@@ -35,6 +35,12 @@ function applyPageFixes(html, relPath) {
     html = html.replace(/<\/head>/i, '<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Papeles del Bebé","alternateName":"Papeles del Bebe","url":"https://www.papelesdelbebe.es/"}</script>\\n</head>');
   }
 
+  // Enlaces internos directos hacia las versiones perennes.
+  for (const [oldSlug, newSlug] of EVERGREEN_MOVES) {
+    html = html.split('href="/' + oldSlug + '/"').join('href="/' + newSlug + '/"');
+    html = html.split('href="https://www.papelesdelbebe.es/' + oldSlug + '/"').join('href="https://www.papelesdelbebe.es/' + newSlug + '/"');
+  }
+
   // Retirar la promoción del checklist antiguo de todas las páginas generadas.
   // El panel de trámites es el destino vigente; las herramientas imprimibles se conservan.
   if (/^comunidades\/[^/]+\/index\.html$/.test(rel)) {
@@ -108,12 +114,34 @@ function audit(dir) {
 
 
 // Publicar URLs permanentes conservando el contenido de las guías existentes.
+const EVERGREEN_MOVES = [
+  ['autonomos-permiso-nacimiento-2026', 'autonomos-permiso-nacimiento'],
+  ['ayuda-familias-monoparentales-navarra-2026', 'ayuda-familias-monoparentales-navarra'],
+  ['ayuda-natalidad-extremadura-2026', 'ayuda-natalidad-extremadura'],
+  ['ayuda-pago-unico-nacimiento-1000-euros-2026', 'ayuda-pago-unico-nacimiento-1000-euros'],
+  ['ayuda-partos-multiples-andalucia-2026', 'ayuda-partos-multiples-andalucia'],
+  ['ayuda-partos-multiples-aragon-2026', 'ayuda-partos-multiples-aragon'],
+  ['ayudas-adopcion-acogimiento-2026', 'ayudas-adopcion-acogimiento'],
+  ['ayudas-familias-murcia-2026', 'ayudas-familias-murcia'],
+  ['bono-nacimiento-castilla-leon-2026', 'bono-nacimiento-castilla-leon'],
+  ['cheque-bebe-madrid-2026', 'cheque-bebe-madrid'],
+  ['deduccion-guarderia-1000-euros-2026', 'deduccion-guarderia-1000-euros'],
+  ['deduccion-nacimiento-baleares-2026', 'deduccion-nacimiento-baleares'],
+  ['deduccion-nacimiento-canarias-2026', 'deduccion-nacimiento-canarias'],
+  ['deduccion-nacimiento-cantabria-2026', 'deduccion-nacimiento-cantabria'],
+  ['deduccion-nacimiento-castilla-la-mancha-2026', 'deduccion-nacimiento-castilla-la-mancha'],
+  ['deduccion-nacimiento-comunitat-valenciana-2026', 'deduccion-nacimiento-comunitat-valenciana'],
+  ['deduccion-nacimiento-la-rioja-2026', 'deduccion-nacimiento-la-rioja'],
+  ['familias-ceuta-2026', 'familias-ceuta'],
+  ['familias-melilla-2026', 'familias-melilla'],
+  ['familias-monoparentales-ayudas-2026', 'familias-monoparentales-ayudas'],
+  ['familias-numerosas-ayudas-2026', 'familias-numerosas-ayudas'],
+  ['permiso-lactancia-2026', 'permiso-lactancia'],
+  ['ayudas-nacimiento-cataluna-2026', 'ayudas-nacimiento-cataluna'],
+  ['ca/ajut-naixement-catalunya-2026', 'ca/ajut-naixement-catalunya']
+];
 function generateEvergreenRegionalPages() {
-  const moves = [
-    ['ayudas-nacimiento-cataluna-2026', 'ayudas-nacimiento-cataluna'],
-    ['ca/ajut-naixement-catalunya-2026', 'ca/ajut-naixement-catalunya']
-  ];
-  for (const [oldSlug, newSlug] of moves) {
+  for (const [oldSlug, newSlug] of EVERGREEN_MOVES) {
     const oldFile = path.join(OUT, oldSlug, 'index.html');
     if (!fs.existsSync(oldFile)) throw new Error('Falta página origen: ' + oldSlug);
     const newFile = path.join(OUT, newSlug, 'index.html');
@@ -125,6 +153,7 @@ function generateEvergreenRegionalPages() {
     ensureDir(path.dirname(newFile));
     fs.writeFileSync(newFile, html);
   }
+  // Eliminar del sitemap las páginas históricas que ya redirigen.
 }
 
 function generateSitemap() {
@@ -135,6 +164,7 @@ function generateSitemap() {
     'ayudas-nacimiento-cataluna-2026','ca/ajut-naixement-catalunya-2026',
     'mi-plan','herramientas/que-me-falta'
   ]);
+  for (const [oldSlug] of EVERGREEN_MOVES) excluded.add(oldSlug);
   const urls = [];
   function contentLastmod(html) {
     const matches = [...html.matchAll(/<time\b[^>]*datetime=["'](\d{4}-\d{2}-\d{2})["'][^>]*>/gi), ...html.matchAll(/"dateModified"\s*:\s*"(\d{4}-\d{2}-\d{2})"/gi)].map(m => m[1]);
