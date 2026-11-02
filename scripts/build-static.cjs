@@ -41,6 +41,37 @@ function applyPageFixes(html, relPath) {
     html = html.split('href="https://www.papelesdelbebe.es/' + oldSlug + '/"').join('href="https://www.papelesdelbebe.es/' + newSlug + '/"');
   }
 
+  // Plantilla editorial única: adaptar guías antiguas sin modificar su contenido ni SEO.
+  // Herramientas, formularios y páginas legales conservan su estructura funcional.
+  if (!/^(herramientas|aviso-legal|privacidad|cookies|terminos|gestoria|mi-panel|checklist|premium)\\//.test(rel) &&
+      /<main>\\s*<article class="contenido-informativo">/i.test(html) &&
+      !/<section class="hero(?:\\s|")/i.test(html)) {
+    const match = html.match(/<main>\\s*<article class="contenido-informativo">([\\s\\S]*?)<\\/article>\\s*<\\/main>/i);
+    if (match) {
+      let article = match[1];
+      const h1 = article.match(/<h1[^>]*>[\\s\\S]*?<\\/h1>/i);
+      if (h1) {
+        const crumb = article.match(/^\\s*<p>\\s*<a href="\\/">Inicio<\\/a>[\\s\\S]*?<\\/p>/i);
+        if (crumb) article = article.replace(crumb[0], '');
+        article = article.replace(h1[0], '');
+        const intro = article.match(/^\\s*<p>([\\s\\S]*?)<\\/p>/i);
+        let subtitle = '';
+        if (intro) {
+          subtitle = intro[1];
+          article = article.replace(intro[0], '');
+        }
+        const badge = rel.includes('rioja') ? '👨‍👩‍👧‍👦 La Rioja' :
+          rel.includes('valenciana') || rel.includes('valencia') ? '👶 Comunidad Valenciana' :
+          rel.includes('navarra') ? '👶 Navarra' :
+          rel.includes('andalucia') ? '👶 Andalucía' : '👶 Guía para familias';
+        const hero = '<main><section class="hero seo-page"><div class="badge">' + badge +
+          '</div>' + h1[0] + (subtitle ? '<p class="subtitle">' + subtitle + '</p>' : '') +
+          '<section class="contenido-informativo seo-article">' + article + '</section></section></main>';
+        html = html.replace(match[0], hero);
+      }
+    }
+  }
+
   // Retirar la promoción del checklist antiguo de todas las páginas generadas.
   // El panel de trámites es el destino vigente; las herramientas imprimibles se conservan.
   if (/^comunidades\/[^/]+\/index\.html$/.test(rel)) {
