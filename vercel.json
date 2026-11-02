@@ -4,6 +4,226 @@
   "outputDirectory": "dist",
   "redirects": [
     {
+      "source": "/permiso-lactancia-2026",
+      "destination": "/permiso-lactancia/",
+      "permanent": true
+    },
+    {
+      "source": "/permiso-lactancia-2026/",
+      "destination": "/permiso-lactancia/",
+      "permanent": true
+    },
+    {
+      "source": "/familias-numerosas-ayudas-2026",
+      "destination": "/familias-numerosas-ayudas/",
+      "permanent": true
+    },
+    {
+      "source": "/familias-numerosas-ayudas-2026/",
+      "destination": "/familias-numerosas-ayudas/",
+      "permanent": true
+    },
+    {
+      "source": "/familias-monoparentales-ayudas-2026",
+      "destination": "/familias-monoparentales-ayudas/",
+      "permanent": true
+    },
+    {
+      "source": "/familias-monoparentales-ayudas-2026/",
+      "destination": "/familias-monoparentales-ayudas/",
+      "permanent": true
+    },
+    {
+      "source": "/familias-melilla-2026",
+      "destination": "/familias-melilla/",
+      "permanent": true
+    },
+    {
+      "source": "/familias-melilla-2026/",
+      "destination": "/familias-melilla/",
+      "permanent": true
+    },
+    {
+      "source": "/familias-ceuta-2026",
+      "destination": "/familias-ceuta/",
+      "permanent": true
+    },
+    {
+      "source": "/familias-ceuta-2026/",
+      "destination": "/familias-ceuta/",
+      "permanent": true
+    },
+    {
+      "source": "/deduccion-nacimiento-la-rioja-2026",
+      "destination": "/deduccion-nacimiento-la-rioja/",
+      "permanent": true
+    },
+    {
+      "source": "/deduccion-nacimiento-la-rioja-2026/",
+      "destination": "/deduccion-nacimiento-la-rioja/",
+      "permanent": true
+    },
+    {
+      "source": "/deduccion-nacimiento-comunitat-valenciana-2026",
+      "destination": "/deduccion-nacimiento-comunitat-valenciana/",
+      "permanent": true
+    },
+    {
+      "source": "/deduccion-nacimiento-comunitat-valenciana-2026/",
+      "destination": "/deduccion-nacimiento-comunitat-valenciana/",
+      "permanent": true
+    },
+    {
+      "source": "/deduccion-nacimiento-castilla-la-mancha-2026",
+      "destination": "/deduccion-nacimiento-castilla-la-mancha/",
+      "permanent": true
+    },
+    {
+      "source": "/deduccion-nacimiento-castilla-la-mancha-2026/",
+      "destination": "/deduccion-nacimiento-castilla-la-mancha/",
+      "permanent": true
+    },
+    {
+      "source": "/deduccion-nacimiento-cantabria-2026",
+      "destination": "/deduccion-nacimiento-cantabria/",
+      "permanent": true
+    },
+    {
+      "source": "/deduccion-nacimiento-cantabria-2026/",
+      "destination": "/deduccion-nacimiento-cantabria/",
+      "permanent": true
+    },
+    {
+      "source": "/deduccion-nacimiento-canarias-2026",
+      "destination": "/deduccion-nacimiento-canarias/",
+      "permanent": true
+    },
+    {
+      "source": "/deduccion-nacimiento-canarias-2026/",
+      "destination": "/deduccion-nacimiento-canarias/",
+      "permanent": true
+    },
+    {
+      "source": "/deduccion-nacimiento-baleares-2026",
+      "destination": "/deduccion-nacimiento-baleares/",
+      "permanent": true
+    },
+    {
+      "source": "/deduccion-nacimiento-baleares-2026/",
+      "destination": "/deduccion-nacimiento-baleares/",
+      "permanent": true
+    },
+    {
+      "source": "/deduccion-guarderia-1000-euros-2026",
+      "destination": "/deduccion-guarderia-1000-euros/",
+      "permanent": true
+    },
+    {
+      "source": "/deduccion-guarderia-1000-euros-2026/",
+      "destination": "/deduccion-guarderia-1000-euros/",
+      "permanent": true
+    },
+    {
+      "source": "/cheque-bebe-madrid-2026",
+      "destination": "/cheque-bebe-madrid/",
+      "permanent": true
+    },
+    {
+      "source": "/cheque-bebe-madrid-2026/",
+      "destination": "/cheque-bebe-madrid/",
+      "permanent": true
+    },
+    {
+      "source": "/bono-nacimiento-castilla-leon-2026",
+      "destination": "/bono-nacimiento-castilla-leon/",
+      "permanent": true
+    },
+    {
+      "source": "/bono-nacimiento-castilla-leon-2026/",
+      "destination": "/bono-nacimiento-castilla-leon/",
+      "permanent": true
+    },
+    {
+      "source": "/ayudas-familias-murcia-2026",
+      "destination": "/ayudas-familias-murcia/",
+      "permanent": true
+    },
+    {
+      "source": "/ayudas-familias-murcia-2026/",
+      "destination": "/ayudas-familias-murcia/",
+      "permanent": true
+    },
+    {
+      "source": "/ayudas-adopcion-acogimiento-2026",
+      "destination": "/ayudas-adopcion-acogimiento/",
+      "permanent": true
+    },
+    {
+      "source": "/ayudas-adopcion-acogimiento-2026/",
+      "destination": "/ayudas-adopcion-acogimiento/",
+      "permanent": true
+    },
+    {
+      "source": "/ayuda-partos-multiples-aragon-2026",
+      "destination": "/ayuda-partos-multiples-aragon/",
+      "permanent": true
+    },
+    {
+      "source": "/ayuda-partos-multiples-aragon-2026/",
+      "destination": "/ayuda-partos-multiples-aragon/",
+      "permanent": true
+    },
+    {
+      "source": "/ayuda-partos-multiples-andalucia-2026",
+      "destination": "/ayuda-partos-multiples-andalucia/",
+      "permanent": true
+    },
+    {
+      "source": "/ayuda-partos-multiples-andalucia-2026/",
+      "destination": "/ayuda-partos-multiples-andalucia/",
+      "permanent": true
+    },
+    {
+      "source": "/ayuda-pago-unico-nacimiento-1000-euros-2026",
+      "destination": "/ayuda-pago-unico-nacimiento-1000-euros/",
+      "permanent": true
+    },
+    {
+      "source": "/ayuda-pago-unico-nacimiento-1000-euros-2026/",
+      "destination": "/ayuda-pago-unico-nacimiento-1000-euros/",
+      "permanent": true
+    },
+    {
+      "source": "/ayuda-natalidad-extremadura-2026",
+      "destination": "/ayuda-natalidad-extremadura/",
+      "permanent": true
+    },
+    {
+      "source": "/ayuda-natalidad-extremadura-2026/",
+      "destination": "/ayuda-natalidad-extremadura/",
+      "permanent": true
+    },
+    {
+      "source": "/ayuda-familias-monoparentales-navarra-2026",
+      "destination": "/ayuda-familias-monoparentales-navarra/",
+      "permanent": true
+    },
+    {
+      "source": "/ayuda-familias-monoparentales-navarra-2026/",
+      "destination": "/ayuda-familias-monoparentales-navarra/",
+      "permanent": true
+    },
+    {
+      "source": "/autonomos-permiso-nacimiento-2026",
+      "destination": "/autonomos-permiso-nacimiento/",
+      "permanent": true
+    },
+    {
+      "source": "/autonomos-permiso-nacimiento-2026/",
+      "destination": "/autonomos-permiso-nacimiento/",
+      "permanent": true
+    },
+    {
       "source": "/ca/ajut-naixement-catalunya-2026",
       "destination": "/ca/ajut-naixement-catalunya/",
       "permanent": true
