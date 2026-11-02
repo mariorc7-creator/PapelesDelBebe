@@ -46,22 +46,27 @@ if(today==='2026-10-29' && slot==='morning'){
  console.log('Franja del 29/10 a las 09:15 ocupada por tweet de prueba. Se omite.');process.exit(0);
 }
 const recent=history.posts.slice(-45).map(x=>x.text).join(' | ').slice(-8000);
-const themes={
- morning:['chiste malo original sobre pañales','juego de palabras sobre bebés','chiste corto de guardería','humor de padres primerizos','biberones y chupetes con remate absurdo','chiste sobre dormir con bebés','adivinanza infantil graciosa'],
- evening:['ocurrencias de niños pequeños','padres agotados pero felices','rabietas con cariño','conciliación familiar y caos divertido','preparativos y compras del bebé','trámites de nacimiento en clave cómica','momentos tiernos y graciosos de crianza']
-};
+// Rotate bad jokes and everyday posts. Both slots stay friendly and on brand.
+const formats=['chiste','observacion','anecdota','chiste','reflexion-divertida','observacion','chiste'];
 const dayNumber=Math.floor(Date.parse(today+'T00:00:00Z')/86400000);
-const topic=themes[slot][dayNumber%7];
-const role=slot==='morning'
- ? 'Un chiste malo ORIGINAL que haga reír por lo malo: juego de palabras, diálogo divertido, pregunta-respuesta absurda o remate inesperado sobre bebés y padres. No repetir el chiste de los pañales hasta arriba.'
- : 'Humor observacional sobre crianza con un giro divertido y natural. No repetir cada día el mismo formato de pregunta-respuesta.';
-const instructions=`Eres la voz simpática, ocurrente y cercana de Papeles del Bebé en X España. Escribe UN tuit original, divertido y compartible. Tema: ${topic}. ${role}
-Que sea HUMOR: chistes malos buenos, humor blanco con picardía, juegos de palabras, escenas de bebés, guarderías, padres primerizos y vida familiar. Evita moralinas, consejos aburridos, mensajes motivacionales y tono de anuncio. Varía el tipo de chiste y el remate.
-Longitud del texto principal de 40 a 120 caracteres, para dejar sitio al hashtag que añade automáticamente el programa. No escribas ningún hashtag ni arroba. Puedes usar un emoji o dos, pero no es obligatorio.
-No burlarse de víctimas, accidentes, fallecidos o personas vulnerables. Nada de ataques personales, desprecio, sarcasmo agresivo ni bromas inventando cifras o derechos. No poner links. Escribe solo el texto del tuit.
-Historial reciente (evita ideas y remates similares): ${recent||'vacío'}`;
+const format=formats[(dayNumber+(slot==='evening'?3:0))%formats.length];
+const themes={
+ morning:['pañales y bebés','vida adulta con niños','juegos de palabras de padres','guarderías y conciliación','sueño de padres primerizos','preparativos para el bebé','biberones y chupetes'],
+ evening:['ocurrencias de niños pequeños','vida familiar y rutinas','trámites para familias contados con humor','rabietas vistas con ternura','padres agotados y orgullosos','guardería y primeras veces','pequeñas alegrías de la crianza']
+};
+const topic=themes[slot][dayNumber%themes[slot].length];
+const role={
+ chiste:'Haz un chiste malo de los buenos: juego de palabras, pregunta-respuesta o remate absurdo que arranque una carcajada.',
+ observacion:'Escribe un post como los habituales: una observación simpática, ingeniosa y muy reconocible de la vida cotidiana. NO lo plantees como un chiste de pregunta-respuesta.',
+ anecdota:'Escribe una pequeña situación o escena ficticia de familia, graciosa y cercana, con un giro final. No finjas que es una experiencia personal real de la cuenta.',
+ 'reflexion-divertida':'Escribe un pensamiento cotidiano entrañable con humor y una sorpresa final; que invite a sonreír y a identificarse, sin moralinas.'
+}[format];
+const instructions=`Eres la voz simpática de Papeles del Bebé en X España. Crea UN post ORIGINAL, breve, gracioso, humano y compartible, con personalidad propia. Hoy toca formato ${format} y tema ${topic}. ${role}
+NO todos los días son chistes: alterna entre chistes malos, observaciones cotidianas, anécdotas ficticias y comentarios divertidos. La cuenta puede comentar otras cosas de la vida, pero mantén afinidad con familias y padres. No escribas publicidad, moralinas, frases motivacionales vacías ni texto de IA corporativa. Busca sonrisas, no polémicas ni sarcasmo agresivo.
+De 40 a 125 caracteres en el cuerpo. Puedes usar un emoji. No escribas hashtags ni arrobas: el programa añade SIEMPRE #humorDePadres. No inventes noticias, cifras, derechos o beneficios públicos. No te burles de víctimas, accidentes, fallecidos o colectivos. Sin URLs. Devuelve solamente el texto de la publicación.
+Historial reciente para evitar repeticiones: ${recent||'vacío'}`;
 async function generate(){
- const r=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({model:process.env.OPENAI_MODEL||'gpt-4.1-mini',instructions,input:'Escribe un tweet nuevo para '+slot+'; tema '+topic+'. Cada intento debe tener una idea distinta. Intento creativo.',max_output_tokens:190,store:false})});
+ const r=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({model:process.env.OPENAI_MODEL||'gpt-4.1-mini',instructions,input:'Escribe un post nuevo para '+slot+'; formato '+format+'; tema '+topic+'. Cada intento debe tener una idea distinta.',max_output_tokens:190,store:false})});
  if(!r.ok)throw Error('OpenAI HTTP '+r.status+': '+(await r.text()).slice(0,350));
  const j=await r.json();
  return (j.output||[]).flatMap(x=>x.content||[]).filter(x=>x.type==='output_text').map(x=>x.text).join('').trim();
