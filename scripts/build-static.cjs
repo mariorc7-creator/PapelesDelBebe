@@ -96,7 +96,10 @@ function applyPageFixes(html, relPath) {
     html = html.replace(/<p\b[^>]*class=["'][^"']*revision-sitio[^"']*["'][^>]*>[\s\S]*?<\/p>/gi, '');
     html = html.replace(/<p>\s*Revisado:\s*\d{1,2}\/\d{1,2}\/\d{4}\.?(?:\s*)<\/p>/gi, '');
     html = html.replace(/<div\b[^>]*class=["'][^"']*aviso-importante[^"']*["'][^>]*>\s*Revisado el [^<]*<\/div>/gi, '');
-    const revision = '<p class="revision revision-sitio">Última revisión: <time datetime="2026-11-02">2 de noviembre de 2026</time></p>';
+    const isAragonMultiple = rel === 'ayuda-partos-multiples-aragon-2026/index.html' || rel === 'ayuda-partos-multiples-aragon/index.html';
+    const revisionDate = isAragonMultiple ? '2026-11-03' : '2026-11-02';
+    const revisionLabel = isAragonMultiple ? '3 de noviembre de 2026' : '2 de noviembre de 2026';
+    const revision = '<p class="revision revision-sitio">Última revisión: <time datetime="' + revisionDate + '">' + revisionLabel + '</time></p>';
     if (/<\/main>/i.test(html)) html = html.replace(/<\/main>/i, revision + '</main>');
   }
 
