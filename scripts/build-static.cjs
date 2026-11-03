@@ -276,7 +276,40 @@ function generateSitemap() {
   console.log('Sitemap generado: ' + urls.length + ' URLs canonicas.');
 }
 
+
+// Control de regresión SEO para las páginas que ya han demostrado tráfico.
+// Falla el build antes de publicar una canonical, redirección o sitemap incoherente.
+function validatePrioritySeo() {
+  const host = 'https://www.papelesdelbebe.es';
+  const priority = ['ayuda-nacimiento-asturias', 'ayuda-nacimiento-cataluna'];
+  const xml = fs.readFileSync(path.join(OUT, 'sitemap.xml'), 'utf8');
+  const redirects = JSON.parse(fs.readFileSync(path.join(ROOT, 'vercel.json'), 'utf8')).redirects || [];
+  const errors = [];
+  for (const slug of priority) {
+    const file = path.join(OUT, slug, 'index.html');
+    if (!fs.existsSync(file)) { errors.push(slug + ': no existe HTML'); continue; }
+    const html = fs.readFileSync(file, 'utf8');
+    const url = host + '/' + slug + '/';
+    const canonical = html.match(/<link\b(?=[^>]*\brel=["']canonical["'])[^>]*\bhref=["']([^"']+)["'][^>]*>/i);
+    if (!canonical || canonical[1] !== url) errors.push(slug + ': canonical incorrecta');
+    if (/<meta\b[^>]*name=["']robots["'][^>]*content=["'][^"']*noindex/i.test(html)) errors.push(slug + ': noindex');
+    if (!xml.includes('<loc>' + url + '</loc>')) errors.push(slug + ': ausente del sitemap');
+    if (redirects.some(r => r.source.replace(/\/$/, '') === '/' + slug)) errors.push(slug + ': redirige la URL canonica');
+  }
+  const oldCataluna = '/ayuda-nacimiento-cataluna-2026/';
+  if (!redirects.some(r => r.source === oldCataluna && r.destination === '/ayuda-nacimiento-cataluna/' && r.permanent === true)) {
+    errors.push('Cataluña: falta redireccion permanente desde URL antigua');
+  }
+  if (xml.includes('<loc>' + host + oldCataluna + '</loc>')) errors.push('Cataluña: URL antigua en sitemap');
+  const hub = fs.readFileSync(path.join(OUT, 'ayudas-nacimiento', 'index.html'), 'utf8');
+  for (const slug of priority) if (!hub.includes('href="/' + slug + '/"')) errors.push('Hub ayudas: falta enlace directo a ' + slug);
+  if (hub.includes('href="' + oldCataluna + '"')) errors.push('Hub ayudas: enlace a URL antigua de Cataluña');
+  if (errors.length) throw new Error('Control SEO prioritario fallido:\\n' + errors.join('\\n'));
+  console.log('Control SEO prioritario OK: Asturias y Cataluña, canonicals, sitemap, redirección y enlaces.');
+}
+
 copyAll();
 generateEvergreenRegionalPages();
 generateSitemap();
 audit(OUT);
+validatePrioritySeo();
