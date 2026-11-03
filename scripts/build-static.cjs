@@ -226,9 +226,27 @@ function generateSitemap() {
   for (const [oldSlug] of EVERGREEN_MOVES) excluded.add(oldSlug);
   const urls = [];
   function contentLastmod(html) {
-    const matches = [...html.matchAll(/<time\b[^>]*datetime=["'](\d{4}-\d{2}-\d{2})["'][^>]*>/gi), ...html.matchAll(/"dateModified"\s*:\s*"(\d{4}-\d{2}-\d{2})"/gi)].map(m => m[1]);
+    // Solo fechas editoriales explícitas; otros <time> pueden indicar plazos o eventos.
+    // Una fecha ausente es preferible a un <lastmod> engañoso.
+    const dates = [];
+    const revision = /<(?:p|div|span)\b[^>]*class=["'][^"']*\b(?:revision|revision-sitio|fecha-revision|last-updated)\b[^"']*["'][^>]*>[\s\S]*?<\/\s*(?:p|div|span)>/gi;
+    for (const block of html.matchAll(revision)) {
+      for (const time of block[0].matchAll(/<time\b[^>]*datetime=["'](\d{4}-\d{2}-\d{2})["'][^>]*>/gi)) dates.push(time[1]);
+    }
+    // dateModified se acepta únicamente si existe como dato estructurado.
+    for (const script of html.matchAll(/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)) {
+      try {
+        const data = JSON.parse(script[1]);
+        const visit = node => {
+          if (!node || typeof node !== 'object') return;
+          if (typeof node.dateModified === 'string') dates.push(node.dateModified.slice(0, 10));
+          for (const value of Object.values(node)) if (typeof value === 'object') visit(value);
+        };
+        visit(data);
+      } catch (_) { /* JSON-LD inválido: no inferir fecha */ }
+    }
     const today = new Date().toISOString().slice(0, 10);
-    const valid = matches.filter(d => !Number.isNaN(Date.parse(d)) && d <= today);
+    const valid = dates.filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d) && !Number.isNaN(Date.parse(d)) && d <= today);
     return valid.length ? valid.sort().at(-1) : null;
   }
   walk(OUT, full => {
