@@ -3,7 +3,7 @@
   window.__papelesBebeGlobalUiInitialized = true;
   const MASTER_KEY = 'papelesbebe_que_me_falta_v1';
   const APP_COMPLETED_KEY = 'tramitesFacilesCompletados';
-  const HEADER_VERSION = '20261021-mobile-nav';
+  const HEADER_VERSION = '20261104-preparativos-marketing';
   const FOOTER_VERSION = '20261022-share5';
   const MASTER_KEYS = ['registro','seguridad-social','tarjeta-sanitaria','padron','prestacion','deduccion','ayudas'];
   const NAV_ITEMS = [
@@ -144,6 +144,10 @@
       header.pb-global-header .nav-principal a{display:inline-flex!important;align-items:center!important;gap:6px!important;min-height:42px!important;padding:9px 11px!important;border-radius:12px!important;border:1px solid transparent!important;background:transparent!important;color:#586176!important;text-decoration:none!important;font-weight:750!important;font-size:.94rem!important;line-height:1.2!important;white-space:nowrap!important;box-shadow:none!important}
       header.pb-global-header .nav-principal a:hover{background:#f6f7ff!important;color:#454bc0!important}
       header.pb-global-header .nav-principal a[aria-current="page"]{background:#f0efff!important;color:#555bd1!important;border-color:#dcddff!important}
+      header.pb-global-header .nav-principal a.pb-nav-shop,header.pb-global-header .nav-principal a.pb-nav-shop[aria-current="page"]{background:linear-gradient(110deg,#fff0d5,#ffdb9e)!important;border:1px solid #e7b46a!important;color:#76410d!important;font-weight:900!important;box-shadow:0 3px 12px rgba(165,99,20,.17)!important;padding:9px 12px!important;gap:7px!important}
+      header.pb-global-header .nav-principal a.pb-nav-shop:hover{background:#ffd38b!important;color:#653605!important;box-shadow:0 5px 15px rgba(165,99,20,.23)!important}
+      header.pb-global-header .nav-principal a.pb-nav-shop:focus-visible{outline:3px solid #9d641f!important;outline-offset:3px!important}
+      header.pb-global-header .nav-principal .pb-nav-shop-badge{display:inline-flex;align-items:center;border-radius:5px;background:#9d5218;color:#fff;font-size:.6rem;letter-spacing:.04em;font-weight:900;padding:3px 5px;line-height:1}
       .pb-progress-badge{display:inline-flex;align-items:center;justify-content:center;min-width:34px;padding:2px 7px;border-radius:999px;background:#eef9f2;color:#23724c;font-size:.75rem;font-weight:800;border:1px solid #d5ecdf}
       .pb-article-progress{max-width:1120px;margin:14px auto 20px;padding:14px 16px;border:1px solid #e4e6f2;border-radius:16px;background:#fbfbff;display:flex;align-items:center;justify-content:space-between;gap:14px;box-sizing:border-box}
       .pb-article-progress strong{display:block;color:#27334d;margin-bottom:3px}.pb-article-progress p{margin:0;color:#687087;font-size:.92rem}.pb-article-progress-actions{display:flex;gap:8px;flex-wrap:wrap}.pb-article-progress button,.pb-article-progress a{border:1px solid #d9dcf5;border-radius:10px;padding:8px 11px;background:#fff;color:#5057c8;font:inherit;font-weight:750;text-decoration:none;cursor:pointer;white-space:nowrap}.pb-article-progress.is-done{background:#f4fbf7;border-color:#d6ecdf}.pb-article-progress.is-done strong{color:#23724c}
@@ -468,9 +472,9 @@
   function navHtml() {
     return NAV_ITEMS.map(([href,text]) => {
       const current = activeSection(href) ? ' aria-current="page"' : '';
-      const classes = '';
+      const classes = href === '/preparativos-bebe/' ? ' class="pb-nav-shop"' : '';
       const panelAttr = href === '/mi-panel/' ? ' data-pb-nav="panel"' : '';
-      return `<a href="${href}"${classes}${current}${panelAttr}>${text}</a>`;
+      return `<a href="${href}"${classes}${current}${panelAttr}>${text}${href === '/preparativos-bebe/' ? '<span class="pb-nav-shop-badge" aria-hidden="true">TOP</span>' : ''}</a>`;
     }).join('');
   }
 
