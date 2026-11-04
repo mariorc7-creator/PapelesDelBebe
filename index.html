@@ -192,6 +192,16 @@
 </script>
 <style id="pb-home-shopping-2026">
 .pb-home-shopping{max-width:920px;margin:18px auto 22px;padding:20px 22px;border:1px solid #dedff0;border-radius:19px;background:linear-gradient(115deg,#f2f2ff,#fff9f0);display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}.pb-home-shopping h2{font-size:clamp(1.15rem,2.6vw,1.55rem);margin:5px 0 7px;line-height:1.22}.pb-home-shopping p{margin:0;font-size:.9rem;color:#53617a;max-width:55ch}.pb-home-shopping .pb-home-shopping-label{font-size:.7rem;font-weight:900;letter-spacing:.08em;color:#4e57bd}.pb-home-shopping a{display:inline-flex;align-items:center;justify-content:center;background:#4e56c6;color:white!important;text-decoration:none;padding:13px 17px;border-radius:11px;font-weight:850;min-height:46px;white-space:nowrap}@media(max-width:600px){.pb-home-shopping{margin:16px 10px;padding:17px}.pb-home-shopping a{width:100%}}
+</style><style id="pb-nav-shop-marketing">
+/* Destacar la sección de compras sin convertir la navegación en un anuncio invasivo. */
+.header-acciones .nav-principal a.pb-nav-shop,
+.nav-principal a.pb-nav-shop{display:inline-flex!important;align-items:center!important;justify-content:center;gap:7px;position:relative;background:linear-gradient(110deg,#fff1d8,#ffe2b5)!important;border:1px solid #f3c47e!important;border-radius:12px!important;color:#79430f!important;font-weight:850!important;box-shadow:0 2px 8px rgba(165,99,20,.13);text-decoration:none!important;min-height:40px;padding:8px 12px!important;white-space:nowrap;transition:background .15s,box-shadow .15s,transform .15s}
+.nav-principal a.pb-nav-shop:hover{background:#ffdfa9!important;box-shadow:0 5px 14px rgba(165,99,20,.2);transform:translateY(-1px)}
+.nav-principal a.pb-nav-shop:focus-visible{outline:3px solid #8c5b20;outline-offset:3px}
+.pb-nav-shop-icon{font-size:1.15em;line-height:1}
+.pb-nav-shop-badge{display:inline-flex;align-items:center;border-radius:5px;background:#a65c1e;color:#fff;font-size:.56rem;letter-spacing:.04em;font-weight:900;padding:3px 5px;line-height:1}
+@media(max-width:760px){.header-acciones .nav-principal a.pb-nav-shop{flex:0 0 auto!important;padding:7px 10px!important;min-height:36px}.pb-nav-shop-badge{font-size:.53rem}}
+@media(prefers-reduced-motion:reduce){.nav-principal a.pb-nav-shop{transition:none}}
 </style></head>
 
 <body>
@@ -203,7 +213,7 @@
       </a>
 
       <div class="header-acciones">
-        <nav class="nav-principal" aria-label="Navegación principal"><a href="/mi-panel/">Mis trámites</a><a href="/ayudas-nacimiento/">Ayudas</a><a href="/herramientas/">Herramientas</a><a href="/guias-familias/">Guías</a><a href="/preparativos-bebe/">🧸 Preparativos</a></nav>
+        <nav class="nav-principal" aria-label="Navegación principal"><a href="/mi-panel/">Mis trámites</a><a href="/ayudas-nacimiento/">Ayudas</a><a href="/herramientas/">Herramientas</a><a href="/guias-familias/">Guías</a><a href="/preparativos-bebe/" class="pb-nav-shop" aria-label="Preparativos del bebé: comparativas y compras"><span class="pb-nav-shop-icon" aria-hidden="true">🧸</span><span>Preparativos</span><span class="pb-nav-shop-badge" aria-hidden="true">TOP</span></a></nav>
       </div>
     </div>
   </header>
