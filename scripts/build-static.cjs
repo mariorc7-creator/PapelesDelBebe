@@ -308,8 +308,34 @@ function validatePrioritySeo() {
   console.log('Control SEO prioritario OK: Asturias y Cataluña, canonicals, sitemap, redirección y enlaces.');
 }
 
+
+function validatePublishedSitemap() {
+  const xml = fs.readFileSync(path.join(OUT, 'sitemap.xml'), 'utf8');
+  const robots = fs.readFileSync(path.join(OUT, 'robots.txt'), 'utf8');
+  const config = JSON.parse(fs.readFileSync(path.join(ROOT, 'vercel.json'), 'utf8'));
+  const host = 'https://www.papelesdelbebe.es';
+  const urls = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]);
+  const errors = [];
+  if (!xml.startsWith('<?xml') || !xml.includes('<urlset ') || !xml.includes('</urlset>')) errors.push('XML sin estructura urlset');
+  if (!urls.length) errors.push('Sitemap sin URLs');
+  if (new Set(urls).size !== urls.length) errors.push('URLs duplicadas');
+  const redirectPaths = new Set((config.redirects || []).filter(r => r.source && !r.source.includes(':')).map(r => r.source.replace(/\/$/, '')));
+  for (const url of urls) {
+    if (!url.startsWith(host + '/')) { errors.push('Host ajeno: ' + url); continue; }
+    const slug = url.slice(host.length).replace(/^\//, '').replace(/\/$/, '');
+    if (redirectPaths.has('/' + slug)) errors.push('URL redirigida en sitemap: ' + url);
+    const file = path.join(OUT, slug, 'index.html');
+    if (!fs.existsSync(file)) errors.push('HTML inexistente: ' + url);
+  }
+  const announced = [...robots.matchAll(/^Sitemap:\\s*(\\S+)/gim)].map(m => m[1]);
+  if (announced.length !== 1 || announced[0] !== host + '/sitemap.xml') errors.push('robots.txt debe anunciar solo sitemap.xml');
+  if (errors.length) throw new Error('Validacion sitemap fallida:\\n' + errors.slice(0, 30).join('\\n'));
+  console.log('Sitemap OK: ' + urls.length + ' URLs, sin duplicados ni redirecciones declaradas.');
+}
+
 copyAll();
 generateEvergreenRegionalPages();
 generateSitemap();
 audit(OUT);
 validatePrioritySeo();
+validatePublishedSitemap();
