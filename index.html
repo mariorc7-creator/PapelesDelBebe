@@ -192,14 +192,11 @@
             <a class="pb-start-option pb-start-primary" href="/mi-panel/"><span class="pb-start-label">Mi bebé ya ha nacido</span><span>Trámites y seguimiento de los siete pasos</span><strong>Ver mi plan →</strong></a>
             <a class="pb-start-option" href="/herramientas/buscador-ayudas/"><span class="pb-start-label">Quiero consultar ayudas</span><span>Buscar prestaciones según mi situación</span><strong>Buscar ayudas →</strong></a>
           </div>
-          <div class="pb-start-reset" id="pbStartReset" hidden>
-            <span>¿Prefieres reiniciar tu recorrido?</span>
-            <button type="button" id="pbStartOver">Empezar de cero</button>
-          </div>
+          
           <p class="pb-start-note">Gratis y sin registro. Tus pasos revisados se guardan en este navegador; se pierden si borras sus datos o cambias de dispositivo.</p>
           <p class="pb-start-trust">Fuentes oficiales enlazadas · Información orientativa, no sustituye los requisitos de cada administración</p>
         </section>
-        <div id="reanudarProgreso"></div>
+        <!-- Las herramientas no generan recordatorios de continuación en portada. -->
       </div>
 
 <section class="pb-tools-home"><div class="pb-home-heading"><h2>Herramientas gratuitas</h2><a href="/herramientas/">Ver todas →</a></div><div class="pb-tools-home-grid"><a href="/herramientas/calculadora-permiso-nacimiento/"><span>📅</span><strong>Calculadora de permisos</strong><small>Calcula tus semanas y organiza tu reincorporación.</small></a><a href="/herramientas/buscador-ayudas/"><span>💶</span><strong>Simulador de ayudas</strong><small>Descubre qué prestaciones puedes revisar.</small></a></div><p class="pb-secondary-links"><a href="/comunidades/">Ayudas por comunidad</a> · <a href="/preparativos-bebe/">Preparativos del bebé</a></p></section>      
@@ -232,31 +229,7 @@
   <script src="config.js"></script>
   <script src="papelesia.js"></script>
   <script>
-  (function configurarReinicioPortada(){
-    const block=document.getElementById('pbStartReset');
-    const button=document.getElementById('pbStartOver');
-    if(!block||!button)return;
-    const keys=['papelesbebe_que_me_falta_v1','papelesbebe_workspace_v1','papelesbebe_recorrido_iniciado_v1','tramitesFacilesRespuestas','tramitesFacilesCompletados'];
-    function hasProgress(){
-      try {
-        const state=JSON.parse(localStorage.getItem('papelesbebe_que_me_falta_v1')||'{}');
-        const stepKeys=['registro','seguridad-social','tarjeta-sanitaria','padron','prestacion','deduccion','ayudas'];
-        const reviewed=state && typeof state==='object' && stepKeys.some(key=>state[key]===true);
-        return reviewed;
-      } catch(_){return false;}
-    }
-    block.hidden=!hasProgress();
-    button.addEventListener('click',()=>{
-      if(!window.confirm('¿Quieres empezar de cero? Se borrarán los trámites marcados y el progreso de este navegador. No se eliminarán tus documentos.'))return;
-      try{
-        keys.forEach(key=>localStorage.removeItem(key));
-        sessionStorage.removeItem('papelesbebe_shared_context_v1');
-      }catch(_){}
-      window.location.reload();
-    });
-  })();
-
-  function abrirComunidadSeleccionada() {
+function abrirComunidadSeleccionada() {
     const sel = document.getElementById("selectorComunidadHome");
     if (sel && sel.value) window.location.href = sel.value;
   }
