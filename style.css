@@ -59,3 +59,7 @@ img,video,svg{max-width:100%}
   html:focus-within{scroll-behavior:auto!important}
   *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
 }
+
+/* Etiquetas de la plantilla según la sección real, sin alterar el diseño */
+body>main[data-page-kind="ayudas"]::before{content:'PAPELES DEL BEBÉ · AYUDAS 2026'}
+body>main[data-page-kind="tramite"]::before{content:'PAPELES DEL BEBÉ · TRÁMITES 2026'}
