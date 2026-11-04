@@ -1,0 +1,41 @@
+name: Auditoría web SEO y UX
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '15 6 * * 1'
+permissions:
+  contents: read
+jobs:
+  site-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Revisar todas las páginas HTML y el sitemap
+        run: python scripts/audit_site.py --report site-audit-report.json
+      - name: Resumen de la auditoría
+        if: always()
+        run: |
+          python - <<'PY'
+          import json, os
+          from collections import Counter
+          with open('site-audit-report.json',encoding='utf-8') as f:
+              d=json.load(f)
+          lines=['# Auditoría de Papeles del Bebé',f"HTML revisados: **{d['html_pages']}**",f"URLs del sitemap: **{d['sitemap_urls']}**",f"Errores: **{d['counts'].get('error',0)}** · Avisos: **{d['counts'].get('warning',0)}**",'','## Primeras incidencias']
+          for item in d['findings'][:60]:
+              lines.append(f"- **{item['severity']} · {item['code']}** · `{item['file']}`: {item['detail']}")
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a',encoding='utf-8') as f:
+              f.write('\n'.join(lines)+'\n')
+          PY
+      - name: Adjuntar informe JSON completo
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: informe-auditoria-web
+          path: site-audit-report.json
+          retention-days: 30
