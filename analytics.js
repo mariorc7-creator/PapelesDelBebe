@@ -24,7 +24,7 @@
   if (!window.__papelesBebeGlobalUiLoaded && !document.querySelector('script[src^="/global-ui.js"]')) {
     window.__papelesBebeGlobalUiLoaded = true;
     const ui = document.createElement('script');
-    ui.src = '/global-ui.js?v=20261104-preparativos-marketing';
+    ui.src = '/global-ui.js?v=20261104-preparativos-clean';
     ui.defer = true;
     document.head.appendChild(ui);
   }
