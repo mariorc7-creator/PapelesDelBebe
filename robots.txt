@@ -1,6 +1,5 @@
 User-agent: *
 Allow: /
 
+# Sitemap canonico, generado y validado en cada despliegue.
 Sitemap: https://www.papelesdelbebe.es/sitemap.xml
-Sitemap: https://www.papelesdelbebe.es/sitemap-pack45.xml
-Sitemap: https://www.papelesdelbebe.es/sitemap-observatorio.xml
