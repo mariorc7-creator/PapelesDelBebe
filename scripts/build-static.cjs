@@ -327,7 +327,7 @@ function validatePublishedSitemap() {
     const file = path.join(OUT, slug, 'index.html');
     if (!fs.existsSync(file)) errors.push('HTML inexistente: ' + url);
   }
-  const announced = [...robots.matchAll(/^Sitemap:\\s*(\\S+)/gim)].map(m => m[1]);
+  const announced = robots.split('\n').filter(line => line.trim().toLowerCase().startsWith('sitemap:')).map(line => line.split(':').slice(1).join(':').trim());
   if (announced.length !== 1 || announced[0] !== host + '/sitemap.xml') errors.push('robots.txt debe anunciar solo sitemap.xml');
   if (errors.length) throw new Error('Validacion sitemap fallida:\\n' + errors.slice(0, 30).join('\\n'));
   console.log('Sitemap OK: ' + urls.length + ' URLs, sin duplicados ni redirecciones declaradas.');
