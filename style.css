@@ -63,3 +63,42 @@ img,video,svg{max-width:100%}
 /* Etiquetas de la plantilla según la sección real, sin alterar el diseño */
 body>main[data-page-kind="ayudas"]::before{content:'PAPELES DEL BEBÉ · AYUDAS 2026'}
 body>main[data-page-kind="tramite"]::before{content:'PAPELES DEL BEBÉ · TRÁMITES 2026'}
+
+/* Auditoría de navegación: etiqueta contextual por URL canónica.
+   Se aplica solo a páginas con plantilla automática; los data-page-kind explícitos prevalecen. */
+html:has(head link[rel="canonical"][href*="/ayuda"]) body>main:not([class]):not([data-page-kind])::before,
+html:has(head link[rel="canonical"][href*="/deduccion-"]) body>main:not([class]):not([data-page-kind])::before,
+html:has(head link[rel="canonical"][href*="/bono-nacimiento-"]) body>main:not([class]):not([data-page-kind])::before,
+html:has(head link[rel="canonical"][href*="/familias-"]) body>main:not([class]):not([data-page-kind])::before,
+html:has(head link[rel="canonical"][href*="/complemento-ayuda-"]) body>main:not([class]):not([data-page-kind])::before,
+html:has(head link[rel="canonical"][href*="/parto-multiple-prestacion-"]) body>main:not([class]):not([data-page-kind])::before,
+html:has(head link[rel="canonical"][href*="/riesgo-embarazo-prestacion/"]) body>main:not([class]):not([data-page-kind])::before,
+html:has(head link[rel="canonical"][href*="/riesgo-lactancia-natural/"]) body>main:not([class]):not([data-page-kind])::before,
+html:has(head link[rel="canonical"][href*="/cume-cuidado-"]) body>main:not([class]):not([data-page-kind])::before,
+html:has(head link[rel="canonical"][href*="/tarxeta-benvida/"]) body>main:not([class]):not([data-page-kind])::before{
+  content:'PAPELES DEL BEBÉ · AYUDAS 2026';
+}
+html:has(head link[rel="canonical"][href*="/tarjeta-sanitaria-"]) body>main:not([class]):not([data-page-kind])::before,
+html:has(head link[rel="canonical"][href*="/registro-civil-"]) body>main:not([class]):not([data-page-kind])::before,
+html:has(head link[rel="canonical"][href*="/empadronar-bebe/"]) body>main:not([class]):not([data-page-kind])::before,
+html:has(head link[rel="canonical"][href*="/alta-bebe-"]) body>main:not([class]):not([data-page-kind])::before,
+html:has(head link[rel="canonical"][href*="/permiso-"]) body>main:not([class]):not([data-page-kind])::before,
+html:has(head link[rel="canonical"][href*="/titulo-familia-"]) body>main:not([class]):not([data-page-kind])::before,
+html:has(head link[rel="canonical"][href*="/documentos-tramites-"]) body>main:not([class]):not([data-page-kind])::before,
+html:has(head link[rel="canonical"][href*="/documentacion-prestacion-"]) body>main:not([class]):not([data-page-kind])::before,
+html:has(head link[rel="canonical"][href*="/comunicar-nuevo-hijo-"]) body>main:not([class]):not([data-page-kind])::before,
+html:has(head link[rel="canonical"][href*="/certificado-"]) body>main:not([class]):not([data-page-kind])::before,
+html:has(head link[rel="canonical"][href*="/autonomos-permiso-"]) body>main:not([class]):not([data-page-kind])::before{
+  content:'PAPELES DEL BEBÉ · TRÁMITES 2026';
+}
+html:has(head link[rel="canonical"][href*="/comunidades/"]) body>main:not([class]):not([data-page-kind])::before{
+  content:'PAPELES DEL BEBÉ · COMUNIDADES';
+}
+html:has(head link[rel="canonical"][href*="/privacidad/"]) body>main:not([class])::before,
+html:has(head link[rel="canonical"][href*="/cookies/"]) body>main:not([class])::before,
+html:has(head link[rel="canonical"][href*="/aviso-legal/"]) body>main:not([class])::before,
+html:has(head link[rel="canonical"][href*="/contacto/"]) body>main:not([class])::before,
+html:has(head link[rel="canonical"][href*="/quienes-somos/"]) body>main:not([class])::before,
+html:has(head link[rel="canonical"][href*="/metodologia/"]) body>main:not([class])::before{
+  content:none;display:none;
+}
