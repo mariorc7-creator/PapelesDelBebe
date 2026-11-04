@@ -1,0 +1,23 @@
+{
+  "title": "Primer día en la guardería... o algo así",
+  "caption": "Cuando la logística del bebé toca fondo, solo queda reír. ¿Quieres sobrellevarlo? En papelesdelbebe.es tenemos guías para ti.",
+  "panels": [
+    {
+      "text": "—¿Seguro que sabe dónde está la guardería?",
+      "action": "Padre sostiene bebé con cara de preocupación frente a un plano enorme y confuso de la ciudad."
+    },
+    {
+      "text": "—Tranquila, tiene GPS interno... creo...",
+      "action": "Madre revisa mapa mientras bebé imita un teniente con gorra de piloto."
+    },
+    {
+      "text": "—¿Y si se sube al autobús y nos vamos de excursión?",
+      "action": "El bebé con mochila y gafas de sol sube feliz a un autobús escolar mientras los padres miran atónitos."
+    },
+    {
+      "text": "—Al menos llega a tiempo… ¡de vuelta a casa!",
+      "action": "Bebé en el sofá con mando y chuches, padres distraídos mirando el móvil sin saber qué hacer."
+    }
+  ],
+  "id": "guarderia"
+}
