@@ -163,6 +163,33 @@
  body .home-cierre-compacto span{font-size:.64rem!important}
 }
 </style>
+<script>
+/* Portada: nunca mostrar avisos de reanudación creados al usar herramientas. */
+(function(){
+  function limpiarAvisosHerramientas(){
+    document.querySelectorAll('body *').forEach(function(el){
+      if(el.children.length>12 || el.tagName==='BODY' || el.tagName==='MAIN')return;
+      var t=(el.textContent||'').trim();
+      if(!/continuar donde lo dejaste/i.test(t) || !/borrar progreso/i.test(t))return;
+      if(el.children.length && Array.from(el.children).some(function(c){return /continuar donde lo dejaste/i.test(c.textContent||'') && /borrar progreso/i.test(c.textContent||'');}))return;
+      var box=el.closest('[role="dialog"],[class*="resume"],[class*="continue"],[class*="progress"],[class*="progreso"],[class*="continuar"],aside,section') || el;
+      if(box===document.body || box===document.querySelector('main'))box=el;
+      box.remove();
+    });
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',iniciar);
+  else iniciar();
+  function iniciar(){
+    limpiarAvisosHerramientas();
+    var queued=false;
+    new MutationObserver(function(){
+      if(queued)return;
+      queued=true;
+      queueMicrotask(function(){queued=false;limpiarAvisosHerramientas()});
+    }).observe(document.body,{childList:true,subtree:true});
+  }
+})();
+</script>
 </head>
 
 <body>
