@@ -3,10 +3,10 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "Prueba sin publicar o programar en Buffer"
+        description: "Solo vista previa, sin publicar"
         type: choice
         required: true
-        options: [preview, publish]
+        options: [preview]
         default: preview
       comic:
         description: "Tema del comic"
@@ -14,9 +14,6 @@ on:
         required: true
         options: [guarderia, tramites, primerizos]
         default: guarderia
-  schedule:
-    # Monday, Wednesday, Friday at 10:00 UTC (11:00 winter / 12:00 summer in Madrid).
-    - cron: '0 10 * * 1,3,5'
 permissions:
   contents: write
 concurrency:
