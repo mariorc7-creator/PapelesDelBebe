@@ -9,6 +9,9 @@ on:
       - 'scripts/superagente_claim_inventory.py'
       - 'scripts/superagente_linked_triage.py'
       - 'scripts/superagente_source_provenance.py'
+      - 'scripts/superagente_documentary_evidence.py'
+      - 'scripts/test_superagente_documentary_evidence.py'
+      - 'superagente/source-captures.json'
       - 'scripts/test_superagente_source_provenance.py'
       - 'superagente/official-watchlist.json'
       - 'scripts/test_superagente_linked_triage.py'
@@ -35,6 +38,7 @@ jobs:
           python -m unittest discover -s scripts -p 'test_superagente_claim_inventory.py' -v
           python -m unittest discover -s scripts -p 'test_superagente_linked_triage.py' -v
           python -m unittest discover -s scripts -p 'test_superagente_source_provenance.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_documentary_evidence.py' -v
       - name: Generate read-only page claim inventory
         run: python scripts/superagente_claim_inventory.py
       - name: Upload assertion inventory
@@ -58,6 +62,18 @@ jobs:
             python scripts/superagente_source_provenance.py --comparisons superagente/semantic-triage-input.json
           else
             echo 'No comparison input submitted; source provenance checking skipped.'
+          fi
+      - name: Verify submitted documentary excerpts
+        shell: bash
+        run: |
+          if [ -f superagente/semantic-triage-input.json ]; then
+            if [ ! -f superagente/source-captures.json ]; then
+              echo 'BLOCKED: source-captures.json required for submitted claims.'
+              exit 1
+            fi
+            python scripts/superagente_documentary_evidence.py --comparisons superagente/semantic-triage-input.json --captures superagente/source-captures.json
+          else
+            echo 'No documentary comparisons submitted.'
           fi
       - name: Verify claim anchors against current HTML inventory
         shell: bash
