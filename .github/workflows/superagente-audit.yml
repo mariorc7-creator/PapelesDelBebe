@@ -6,6 +6,7 @@ on:
       - 'sitemap.xml'
       - '**/index.html'
       - 'scripts/superagente_audit.py'
+      - 'scripts/superagente_queue.py'
       - '.github/workflows/superagente-audit.yml'
 permissions:
   contents: read
@@ -19,9 +20,13 @@ jobs:
           python-version: '3.12'
       - name: Audit sitemap and page basics (read-only)
         run: python scripts/superagente_audit.py
+      - name: Build prioritized editorial queue
+        run: python scripts/superagente_queue.py
       - name: Upload audit artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: superagente-audit
-          path: superagente/audit-report.json
+          path: |
+            superagente/audit-report.json
+            superagente/editorial-queue.json
