@@ -50,7 +50,8 @@ def main():
                 findings.append({"file": filename, "type": "missing_noopener", "url": href})
         # JS-generated links with literal Amazon URLs need manual review.
         js_urls = set(re.findall(r'https?://(?:www[.])?amazon[.]es/[^\s<>]+', html))
-        for url in sorted(js_urls):
+        for candidate in sorted(js_urls):
+            url = candidate.split(chr(39))[0].split(chr(34))[0]
             total += 1
             tag = parse_qs(urlparse(url.replace("&amp;", "&")).query).get("tag", [""])[0]
             if tag != args.expected_tag:
