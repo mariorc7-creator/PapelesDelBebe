@@ -12,6 +12,9 @@ on:
       - 'scripts/superagente_documentary_evidence.py'
       - 'scripts/superagente_source_capture.py'
       - 'scripts/superagente_source_routes.py'
+      - 'scripts/superagente_document_candidates.py'
+      - 'scripts/test_superagente_document_candidates.py'
+      - 'superagente/official-document-candidates.json'
       - 'scripts/test_superagente_source_routes.py'
       - 'superagente/source-routing.json'
       - 'scripts/test_superagente_source_capture.py'
@@ -46,6 +49,7 @@ jobs:
           python -m unittest discover -s scripts -p 'test_superagente_documentary_evidence.py' -v
           python -m unittest discover -s scripts -p 'test_superagente_source_capture.py' -v
           python -m unittest discover -s scripts -p 'test_superagente_source_routes.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_document_candidates.py' -v
       - name: Build source discovery queue
         run: python scripts/superagente_source_routes.py
       - name: Upload source discovery report
@@ -53,6 +57,14 @@ jobs:
         with:
           name: superagente-source-discovery
           path: superagente/source-discovery-queue.json
+          retention-days: 14
+      - name: Validate discovered official document references
+        run: python scripts/superagente_document_candidates.py
+      - name: Upload document candidate report
+        uses: actions/upload-artifact@v4
+        with:
+          name: superagente-document-candidates
+          path: superagente/document-candidate-report.json
           retention-days: 14
       - name: Generate read-only page claim inventory
         run: python scripts/superagente_claim_inventory.py
