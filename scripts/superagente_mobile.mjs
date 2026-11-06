@@ -1,5 +1,5 @@
 // Visual smoke tests: static site, no production writes. Run with a local HTTP server.
-import { chromium } from 'playwright';
+import { chromium } from '../superagente/node_modules/playwright/index.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 
