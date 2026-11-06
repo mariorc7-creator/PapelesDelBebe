@@ -96,7 +96,7 @@ def read_pinned(entry, resolver=socket.getaddrinfo, connection_factory=PinnedHTT
         response = conn.getresponse()
         status = response.status
         if status != 200:  # 3xx is deliberately blocked, never followed.
-            raise ValueError("unexpected_http_status")
+            raise ValueError(f"unexpected_http_status_{status}")
         content_type = response.getheader("Content-Type", "").lower()
         if not (content_type.startswith("text/html") and
                 (len(content_type) == 9 or content_type[9] in (";", " "))):
@@ -156,7 +156,12 @@ def run(watchlist, fetch=capture):
             captures.append(fetch(item))
         except Exception as exc:
             failures.append({"url": item.get("url") if isinstance(item, dict) else None,
-                             "error": type(exc).__name__})
+                             "error": type(exc).__name__,
+                             "reason": str(exc) if isinstance(exc, ValueError) and (
+                                 str(exc).startswith("unexpected_http_status_") or
+                                 str(exc) in {"invalid_content_type", "oversize", "empty_document",
+                                              "non_public_dns", "url_not_allowlisted", "empty_dns"}
+                             ) else "capture_failure"})
     return {"captures": captures, "failures": failures,
             "warning": "Downloaded HTML is not proof of legal applicability or content accuracy."}
 
