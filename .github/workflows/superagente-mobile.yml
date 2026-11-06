@@ -1,0 +1,39 @@
+name: SuperAgente - Mobile QA
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '**/*.html'
+      - '**/*.css'
+      - '**/*.js'
+      - 'scripts/superagente_mobile.mjs'
+      - 'superagente/package.json'
+      - '.github/workflows/superagente-mobile.yml'
+permissions:
+  contents: read
+jobs:
+  mobile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install test dependencies
+        run: npm install --prefix superagente --no-audit --no-fund
+      - name: Install Chromium
+        run: npx --prefix superagente playwright install --with-deps chromium
+      - name: Start static server
+        run: python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/superagente-http.log 2>&1 & echo $! > /tmp/superagente-http.pid
+      - name: Run mobile smoke tests
+        run: node scripts/superagente_mobile.mjs
+      - name: Upload screenshots and report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: superagente-mobile
+          path: |
+            superagente/mobile-artifacts/
+            superagente/mobile-results.json
+          retention-days: 14
