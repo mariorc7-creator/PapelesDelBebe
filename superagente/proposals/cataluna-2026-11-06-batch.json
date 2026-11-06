@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "package_id": "cataluna-2026-11-06-two-clarifications",
+  "status": "proposal_not_approved",
+  "publication_allowed": false,
+  "merge_allowed": false,
+  "path": "ayuda-nacimiento-cataluna/index.html",
+  "source_url": "https://tramits.gencat.cat/es/tramits/tramits-temes/Prestacio-per-a-families-amb-infants?moda=1",
+  "evidence_report": "superagente/research/2026-11-06-cataluna-seven-topic-comparison.json",
+  "changes": [
+    {
+      "id": "deadline_pre_2026_07_14",
+      "search": "Para hechos anteriores, la Generalitat mantiene reglas de plazo diferentes, por lo que conviene comprobar la fecha exacta en la sede oficial.",
+      "replacement": "Para hechos causantes hasta el <strong>13 de julio de 2026, inclusive</strong>, el plazo es de <strong>1 mes</strong> desde el día siguiente al nacimiento, adopción, tutela o acogimiento. Comprueba en la ficha oficial cómo se calcula el último día del plazo en cada caso.",
+      "evidence_topic": "deadline"
+    },
+    {
+      "id": "residence_requirement_clarification",
+      "search": "También existen requisitos de residencia legal en Cataluña y convivencia de la unidad familiar.",
+      "replacement": "Además de los requisitos de convivencia, uno de los progenitores debe acreditar, con carácter general, <strong>5 años de residencia legal en Cataluña</strong>, de los cuales <strong>2 deben ser inmediatamente anteriores a la solicitud</strong>. Consulta en la ficha oficial las excepciones y cómo se acredita la residencia.",
+      "evidence_topic": "eligibility"
+    }
+  ],
+  "readiness": {
+    "official_excerpt_collected": true,
+    "seven_topics_compared": true,
+    "independent_editorial_signoff": false,
+    "human_mobile_visual_review": false,
+    "staging_rollback_tested": false
+  }
+}
