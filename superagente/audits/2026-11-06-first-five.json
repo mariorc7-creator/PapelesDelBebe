@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "audit_date": "2026-11-06",
+  "status": "editorial_first_pass_requires_independent_review",
+  "scope": "Five website HTML files at feature/superagente-foundations-20261106 compared with accessible institutional sources",
+  "deployment_allowed": false,
+  "summary": {
+    "pages_reviewed": 5,
+    "high_confidence_numerical_mismatches": 0,
+    "editorial_improvements_identified": 2,
+    "review_date_changed": false
+  },
+  "pages": [
+    {
+      "page": "https://www.papelesdelbebe.es/alta-bebe-seguridad-social/",
+      "repository_path": "alta-bebe-seguridad-social/index.html",
+      "repository_blob_sha": "b9d0531cb3f47550930cbcb6e4c954fd37233b83",
+      "status": "core_guidance_consistent",
+      "source_urls": [
+        "https://www.seg-social.es/wps/portal/wss/internet/InformacionUtil/44539/45195?changeLanguage=es",
+        "https://revista.seg-social.es/-/como-dar-de-alta-a-un-beneficiario-en-la-seguridad-social?redirect=%2F"
+      ],
+      "checks": [
+        {
+          "topic": "recognition_and_health_card",
+          "result": "consistent",
+          "detail": "INSS handles beneficiary recognition; regional health services issue the health card"
+        },
+        {
+          "topic": "under_three_months",
+          "result": "consistent",
+          "detail": "Social Security publication describes registry-transmitted identity data for children under three months"
+        }
+      ],
+      "next_action": "Revalidate exact electronic transaction deep link before changing guidance",
+      "verified_current_on_site": false
+    },
+    {
+      "page": "https://www.papelesdelbebe.es/deduccion-maternidad/",
+      "repository_path": "deduccion-maternidad/index.html",
+      "repository_blob_sha": "f49138e6127fb34712e45e849215d14d24d19287",
+      "status": "core_guidance_consistent",
+      "source_urls": [
+        "https://sede.agenciatributaria.gob.es/Sede/ciudadanos-familias-personas-discapacidad/deducciones-relacionadas-hijos-descendientes/deduccion-maternidad/importe-deduccion.html",
+        "https://sede.agenciatributaria.gob.es/Sede/ciudadanos-familias-personas-discapacidad/deducciones-relacionadas-hijos-descendientes/deduccion-maternidad/quien-corresponde-deduccion.html"
+      ],
+      "checks": [
+        {
+          "topic": "maximum_tax_deduction",
+          "result": "consistent",
+          "published": "hasta 1.200 € anuales",
+          "official": "máximo 1.200 € anuales"
+        }
+      ],
+      "next_action": "Check all eligibility exceptions and childcare increment separately before marking fully reviewed",
+      "verified_current_on_site": false
+    },
+    {
+      "page": "https://www.papelesdelbebe.es/permiso-nacimiento-cuidado-menor/",
+      "repository_path": "permiso-nacimiento-cuidado-menor/index.html",
+      "repository_blob_sha": "19e7ffa0d5f17e62eaf635873c3b5256e4661b1",
+      "status": "core_guidance_consistent",
+      "source_urls": [
+        "https://prestaciones.seg-social.es/servicio/prestacion-nacimiento-adopcion-cuidado-menor",
+        "https://www.seg-social.es/wps/portal/wss/internet/Trabajadores/PrestacionesPensionesTrabajadores/6b96a085-4dc0-47af-b2cb-97e00716791e/0b5879ed-1156-4676-b38c-7229dcba9c49/descanso%2Bebep?changeLanguage=es"
+      ],
+      "checks": [
+        {
+          "topic": "2025_2026_duration",
+          "result": "consistent",
+          "published": "19 semanas y 32 semanas en monoparentalidad",
+          "official": "19 semanas y 32 semanas en monoparentalidad"
+        },
+        {
+          "topic": "allocation",
+          "result": "consistent",
+          "published": "6 + 11 + 2 semanas",
+          "official": "6 + 11 + 2 semanas"
+        }
+      ],
+      "next_action": "Retain important birth-date cohorts and verify relevant exceptions",
+      "verified_current_on_site": false
+    },
+    {
+      "page": "https://www.papelesdelbebe.es/ayuda-nacimiento-cataluna/",
+      "repository_path": "ayuda-nacimiento-cataluna/index.html",
+      "repository_blob_sha": "d4211e98eaa9d13eb0b03f642fdcf4bc1b41457c",
+      "status": "editorial_clarification_recommended",
+      "source_urls": [
+        "https://tramits.gencat.cat/es/tramits/tramits-temes/Prestacio-per-a-families-amb-infants?moda=1"
+      ],
+      "checks": [
+        {
+          "topic": "amount",
+          "result": "consistent",
+          "published": "650 € / 750 €",
+          "official": "650 € / 750 €"
+        },
+        {
+          "topic": "2026_income_limits",
+          "result": "consistent_sample",
+          "published": "27.904,32 € hasta tres miembros, 36.275,62 € para cuatro",
+          "official": "27.904,32 € hasta tres miembros, 36.275,62 € para cuatro"
+        },
+        {
+          "topic": "deadline_older_births",
+          "result": "clarification_recommended",
+          "published": "reglas de plazo diferentes para hechos anteriores a 14/07/2026",
+          "official": "un mes para hechos anteriores al 13/07/2026 inclusive"
+        }
+      ],
+      "next_action": "Draft a minimum textual clarification of historical deadlines with careful boundary handling; current date cohort unaffected",
+      "verified_current_on_site": false
+    },
+    {
+      "page": "https://www.papelesdelbebe.es/ayuda-natalidad-madrid/",
+      "repository_path": "ayuda-natalidad-madrid/index.html",
+      "repository_blob_sha": "7f0209b139db835f50862d465b65d6d17b3551cb",
+      "status": "core_guidance_consistent_with_presentation_note",
+      "source_urls": [
+        "https://www.comunidad.madrid/asuntos-sociales/ayudas-economicas-natalidad"
+      ],
+      "checks": [
+        {
+          "topic": "monthly_amount",
+          "result": "consistent",
+          "published": "500 € al mes",
+          "official": "500 € al mes"
+        },
+        {
+          "topic": "age_and_income",
+          "result": "consistent",
+          "published": "hasta 30 años; 30.000 € individual / 36.200 € conjunta",
+          "official": "hasta 30 años; 30.000 € individual / 36.200 € conjunta"
+        },
+        {
+          "topic": "residency",
+          "result": "consistent",
+          "published": "cinco años en los últimos diez",
+          "official": "cinco años en los últimos diez"
+        }
+      ],
+      "next_action": "Add an explicit illustrative reminder that payments begin in the month of application, not automatically from the birth date",
+      "verified_current_on_site": false
+    }
+  ],
+  "safety": {
+    "no_site_html_changed": true,
+    "no_dateModified_changed": true,
+    "no_review_dates_changed": true,
+    "no_legal_full_verification_claimed": true
+  }
+}
