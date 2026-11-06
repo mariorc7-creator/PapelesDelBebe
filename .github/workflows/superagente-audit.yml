@@ -8,6 +8,9 @@ on:
       - 'scripts/superagente_audit.py'
       - 'scripts/superagente_queue.py'
       - 'scripts/superagente_v03_review_workplan.py'
+      - 'scripts/superagente_review_receipts.py'
+      - 'scripts/test_superagente_review_receipts.py'
+      - 'superagente/review-receipts.json'
       - 'scripts/test_superagente_v03_review_workplan.py'
       - 'superagente/source-routing.json'
       - 'superagente/official-document-candidates.json'
@@ -32,6 +35,15 @@ jobs:
         run: |
           python -m unittest discover -s scripts -p 'test_superagente_v03_review_workplan.py' -v
           python scripts/superagente_v03_review_workplan.py
+      - name: Test editorial review receipts and validate submissions
+        shell: bash
+        run: |
+          python -m unittest discover -s scripts -p 'test_superagente_review_receipts.py' -v
+          if [ -f superagente/review-receipts.json ]; then
+            python scripts/superagente_review_receipts.py
+          else
+            echo 'No editorial review receipts supplied; no review completion implied.'
+          fi
       - name: Extract aid facts for official verification
         run: python scripts/superagente_facts.py
       - name: Upload audit artifact
@@ -43,4 +55,5 @@ jobs:
             superagente/audit-report.json
             superagente/editorial-queue.json
             superagente/v03-review-workplan.json
+            superagente/review-receipt-report.json
             superagente/fact-candidates.json
