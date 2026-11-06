@@ -9,6 +9,8 @@ on:
       - 'scripts/superagente_claim_inventory.py'
       - 'scripts/superagente_linked_triage.py'
       - 'scripts/superagente_source_provenance.py'
+      - 'scripts/superagente_exact_document_links.py'
+      - 'scripts/test_superagente_exact_document_links.py'
       - 'scripts/superagente_documentary_evidence.py'
       - 'scripts/superagente_source_capture.py'
       - 'scripts/superagente_source_routes.py'
@@ -51,6 +53,7 @@ jobs:
           python -m unittest discover -s scripts -p 'test_superagente_claim_inventory.py' -v
           python -m unittest discover -s scripts -p 'test_superagente_linked_triage.py' -v
           python -m unittest discover -s scripts -p 'test_superagente_source_provenance.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_exact_document_links.py' -v
           python -m unittest discover -s scripts -p 'test_superagente_documentary_evidence.py' -v
           python -m unittest discover -s scripts -p 'test_superagente_source_capture.py' -v
           python -m unittest discover -s scripts -p 'test_superagente_source_routes.py' -v
@@ -122,6 +125,7 @@ jobs:
               exit 1
             fi
             python scripts/superagente_documentary_evidence.py --comparisons superagente/semantic-triage-input.json --captures superagente/source-captures.json
+            python scripts/superagente_exact_document_links.py --comparisons superagente/semantic-triage-input.json --captures superagente/source-captures.json
           else
             echo 'No documentary comparisons submitted.'
           fi
