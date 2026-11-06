@@ -6,6 +6,8 @@ on:
       - '.github/workflows/superagente-source-capture.yml'
       - 'superagente/official-watchlist.json'
       - 'scripts/superagente_source_capture.py'
+      - 'scripts/superagente_cataluna_evidence.py'
+      - 'scripts/test_superagente_cataluna_evidence.py'
       - 'scripts/test_superagente_pinned_capture.py'
 permissions:
   contents: read
@@ -38,6 +40,14 @@ jobs:
           if [ -f superagente/v03-evidence-dossiers.json ]; then
             python scripts/superagente_capture_handoff.py
           fi
+      - name: Validate seven-topic Catalonia source evidence
+        if: always()
+        shell: bash
+        run: |
+          python -m unittest discover -s scripts -p 'test_superagente_cataluna_evidence.py' -v
+          if [ -f superagente/source-capture-report.json ]; then
+            python scripts/superagente_cataluna_evidence.py
+          fi
       - name: Upload read-only capture report
         if: always()
         uses: actions/upload-artifact@v4
@@ -46,4 +56,5 @@ jobs:
           path: |
             superagente/source-capture-report.json
             superagente/v03-capture-handoff.json
+            superagente/research/cataluna-seven-topic-source-evidence.json
           retention-days: 7
