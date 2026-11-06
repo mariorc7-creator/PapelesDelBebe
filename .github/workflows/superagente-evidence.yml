@@ -11,6 +11,9 @@ on:
       - 'scripts/superagente_source_provenance.py'
       - 'scripts/superagente_documentary_evidence.py'
       - 'scripts/superagente_source_capture.py'
+      - 'scripts/superagente_source_routes.py'
+      - 'scripts/test_superagente_source_routes.py'
+      - 'superagente/source-routing.json'
       - 'scripts/test_superagente_source_capture.py'
       - 'scripts/test_superagente_documentary_evidence.py'
       - 'superagente/source-captures.json'
@@ -42,6 +45,15 @@ jobs:
           python -m unittest discover -s scripts -p 'test_superagente_source_provenance.py' -v
           python -m unittest discover -s scripts -p 'test_superagente_documentary_evidence.py' -v
           python -m unittest discover -s scripts -p 'test_superagente_source_capture.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_source_routes.py' -v
+      - name: Build source discovery queue
+        run: python scripts/superagente_source_routes.py
+      - name: Upload source discovery report
+        uses: actions/upload-artifact@v4
+        with:
+          name: superagente-source-discovery
+          path: superagente/source-discovery-queue.json
+          retention-days: 14
       - name: Generate read-only page claim inventory
         run: python scripts/superagente_claim_inventory.py
       - name: Upload assertion inventory
