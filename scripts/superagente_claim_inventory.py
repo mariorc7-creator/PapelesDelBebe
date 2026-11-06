@@ -13,11 +13,9 @@ from urllib.parse import urlsplit
 import xml.etree.ElementTree as ET
 
 PATTERNS = {
-    "amount": re.compile(r"(?<!\w)\d[\d. ]*(?:,\d{1,2})?\s*(?:€|euros?)\b?", re.I),
+    "amount": re.compile(r"(?<!\w)\d[\d. ]*(?:,\d{1,2})?\s*(?:€|euros?)(?!\w)", re.I),
     "deadline": re.compile(r"\b\d{1,3}\s+(?:d[ií]as?|mes(?:es)?|semanas?|a[nñ]os?)\b", re.I),
 }
-# Avoid \b after the euro symbol; it has no word boundary at ordinary spaces.
-PATTERNS["amount"] = re.compile(r"(?<!\w)\d[\d. ]*(?:,\d{1,2})?\s*(?:€|euros?)(?!\w)", re.I)
 
 class Segments(HTMLParser):
     BLOCKS = {"p", "li", "td", "th", "h1", "h2", "h3", "h4"}
