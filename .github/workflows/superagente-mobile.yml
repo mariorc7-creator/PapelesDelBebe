@@ -7,6 +7,7 @@ on:
       - '**/*.css'
       - '**/*.js'
       - 'scripts/superagente_mobile.mjs'
+      - 'scripts/superagente_visual_regression.mjs'
       - 'scripts/superagente_editorial_preview.py'
       - 'scripts/superagente_preview_sandbox.py'
       - 'superagente/proposals/**'
@@ -45,6 +46,8 @@ jobs:
         env:
           TEST_BASE_URL: http://127.0.0.1:8766
         run: node scripts/superagente_mobile.mjs
+      - name: Compare responsive layout before and after edits
+        run: node scripts/superagente_visual_regression.mjs
       - name: Upload screenshots and report
         if: always()
         uses: actions/upload-artifact@v4
@@ -55,4 +58,5 @@ jobs:
             superagente/mobile-artifacts-baseline/
             superagente/mobile-results.json
             superagente/mobile-results-baseline.json
+            superagente/visual-regression-results.json
           retention-days: 14
