@@ -6,6 +6,8 @@ on:
       - 'scripts/superagente_evidence_gate.py'
       - 'scripts/test_superagente_evidence_gate.py'
       - 'scripts/superagente_semantic_triage.py'
+      - 'scripts/superagente_claim_inventory.py'
+      - 'scripts/test_superagente_claim_inventory.py'
       - 'scripts/test_superagente_semantic_triage.py'
       - 'superagente/editorial-evidence.json'
       - 'superagente/semantic-triage-input.json'
@@ -25,6 +27,15 @@ jobs:
         run: |
           python -m unittest discover -s scripts -p 'test_superagente_evidence_gate.py' -v
           python -m unittest discover -s scripts -p 'test_superagente_semantic_triage.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_claim_inventory.py' -v
+      - name: Generate read-only page claim inventory
+        run: python scripts/superagente_claim_inventory.py
+      - name: Upload assertion inventory
+        uses: actions/upload-artifact@v4
+        with:
+          name: superagente-claim-inventory
+          path: superagente/claim-inventory.json
+          retention-days: 14
       - name: Validate proposed editorial evidence when supplied
         shell: bash
         run: |
