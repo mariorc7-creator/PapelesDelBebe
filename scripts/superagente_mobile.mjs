@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const base = process.env.TEST_BASE_URL || 'http://127.0.0.1:8765';
-const routes = ['/', '/tramites-bebe/', '/ayudas-nacimiento/', '/mi-panel/', '/herramientas/'];
+const routes = ['/', '/tramites-bebe/', '/ayudas-nacimiento/', '/mi-panel/', '/herramientas/', '/ayuda-nacimiento-cataluna/', '/ayuda-natalidad-madrid/'];
 const widths = [320, 375, 430, 768, 1440];
 const out = 'superagente/mobile-artifacts';
 fs.mkdirSync(out, { recursive: true });
