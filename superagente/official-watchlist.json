@@ -23,14 +23,14 @@
       "research_status": "web_content_located_capture_unverified"
     },
     {
-      "url": "https://www.comunidad.madrid/asuntos-sociales/ayudas-economicas-natalidad",
-      "approved_host": "www.comunidad.madrid",
+      "url": "https://sede.comunidad.madrid/node/236889",
+      "approved_host": "sede.comunidad.madrid",
       "require_document_path": true,
       "topics": [
         "ayuda_natalidad_madrid"
       ],
       "page": "https://www.papelesdelbebe.es/ayuda-natalidad-madrid/",
-      "research_status": "web_content_located_capture_unverified"
+      "research_status": "alternative_official_application_document_after_404"
     }
   ]
 }
