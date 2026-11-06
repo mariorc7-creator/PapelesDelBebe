@@ -18,6 +18,8 @@ on:
       - 'scripts/superagente_document_candidates.py'
       - 'scripts/superagente_editorial_preview.py'
       - 'scripts/superagente_cataluna_package.py'
+      - 'scripts/superagente_cataluna_staging_http.py'
+      - 'scripts/test_superagente_cataluna_staging_http.py'
       - 'scripts/test_superagente_cataluna_package.py'
       - 'scripts/superagente_rollback_proof.py'
       - 'scripts/test_superagente_rollback_proof.py'
@@ -64,6 +66,7 @@ jobs:
           python -m unittest discover -s scripts -p 'test_superagente_document_candidates.py' -v
           python -m unittest discover -s scripts -p 'test_superagente_editorial_preview.py' -v
           python -m unittest discover -s scripts -p 'test_superagente_cataluna_package.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_cataluna_staging_http.py' -v
           python -m unittest discover -s scripts -p 'test_superagente_rollback_proof.py' -v
       - name: Build source discovery queue
         run: python scripts/superagente_source_routes.py
@@ -85,6 +88,8 @@ jobs:
         run: python scripts/superagente_editorial_preview.py
       - name: Build grouped Catalonia preview and isolated rollback proof
         run: python scripts/superagente_cataluna_package.py
+      - name: Verify ephemeral HTTP staging and rollback of Catalonia candidate
+        run: python scripts/superagente_cataluna_staging_http.py
       - name: Upload review-only editorial diffs
         uses: actions/upload-artifact@v4
         with:
@@ -92,6 +97,7 @@ jobs:
           path: |
             superagente/proposals/preview-diffs.json
             superagente/proposals/cataluna-2026-11-06-preview.json
+            superagente/proposals/cataluna-local-staging-rollback.json
           retention-days: 14
       - name: Prove byte-exact editorial rollback in temporary storage
         run: python scripts/superagente_rollback_proof.py
