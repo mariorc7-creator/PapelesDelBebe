@@ -5,6 +5,8 @@ on:
     paths:
       - 'superagente/release-candidate.json'
       - 'scripts/superagente_release_gate.py'
+      - 'scripts/test_superagente_vercel_policy.py'
+      - 'vercel.json'
 permissions:
   contents: read
 jobs:
@@ -15,6 +17,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Check branch-scoped Vercel deployment policy
+        run: python -m unittest discover -s scripts -p 'test_superagente_vercel_policy.py' -v
       - name: Verify release evidence
         run: |
           if [ -f superagente/release-candidate.json ]; then
