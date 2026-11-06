@@ -1,0 +1,30 @@
+name: SuperAgente - Editorial Evidence CI
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/superagente_evidence_gate.py'
+      - 'scripts/test_superagente_evidence_gate.py'
+      - 'superagente/editorial-evidence.json'
+      - '.github/workflows/superagente-evidence.yml'
+permissions:
+  contents: read
+jobs:
+  validate-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run evidence regression tests
+        run: python -m unittest discover -s scripts -p 'test_superagente_evidence_gate.py' -v
+      - name: Validate proposed editorial evidence when supplied
+        shell: bash
+        run: |
+          if [ -f superagente/editorial-evidence.json ]; then
+            python scripts/superagente_evidence_gate.py superagente/editorial-evidence.json
+          else
+            echo "No editorial evidence submitted. No editorial approval implied."
+          fi
