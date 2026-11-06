@@ -17,6 +17,8 @@ on:
       - 'scripts/superagente_source_routes.py'
       - 'scripts/superagente_document_candidates.py'
       - 'scripts/superagente_editorial_preview.py'
+      - 'scripts/superagente_cataluna_package.py'
+      - 'scripts/test_superagente_cataluna_package.py'
       - 'scripts/superagente_rollback_proof.py'
       - 'scripts/test_superagente_rollback_proof.py'
       - 'scripts/test_superagente_editorial_preview.py'
@@ -61,6 +63,7 @@ jobs:
           python -m unittest discover -s scripts -p 'test_superagente_source_routes.py' -v
           python -m unittest discover -s scripts -p 'test_superagente_document_candidates.py' -v
           python -m unittest discover -s scripts -p 'test_superagente_editorial_preview.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_cataluna_package.py' -v
           python -m unittest discover -s scripts -p 'test_superagente_rollback_proof.py' -v
       - name: Build source discovery queue
         run: python scripts/superagente_source_routes.py
@@ -80,11 +83,15 @@ jobs:
           retention-days: 14
       - name: Build editorial proposal diffs without editing HTML
         run: python scripts/superagente_editorial_preview.py
+      - name: Build grouped Catalonia preview and isolated rollback proof
+        run: python scripts/superagente_cataluna_package.py
       - name: Upload review-only editorial diffs
         uses: actions/upload-artifact@v4
         with:
           name: superagente-editorial-diffs
-          path: superagente/proposals/preview-diffs.json
+          path: |
+            superagente/proposals/preview-diffs.json
+            superagente/proposals/cataluna-2026-11-06-preview.json
           retention-days: 14
       - name: Prove byte-exact editorial rollback in temporary storage
         run: python scripts/superagente_rollback_proof.py
