@@ -1,22 +1,24 @@
-name: Amazon afiliados - auditoría manual (sin despliegue)
+name: SuperAgente - Amazon y QA (manual, sin despliegue)
 on:
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
-  audit:
+  coordinate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Revisar enlaces (solo lectura)
-        run: python3 scripts/audit_amazon_affiliates.py --expected-tag mariorc7-21
-      - name: Guardar informe incluso con incidencias
+      - name: Ejecutar coordinación segura
+        run: python3 scripts/superagent_coordinator.py
+      - name: Guardar informes incluso con incidencias
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: amazon-affiliates-audit
-          path: reports/amazon-affiliates-audit.json
+          name: superagent-staging-reports
+          path: |
+            reports/amazon-affiliates-audit.json
+            reports/superagent-coordination.json
           if-no-files-found: warn
