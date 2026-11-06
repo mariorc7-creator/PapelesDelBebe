@@ -7,6 +7,8 @@ on:
       - 'scripts/test_superagente_evidence_gate.py'
       - 'scripts/superagente_semantic_triage.py'
       - 'scripts/superagente_claim_inventory.py'
+      - 'scripts/superagente_linked_triage.py'
+      - 'scripts/test_superagente_linked_triage.py'
       - 'scripts/test_superagente_claim_inventory.py'
       - 'scripts/test_superagente_semantic_triage.py'
       - 'superagente/editorial-evidence.json'
@@ -28,6 +30,7 @@ jobs:
           python -m unittest discover -s scripts -p 'test_superagente_evidence_gate.py' -v
           python -m unittest discover -s scripts -p 'test_superagente_semantic_triage.py' -v
           python -m unittest discover -s scripts -p 'test_superagente_claim_inventory.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_linked_triage.py' -v
       - name: Generate read-only page claim inventory
         run: python scripts/superagente_claim_inventory.py
       - name: Upload assertion inventory
@@ -43,6 +46,14 @@ jobs:
             python scripts/superagente_evidence_gate.py superagente/editorial-evidence.json
           else
             echo "No editorial evidence submitted. No editorial approval implied."
+          fi
+      - name: Verify claim anchors against current HTML inventory
+        shell: bash
+        run: |
+          if [ -f superagente/semantic-triage-input.json ]; then
+            python scripts/superagente_linked_triage.py --inventory superagente/claim-inventory.json --comparisons superagente/semantic-triage-input.json
+          else
+            echo 'No comparison input submitted; anchor checking skipped.'
           fi
       - name: Triage paired claims when supplied
         shell: bash
