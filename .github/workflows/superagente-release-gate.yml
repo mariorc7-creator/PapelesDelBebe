@@ -16,4 +16,9 @@ jobs:
         with:
           python-version: '3.12'
       - name: Verify release evidence
-        run: python scripts/superagente_release_gate.py
+        run: |
+          if [ -f superagente/release-candidate.json ]; then
+            python scripts/superagente_release_gate.py
+          else
+            echo 'No release candidate declared: deployment remains disabled.'
+          fi
