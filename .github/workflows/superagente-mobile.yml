@@ -7,6 +7,9 @@ on:
       - '**/*.css'
       - '**/*.js'
       - 'scripts/superagente_mobile.mjs'
+      - 'scripts/superagente_editorial_preview.py'
+      - 'scripts/superagente_preview_sandbox.py'
+      - 'superagente/proposals/**'
       - 'superagente/package.json'
       - '.github/workflows/superagente-mobile.yml'
 permissions:
@@ -28,6 +31,20 @@ jobs:
         run: python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/superagente-http.log 2>&1 & echo $! > /tmp/superagente-http.pid
       - name: Run mobile smoke tests
         run: node scripts/superagente_mobile.mjs
+      - name: Preserve baseline mobile screenshots
+        run: |
+          mv superagente/mobile-artifacts superagente/mobile-artifacts-baseline
+          mv superagente/mobile-results.json superagente/mobile-results-baseline.json
+      - name: Build isolated editorial preview
+        run: |
+          python -m unittest discover -s scripts -p 'test_superagente_preview_sandbox.py' -v
+          python scripts/superagente_preview_sandbox.py --sandbox-root "$RUNNER_TEMP/superagente-preview-site"
+      - name: Start temporary preview server
+        run: python3 -m http.server 8766 --bind 127.0.0.1 --directory "$RUNNER_TEMP/superagente-preview-site" > /tmp/superagente-preview-http.log 2>&1 &
+      - name: Run mobile checks on proposed changes
+        env:
+          TEST_BASE_URL: http://127.0.0.1:8766
+        run: node scripts/superagente_mobile.mjs
       - name: Upload screenshots and report
         if: always()
         uses: actions/upload-artifact@v4
@@ -35,5 +52,7 @@ jobs:
           name: superagente-mobile
           path: |
             superagente/mobile-artifacts/
+            superagente/mobile-artifacts-baseline/
             superagente/mobile-results.json
+            superagente/mobile-results-baseline.json
           retention-days: 14
