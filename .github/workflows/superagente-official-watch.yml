@@ -1,0 +1,28 @@
+name: SuperAgente - Vigilancia fuentes oficiales
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '10 7 * * 1,4'
+  pull_request:
+    paths:
+      - 'scripts/superagente_official_watch.py'
+      - 'superagente/official-watchlist.json'
+      - '.github/workflows/superagente-official-watch.yml'
+permissions:
+  contents: read
+jobs:
+  official-watch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check official source fingerprints
+        run: python scripts/superagente_official_watch.py
+      - name: Upload review alerts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: superagente-official-watch
+          path: superagente/official-watch-report.json
