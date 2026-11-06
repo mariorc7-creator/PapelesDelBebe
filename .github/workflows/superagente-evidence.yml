@@ -10,6 +10,8 @@ on:
       - 'scripts/superagente_linked_triage.py'
       - 'scripts/superagente_source_provenance.py'
       - 'scripts/superagente_documentary_evidence.py'
+      - 'scripts/superagente_source_capture.py'
+      - 'scripts/test_superagente_source_capture.py'
       - 'scripts/test_superagente_documentary_evidence.py'
       - 'superagente/source-captures.json'
       - 'scripts/test_superagente_source_provenance.py'
@@ -39,6 +41,7 @@ jobs:
           python -m unittest discover -s scripts -p 'test_superagente_linked_triage.py' -v
           python -m unittest discover -s scripts -p 'test_superagente_source_provenance.py' -v
           python -m unittest discover -s scripts -p 'test_superagente_documentary_evidence.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_source_capture.py' -v
       - name: Generate read-only page claim inventory
         run: python scripts/superagente_claim_inventory.py
       - name: Upload assertion inventory
