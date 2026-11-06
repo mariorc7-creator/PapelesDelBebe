@@ -7,6 +7,7 @@ on:
       - '**/index.html'
       - 'scripts/superagente_audit.py'
       - 'scripts/superagente_queue.py'
+      - 'scripts/superagente_facts.py'
       - '.github/workflows/superagente-audit.yml'
 permissions:
   contents: read
@@ -22,6 +23,8 @@ jobs:
         run: python scripts/superagente_audit.py
       - name: Build prioritized editorial queue
         run: python scripts/superagente_queue.py
+      - name: Extract aid facts for official verification
+        run: python scripts/superagente_facts.py
       - name: Upload audit artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -30,3 +33,4 @@ jobs:
           path: |
             superagente/audit-report.json
             superagente/editorial-queue.json
+            superagente/fact-candidates.json
