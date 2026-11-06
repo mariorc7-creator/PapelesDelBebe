@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "document_type": "seven_topic_capture_backed_editorial_comparison",
+  "review_date": "2026-11-06",
+  "page": "https://www.papelesdelbebe.es/ayuda-nacimiento-cataluna/",
+  "source_url": "https://tramits.gencat.cat/es/tramits/tramits-temes/Prestacio-per-a-families-amb-infants?moda=1",
+  "source_capture_sha256": "1faa0d517e06fa89e006b6c625bab74438a033ecd7b0774ecd39bf9f7c8d014a",
+  "capture_run": "https://github.com/mariorc7-creator/utiles-online/actions/runs/42209108185",
+  "source_evidence_type": "captured_official_html_text",
+  "page_source_path": "ayuda-nacimiento-cataluna/index.html",
+  "editorial_approval": false,
+  "page_public_review_date_change": false,
+  "legal_applicability_certified": false,
+  "checks": [
+    {
+      "topic": "eligibility",
+      "status": "partial_clarification_recommended",
+      "source_excerpt": "Uno de los progenitores debe haber residido legalmente en Catalunya durante al menos 5 años , de los cuales 2 deben ser inmediatamente anteriores a la fecha de la solicitud.",
+      "page_observation": "La guía menciona residencia legal y convivencia, pero no precisa la duración de residencia.",
+      "recommended_action": "Aclarar los cinco años de residencia legal y los dos inmediatamente anteriores, con advertencia de excepciones oficiales."
+    },
+    {
+      "topic": "amount",
+      "status": "aligned",
+      "source_excerpt": "El importe de la prestación es de 650 euros por niño .",
+      "page_observation": "La guía indica 650 € y 750 € para categorías especiales.",
+      "recommended_action": "Mantener cifras; conservar condiciones aplicables a título numeroso/monoparental."
+    },
+    {
+      "topic": "deadline",
+      "status": "clarification_required",
+      "source_excerpt": "Tienes 1 mes para presentar la solicitud, a contar desde el día siguiente a la fecha de nacimiento, acogida, adopción o tutela del menor.",
+      "page_observation": "La guía explica los 3 meses para hechos desde el 14-07-2026, pero deja impreciso el plazo de hechos anteriores.",
+      "recommended_action": "Utilizar la propuesta ya preparada para explicar el plazo de 1 mes hasta el 13-07-2026."
+    },
+    {
+      "topic": "documents",
+      "status": "summary_aligned",
+      "source_excerpt": "Documento identificativo de la persona solicitante (DNI o NIE)",
+      "page_observation": "La guía indica DNI/NIE, datos del otro progenitor, identificadores del menor, email e IBAN; resume excepciones.",
+      "recommended_action": "Mantener lista orientativa; invitar a comprobar la documentación adicional del supuesto específico."
+    },
+    {
+      "topic": "procedure",
+      "status": "summary_aligned",
+      "source_excerpt": "Por Internet | Presencialmente | Por videoatención",
+      "page_observation": "La guía dirige al trámite oficial en Tràmits Gencat y describe preparación y justificante.",
+      "recommended_action": "Añadir vías presencial o videoatención si se amplía el apartado; evitar presentar online como única vía."
+    },
+    {
+      "topic": "compatibility",
+      "status": "aligned",
+      "source_excerpt": "Esta prestación es compatible con cualquier otra ayuda familiar otorgada por las administraciones públicas.",
+      "page_observation": "La FAQ pública afirma que es compatible con otras ayudas familiares de administraciones públicas.",
+      "recommended_action": "Mantener."
+    },
+    {
+      "topic": "official_link",
+      "status": "aligned",
+      "source_excerpt": "Prestación para familias con hijos Solicitar la prestación",
+      "page_observation": "La guía tiene un CTA al portal Tràmits Gencat.",
+      "recommended_action": "Confirmar que el enlace actual dirige a la ficha operativa exacta en la revisión final."
+    }
+  ],
+  "review_blockers": [
+    "independent_editorial_signoff",
+    "review_current_situation_of_applicable_exceptions",
+    "manual_visual_review_if_content_changed",
+    "staging_deployment_rollback"
+  ],
+  "publication_allowed": false,
+  "note": "Seven topics compared against a text capture. A status of aligned is not certification that every detail is complete or legally applicable."
+}
