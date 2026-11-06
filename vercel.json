@@ -1,5 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "git": {
+    "deploymentEnabled": {
+      "feature/superagente-foundations-20261106": false
+    }
+  },
   "buildCommand": "node scripts/build-static.cjs",
   "outputDirectory": "dist",
   "redirects": [
