@@ -116,8 +116,8 @@ def capture(entry, opener=None, resolver=socket.getaddrinfo, now=None, connectio
     # 'opener' is retained ONLY for existing hermetic unit tests. Production
     # always uses a pinned TCP dialer + TLS certificate check.
     if opener is None:
-        url = validate_url(entry, resolver=lambda *a, **k: [(None,None,None,None,("8.8.8.8",443))])
         raw, charset, _ip = read_pinned(entry, resolver, connection_factory)
+        url = entry["url"]
     else:
         from urllib.request import Request
         url = validate_url(entry, resolver)
