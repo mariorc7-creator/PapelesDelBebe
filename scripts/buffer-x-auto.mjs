@@ -14,7 +14,7 @@ const organizations = (await query('query { account { organizations { id name } 
 const matches=[];
 for(const org of organizations) {
  const channels=(await query('query { channels(input:{organizationId:'+JSON.stringify(org.id)+'}) { id name displayName service } }')).channels || [];
- for(const c of channels) if(/twitter|^x$/i.test(c.service||'') && /papelesdelbebe/i.test([c.name,c.displayName].join(' ')))matches.push(c);
+ for(const c of channels) if(/twitter|^x$/i.test(c.service||'') && /papelesdelbebe|beb(e|é)peleon|beb[eé] pele[oó]n/i.test([c.name,c.displayName].join(' ')))matches.push(c);
 }
 if(matches.length!==1) throw new Error('Se esperaba exactamente un canal X PapelesDelBebe; encontrados: '+matches.length+'. No se publicará nada.');
 console.log('Conexión Buffer correcta; canal X verificado: '+matches[0].name+'.');
