@@ -5,6 +5,8 @@ on:
     paths:
       - '.github/workflows/superagente-source-capture.yml'
       - 'superagente/official-watchlist.json'
+      - 'scripts/superagente_source_capture.py'
+      - 'scripts/test_superagente_pinned_capture.py'
 permissions:
   contents: read
 jobs:
