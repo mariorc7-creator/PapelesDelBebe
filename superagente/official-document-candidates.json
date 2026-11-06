@@ -28,7 +28,7 @@
     },
     {
       "page": "https://www.papelesdelbebe.es/ayuda-nacimiento-cataluna/",
-      "source_url": "https://tramits.gencat.cat/es/tramits/tramits-temes/Prestacio-per-a-families-amb-infants",
+      "source_url": "https://tramits.gencat.cat/es/tramits/tramits-temes/Prestacio-per-a-families-amb-infants?moda=1",
       "approved_host": "tramits.gencat.cat",
       "authority": "Generalitat de Catalunya",
       "document_type": "prestacion",
@@ -36,8 +36,8 @@
     },
     {
       "page": "https://www.papelesdelbebe.es/ayuda-natalidad-madrid/",
-      "source_url": "https://sede.comunidad.madrid/ayudas-becas-subvenciones/ayudas-economicas-natalidad?page=%2C1",
-      "approved_host": "sede.comunidad.madrid",
+      "source_url": "https://www.comunidad.madrid/asuntos-sociales/ayudas-economicas-natalidad",
+      "approved_host": "www.comunidad.madrid",
       "authority": "Comunidad de Madrid",
       "document_type": "prestacion",
       "status": "candidate_needs_document_review"
