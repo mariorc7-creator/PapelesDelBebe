@@ -11,6 +11,9 @@ on:
       - 'scripts/superagente_review_receipts.py'
       - 'scripts/superagente_v03_editorial_batch.py'
       - 'scripts/superagente_v03_evidence_dossiers.py'
+      - 'scripts/superagente_capture_handoff.py'
+      - 'scripts/test_superagente_capture_handoff.py'
+      - 'superagente/official-watchlist.json'
       - 'scripts/test_superagente_v03_evidence_dossiers.py'
       - 'scripts/test_superagente_v03_editorial_batch.py'
       - 'scripts/test_superagente_review_receipts.py'
@@ -56,6 +59,10 @@ jobs:
         run: |
           python -m unittest discover -s scripts -p 'test_superagente_v03_evidence_dossiers.py' -v
           python scripts/superagente_v03_evidence_dossiers.py
+      - name: Verify capture handoff leaves absent evidence unverified
+        run: |
+          python -m unittest discover -s scripts -p 'test_superagente_capture_handoff.py' -v
+          python scripts/superagente_capture_handoff.py
       - name: Extract aid facts for official verification
         run: python scripts/superagente_facts.py
       - name: Upload audit artifact
@@ -69,5 +76,6 @@ jobs:
             superagente/v03-review-workplan.json
             superagente/v03-editorial-batch.json
             superagente/v03-evidence-dossiers.json
+            superagente/v03-capture-handoff.json
             superagente/review-receipt-report.json
             superagente/fact-candidates.json
