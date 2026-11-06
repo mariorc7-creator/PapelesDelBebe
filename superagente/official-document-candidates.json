@@ -36,8 +36,8 @@
     },
     {
       "page": "https://www.papelesdelbebe.es/ayuda-natalidad-madrid/",
-      "source_url": "https://www.comunidad.madrid/asuntos-sociales/ayudas-economicas-natalidad",
-      "approved_host": "www.comunidad.madrid",
+      "source_url": "https://sede.comunidad.madrid/node/236889",
+      "approved_host": "sede.comunidad.madrid",
       "authority": "Comunidad de Madrid",
       "document_type": "prestacion",
       "status": "candidate_needs_document_review"
