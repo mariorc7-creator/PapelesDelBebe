@@ -51,6 +51,30 @@ class Tests(unittest.TestCase):
     def test_no_port_override(self):
         with self.assertRaises(ValueError):
             sc.validated_target({**ENTRY,"url":"https://"+HOST+":8443/page"},resolver)
+    def test_redirect_response_is_blocked(self):
+        class Redirect(Reply):
+            status=302
+        class ConnRedirect(Conn):
+            def getresponse(self): return Redirect()
+        with self.assertRaisesRegex(ValueError,"unexpected_http_status"):
+            sc.read_pinned(ENTRY,resolver,connection_factory=ConnRedirect)
+    def test_private_dns_resolution_blocked(self):
+        def private(*args,**kw):
+            return [(None,None,None,None,("192.168.1.1",443))]
+        with self.assertRaisesRegex(ValueError,"non_public_dns"):
+            sc.validated_target(ENTRY,private)
+    def test_mixed_resolution_blocked(self):
+        def mixed(*args,**kw):
+            return resolver(*args,**kw)+[(None,None,None,None,("192.168.1.1",443))]
+        with self.assertRaisesRegex(ValueError,"non_public_dns"):
+            sc.validated_target(ENTRY,mixed)
+    def test_http_error_is_blocked(self):
+        class Bad(Reply):
+            status=503
+        class ConnBad(Conn):
+            def getresponse(self): return Bad()
+        with self.assertRaisesRegex(ValueError,"unexpected_http_status"):
+            sc.read_pinned(ENTRY,resolver,connection_factory=ConnBad)
     def test_capture_does_not_mark_verified(self):
         result=sc.capture(ENTRY,resolver=resolver,connection_factory=Conn)
         self.assertFalse(result["source_provenance_verified"])
