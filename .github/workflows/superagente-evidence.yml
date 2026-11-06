@@ -14,6 +14,8 @@ on:
       - 'scripts/superagente_source_routes.py'
       - 'scripts/superagente_document_candidates.py'
       - 'scripts/superagente_editorial_preview.py'
+      - 'scripts/superagente_rollback_proof.py'
+      - 'scripts/test_superagente_rollback_proof.py'
       - 'scripts/test_superagente_editorial_preview.py'
       - 'superagente/proposals/**'
       - 'scripts/test_superagente_document_candidates.py'
@@ -54,6 +56,7 @@ jobs:
           python -m unittest discover -s scripts -p 'test_superagente_source_routes.py' -v
           python -m unittest discover -s scripts -p 'test_superagente_document_candidates.py' -v
           python -m unittest discover -s scripts -p 'test_superagente_editorial_preview.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_rollback_proof.py' -v
       - name: Build source discovery queue
         run: python scripts/superagente_source_routes.py
       - name: Upload source discovery report
@@ -77,6 +80,14 @@ jobs:
         with:
           name: superagente-editorial-diffs
           path: superagente/proposals/preview-diffs.json
+          retention-days: 14
+      - name: Prove byte-exact editorial rollback in temporary storage
+        run: python scripts/superagente_rollback_proof.py
+      - name: Upload isolated rollback proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: superagente-local-rollback-proof
+          path: superagente/proposals/rollback-proof.json
           retention-days: 14
       - name: Generate read-only page claim inventory
         run: python scripts/superagente_claim_inventory.py
