@@ -1,0 +1,18 @@
+{
+  "sources": [
+    {
+      "url": "https://www.boe.es/",
+      "approved_host": "www.boe.es",
+      "topics": [
+        "legislacion_general"
+      ]
+    },
+    {
+      "url": "https://administracion.gob.es/",
+      "approved_host": "administracion.gob.es",
+      "topics": [
+        "tramites_generales"
+      ]
+    }
+  ]
+}
