@@ -14,7 +14,7 @@ const organizations = (await query('query { account { organizations { id name } 
 const matches=[];
 for(const org of organizations) {
  const channels=(await query('query { channels(input:{organizationId:'+JSON.stringify(org.id)+'}) { id name displayName service } }')).channels || [];
- for(const c of channels) if(/twitter|^x$/i.test(c.service||'') && /papelesdelbebe/i.test([c.name,c.displayName].join(' ')))matches.push(c);
+ for(const c of channels) if(/twitter|^x$/i.test(c.service||'') && /papelesdelbebe|beb(e|é)peleon|beb[eé] pele[oó]n/i.test([c.name,c.displayName].join(' ')))matches.push(c);
 }
 if(matches.length!==1) throw new Error('Se esperaba exactamente un canal X PapelesDelBebe; encontrados: '+matches.length+'. No se publicará nada.');
 console.log('Conexión Buffer correcta; canal X verificado: '+matches[0].name+'.');
@@ -72,14 +72,14 @@ async function generate(){
  return (j.output||[]).flatMap(x=>x.content||[]).filter(x=>x.type==='output_text').map(x=>x.text).join('').trim();
 }
 let message='';
-const normalize=t=>t.toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').replace(/[^a-z0-9 ]/g,'').replace(/\\s+/g,' ').trim();
+const normalize=t=>t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ').trim();
 const prev=history.posts.map(p=>normalize(p.text));
 const fixedHashtag='#humorDePadres';
 for(let n=0;n<3;n++){
  const raw=(await generate()).replace(/^[\"“]|[\"”]$/g,'').trim();
- const joke=raw.replace(/#[A-Za-zÀ-ÿ0-9_]+/g,'').replace(/\\s+/g,' ').trim();
- const candidate=joke+'\\n\\n'+fixedHashtag;
- if(joke && [...joke].length>=35 && [...joke].length<=125 && [...candidate].length<=175 && !prev.includes(normalize(candidate)) && !/https?:\\/\\//i.test(joke)){message=candidate;break;}
+ const joke=raw.replace(/#[A-Za-zÀ-ÿ0-9_]+/g,'').replace(/\s+/g,' ').trim();
+ const candidate=joke+'\n\n'+fixedHashtag;
+ if(joke && [...joke].length>=35 && [...joke].length<=125 && [...candidate].length<=175 && !prev.includes(normalize(candidate)) && !joke.includes('http://') && !joke.includes('https://')){message=candidate;break;}
 }
 if(!message)throw Error('La IA no generó un tweet válido. Se omite publicación.');
 // Solo generar texto nuevo: nunca sustituir por contenido fijo.

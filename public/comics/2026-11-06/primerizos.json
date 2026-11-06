@@ -1,0 +1,23 @@
+{
+  "title": "Escapada con bebé: plan vs. realidad",
+  "caption": "Planifica tu viaje con bebé... dicen. Spoiler: no sale como esperas.",
+  "panels": [
+    {
+      "text": "Papá: \"¡Vamos a escaparnos tres días!\"",
+      "action": "El padre sostiene el móvil mirando una web de viajes con bebé, la madre sostiene al bebé emocionada."
+    },
+    {
+      "text": "Mamá: \"Checklist lista: pañales, papeles, chupete...\"",
+      "action": "La madre revisa una larguísima lista mientras el bebé tira todo al suelo."
+    },
+    {
+      "text": "Papá: \"¿Dónde dejamos la reserva? ¡La guardería nos llama!\"",
+      "action": "El móvil muestra llamada perdida de la guardería, el padre con cara de pánico."
+    },
+    {
+      "text": "Bebé con súper traje de explorador: \"¿Dónde está mi avión?\"",
+      "action": "El bebé disfrazado con casco y maleta de juguete, mientras papá y mamá llevan mochilas llenas y caras agotadas."
+    }
+  ],
+  "id": "primerizos"
+}
