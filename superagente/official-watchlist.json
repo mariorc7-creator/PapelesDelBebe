@@ -21,16 +21,18 @@
       ],
       "page": "https://www.papelesdelbebe.es/ayuda-nacimiento-cataluna/",
       "research_status": "web_content_located_capture_unverified"
-    },
+    }
+  ],
+  "blocked_sources": [
     {
-      "url": "https://sede.comunidad.madrid/node/236889",
-      "approved_host": "sede.comunidad.madrid",
-      "require_document_path": true,
-      "topics": [
-        "ayuda_natalidad_madrid"
-      ],
       "page": "https://www.papelesdelbebe.es/ayuda-natalidad-madrid/",
-      "research_status": "alternative_official_application_document_after_404"
+      "attempted_urls": [
+        "https://www.comunidad.madrid/asuntos-sociales/ayudas-economicas-natalidad",
+        "https://sede.comunidad.madrid/node/236889"
+      ],
+      "last_result": "http_404_from_github_runner",
+      "status": "manual_verification_required_not_allowlisted_for_capture",
+      "attempted_on": "2026-11-06"
     }
   ]
 }
