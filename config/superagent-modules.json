@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "agent": "Papeles del Bebé — SuperAgente SEO & Growth",
+  "mode": "staging_only",
+  "environment": "development_branch",
+  "deploy_enabled": false,
+  "merge_enabled": false,
+  "scheduled_publication_enabled": false,
+  "batch_policy": {
+    "min_related_changes": 3,
+    "exceptions": [
+      "security",
+      "critical_bug"
+    ],
+    "require_review": true
+  },
+  "modules": [
+    {
+      "id": "seo",
+      "enabled": true,
+      "stage": "planning",
+      "responsibility": "Guías, ayudas, enlaces internos y revisión editorial",
+      "writes_to_production": false
+    },
+    {
+      "id": "amazon_affiliates",
+      "enabled": true,
+      "stage": "audit_only",
+      "responsibility": "Auditoría de enlaces, cumplimiento y propuestas de monetización",
+      "script": "scripts/audit_amazon_affiliates.py",
+      "expected_tag": "mariorc7-21",
+      "writes_to_production": false
+    },
+    {
+      "id": "growth",
+      "enabled": false,
+      "stage": "not_integrated",
+      "responsibility": "Análisis de GSC y métricas de conversión",
+      "writes_to_production": false
+    },
+    {
+      "id": "qa",
+      "enabled": true,
+      "stage": "governance",
+      "responsibility": "Comprobaciones de seguridad, revisión móvil y aprobación",
+      "writes_to_production": false
+    }
+  ],
+  "qa_gates": [
+    "affiliate_link_audit",
+    "editorial_fact_check",
+    "mobile_visual_review",
+    "no_unlicensed_assets",
+    "no_unverified_prices",
+    "human_review_before_merge"
+  ],
+  "coordination": {
+    "overlap_policy": "single_coordinator",
+    "changes": "draft_pull_request",
+    "report_path": "reports/superagent-coordination.json"
+  }
+}
