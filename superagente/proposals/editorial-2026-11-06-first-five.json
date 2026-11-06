@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "package_id": "editorial-2026-11-06-first-five",
+  "status": "proposal_not_approved",
+  "publication_allowed": false,
+  "changes": [
+    {
+      "path": "ayuda-nacimiento-cataluna/index.html",
+      "url": "https://www.papelesdelbebe.es/ayuda-nacimiento-cataluna/",
+      "finding": "clarify_previous_deadline_cohort",
+      "source_urls": [
+        "https://tramits.gencat.cat/ca/tramits/tramits-temes/Prestacio-per-a-families-amb-infants?category=&moda=1"
+      ],
+      "search": "Para hechos anteriores, la Generalitat mantiene reglas de plazo diferentes, por lo que conviene comprobar la fecha exacta en la sede oficial.",
+      "replacement": "Para hechos causantes hasta el <strong>13 de julio de 2026, inclusive</strong>, el plazo es de <strong>1 mes</strong> desde el día siguiente al nacimiento, adopción, tutela o acogimiento. Comprueba en la ficha oficial cómo se calcula el último día del plazo en cada caso.",
+      "risk": "medium",
+      "evidence_status": "source_content_checked_not_editorially_approved"
+    },
+    {
+      "path": "ayuda-natalidad-madrid/index.html",
+      "url": "https://www.papelesdelbebe.es/ayuda-natalidad-madrid/",
+      "finding": "make_nonretroactive_application_month_clear",
+      "source_urls": [
+        "https://www.comunidad.madrid/asuntos-sociales/ayudas-economicas-natalidad"
+      ],
+      "search": "En gestaciones puede solicitarse desde la semana 21. En nacimientos se mantiene hasta el mes en que el bebé cumpla 24 meses; en adopción hay reglas propias.",
+      "replacement": "En gestaciones puede solicitarse desde la semana 21. <strong>El pago comienza el mes en que presentas la solicitud, no automáticamente desde el nacimiento</strong>, y en nacimientos se mantiene hasta el mes en que el bebé cumpla 24 meses; en adopción hay reglas propias.",
+      "risk": "low",
+      "evidence_status": "source_content_checked_not_editorially_approved"
+    }
+  ],
+  "required_gates": [
+    "unique_original_anchor",
+    "source_evidence_validation",
+    "content_guard_editorial_approval",
+    "responsive_visual_review",
+    "seo_review",
+    "rollback_proven"
+  ]
+}
