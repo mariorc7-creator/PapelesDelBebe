@@ -13,6 +13,7 @@ on:
       - 'scripts/test_superagente_exact_document_links.py'
       - 'scripts/superagente_documentary_evidence.py'
       - 'scripts/superagente_source_capture.py'
+      - 'scripts/test_superagente_pinned_capture.py'
       - 'scripts/superagente_source_routes.py'
       - 'scripts/superagente_document_candidates.py'
       - 'scripts/superagente_editorial_preview.py'
@@ -56,6 +57,7 @@ jobs:
           python -m unittest discover -s scripts -p 'test_superagente_exact_document_links.py' -v
           python -m unittest discover -s scripts -p 'test_superagente_documentary_evidence.py' -v
           python -m unittest discover -s scripts -p 'test_superagente_source_capture.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_pinned_capture.py' -v
           python -m unittest discover -s scripts -p 'test_superagente_source_routes.py' -v
           python -m unittest discover -s scripts -p 'test_superagente_document_candidates.py' -v
           python -m unittest discover -s scripts -p 'test_superagente_editorial_preview.py' -v
