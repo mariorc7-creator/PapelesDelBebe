@@ -13,7 +13,7 @@ from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 PATTERNS = {
-    "amount": re.compile(r"(?<!\w)(?:\d{1,3}(?:[.\s]\d{3})*|\d+)(?:,\d{1,2})?\s*(?:€|euros?)\b?", re.I),
+    "amount": re.compile(r"(?<!\w)(?:\d{1,3}(?:[.\s]\d{3})*|\d+)(?:,\d{1,2})?\s*(?:€|euros?)", re.I),
     "deadline": re.compile(r"\b(?:\d{1,3}\s+(?:d[ií]as?|mes(?:es)?|semanas?|a[nñ]os?))\b", re.I),
     "year": re.compile(r"\b20(?:2[5-9]|3\d)\b"),
 }
