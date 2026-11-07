@@ -5,6 +5,9 @@ on:
     paths:
       - 'scripts/superagente_integrated.py'
       - 'scripts/test_superagente_integrated.py'
+      - 'scripts/superagente_v1_readiness.py'
+      - 'scripts/test_superagente_v1_readiness.py'
+      - 'superagente/v1-readiness-evidence.json'
       - 'scripts/superagente_decision_memory.py'
       - 'scripts/superagente_amazon_queue.py'
       - 'scripts/superagente_affiliate_decisions.py'
@@ -23,6 +26,8 @@ jobs:
           python-version: '3.12'
       - name: Probar protecciones transversales y cola integrada
         run: python -m unittest discover -s scripts -p 'test_superagente_integrated.py' -v
+      - name: Probar puerta de activacion V1 y seguridad
+        run: python -m unittest discover -s scripts -p 'test_superagente_v1_readiness.py' -v
       - name: Probar memoria de decisiones
         run: python -m unittest discover -s scripts -p 'test_superagente_decision_memory.py' -v
       - name: Probar auditor de Amazon y oportunidades editoriales
@@ -46,6 +51,23 @@ jobs:
           assert d['gates']['staging_requires_reverification'] is True
           assert d['no_live_data_or_revenue_inferred'] is True
           print('Production, SEO, automation and rollback gates enforced')
+          PY
+      - name: Generar informe final de preparación V1
+        run: |
+          python scripts/superagente_v1_readiness.py \
+            --integrated-json superagente-integrated-results/superagente-integrado.json \
+            --evidence superagente/v1-readiness-evidence.json \
+            --output superagente-integrated-results/superagente-v1-readiness.json
+      - name: Comprobar bloqueo real de V1 hasta validación
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('superagente-integrated-results/superagente-v1-readiness.json').read_text())
+          assert d['operational_readiness']=='blocked'
+          assert not d['automatic_activation_allowed']
+          assert not d['production_deployment_allowed']
+          print('V1 remains safely disabled pending evidence and remote rollback')
           PY
       - name: Publicar únicamente informes no privados
         uses: actions/upload-artifact@v4
