@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "checked_on": "2026-11-06",
+  "capture_type": "public_web_read_not_pinned_github_capture",
+  "independent_legal_signoff": false,
+  "publication_allowed": false,
+  "findings": [
+    {
+      "page": "https://www.papelesdelbebe.es/deduccion-maternidad/",
+      "official_url": "https://sede.agenciatributaria.gob.es/Sede/procedimientos/GZ25.shtml",
+      "topic": "modelo_140",
+      "observation": "La ficha del Modelo 140 describe la solicitud del abono anticipado mensual y comunicación de variaciones; no certifica por sí sola todos los requisitos de la deducción.",
+      "web_lines": "0-21,41-49",
+      "status": "needs_claim_by_claim_review"
+    },
+    {
+      "page": "https://www.papelesdelbebe.es/ayuda-nacimiento-cataluna/",
+      "official_url": "https://tramits.gencat.cat/es/tramits/tramits-temes/Prestacio-per-a-families-amb-infants?moda=1",
+      "topic": "importe_y_plazo",
+      "observation": "La ficha autonómica recoge 650/750 euros, tres meses para hechos desde el 14/07/2026 y un mes para hechos hasta el 13/07/2026 inclusive. Verificar redacción de reglas y cómputo del plazo en el contenido final.",
+      "web_lines": "63-67,88-103",
+      "status": "needs_claim_by_claim_review"
+    },
+    {
+      "page": "https://www.papelesdelbebe.es/ayuda-natalidad-madrid/",
+      "official_url": "https://www.comunidad.madrid/asuntos-sociales/ayudas-economicas-natalidad",
+      "topic": "cuantia_y_inicio",
+      "observation": "La guía institucional indica 500 euros al mes, desde el mes de presentación de la solicitud para nacimientos, con límite temporal relacionado con los 24 meses del menor.",
+      "web_lines": "320-330,350-358",
+      "status": "needs_claim_by_claim_review"
+    }
+  ],
+  "unavailable_candidates": [
+    "https://sede.seg-social.gob.es/wps/portal/sede/sede/Ciudadanos/informes%20y%20certificados/202044?changeLanguage=es",
+    "https://prestaciones.seg-social.es/servicio/prestacion-nacimiento-adopcion-cuidado-menor"
+  ],
+  "warning": "Public web retrieval and line-based notes are not cryptographically attested capture output. No capture hash or legal verification has been invented."
+}

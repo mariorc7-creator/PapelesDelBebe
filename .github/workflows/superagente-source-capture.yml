@@ -1,0 +1,60 @@
+name: SuperAgente - Captura documental interna
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/superagente-source-capture.yml'
+      - 'superagente/official-watchlist.json'
+      - 'scripts/superagente_source_capture.py'
+      - 'scripts/superagente_cataluna_evidence.py'
+      - 'scripts/test_superagente_cataluna_evidence.py'
+      - 'scripts/test_superagente_pinned_capture.py'
+permissions:
+  contents: read
+jobs:
+  capture-official-html:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate local capture safety tests
+        run: |
+          python -m unittest discover -s scripts -p 'test_superagente_source_capture.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_pinned_capture.py' -v
+      - name: Build read-only editorial dossiers for source linkage
+        run: |
+          python scripts/superagente_v03_review_workplan.py
+          python scripts/superagente_v03_editorial_batch.py --limit 12
+          python scripts/superagente_v03_evidence_dossiers.py
+      - name: Validate documentary handoff offline
+        run: python -m unittest discover -s scripts -p 'test_superagente_capture_handoff.py' -v
+      - name: Capture allowlisted official HTML
+        run: python scripts/superagente_source_capture.py
+      - name: Link captures to research dossiers without legal approval
+        if: always()
+        run: |
+          if [ -f superagente/v03-evidence-dossiers.json ]; then
+            python scripts/superagente_capture_handoff.py
+          fi
+      - name: Validate seven-topic Catalonia source evidence
+        if: always()
+        shell: bash
+        run: |
+          python -m unittest discover -s scripts -p 'test_superagente_cataluna_evidence.py' -v
+          if [ -f superagente/source-capture-report.json ]; then
+            python scripts/superagente_cataluna_evidence.py
+          fi
+      - name: Upload read-only capture report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: superagente-official-capture
+          path: |
+            superagente/source-capture-report.json
+            superagente/v03-capture-handoff.json
+            superagente/research/cataluna-seven-topic-source-evidence.json
+          retention-days: 7

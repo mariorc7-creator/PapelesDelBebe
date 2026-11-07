@@ -1,0 +1,23 @@
+name: SuperAgente - Estado de fuentes
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 7 * * 1'
+permissions:
+  contents: read
+jobs:
+  sources:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check recorded source availability (not factual verification)
+        run: python scripts/superagente_sources.py
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: superagente-sources
+          path: superagente/source-health.json

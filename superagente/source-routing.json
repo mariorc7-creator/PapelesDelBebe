@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "routes": [
+    {
+      "page": "https://www.papelesdelbebe.es/alta-bebe-seguridad-social/",
+      "topic": "alta_seguridad_social",
+      "jurisdiction": "ES",
+      "priority": "P0",
+      "authority": "Seguridad Social",
+      "source_status": "needs_exact_official_document"
+    },
+    {
+      "page": "https://www.papelesdelbebe.es/deduccion-maternidad/",
+      "topic": "deduccion_maternidad",
+      "jurisdiction": "ES",
+      "priority": "P0",
+      "authority": "AEAT",
+      "source_status": "needs_exact_official_document"
+    },
+    {
+      "page": "https://www.papelesdelbebe.es/permiso-nacimiento-cuidado-menor/",
+      "topic": "permiso_nacimiento",
+      "jurisdiction": "ES",
+      "priority": "P0",
+      "authority": "Seguridad Social",
+      "source_status": "needs_exact_official_document"
+    },
+    {
+      "page": "https://www.papelesdelbebe.es/ayuda-nacimiento-cataluna/",
+      "topic": "ayuda_nacimiento_cataluna",
+      "jurisdiction": "ES-CT",
+      "priority": "P0",
+      "authority": "Generalitat de Catalunya",
+      "source_status": "needs_exact_official_document"
+    },
+    {
+      "page": "https://www.papelesdelbebe.es/ayuda-natalidad-madrid/",
+      "topic": "ayuda_natalidad_madrid",
+      "jurisdiction": "ES-MD",
+      "priority": "P1",
+      "authority": "Comunidad de Madrid",
+      "source_status": "needs_exact_official_document"
+    },
+    {
+      "page": "https://www.papelesdelbebe.es/empadronar-bebe/",
+      "topic": "empadronamiento_bebe",
+      "jurisdiction": "ES-local",
+      "priority": "P1",
+      "authority": "Ayuntamiento competente",
+      "source_status": "needs_exact_official_document"
+    }
+  ]
+}

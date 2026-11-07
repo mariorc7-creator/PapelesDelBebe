@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "package_id": "editorial-2026-11-06-first-five",
+  "phase": "v0.2_validation",
+  "publication_allowed": false,
+  "merge_allowed": false,
+  "pages": [
+    "ayuda-nacimiento-cataluna/index.html",
+    "ayuda-natalidad-madrid/index.html"
+  ],
+  "controls": {
+    "source_comparison": "first_pass_requires_editorial_signoff",
+    "proposal_anchor": "tested",
+    "responsive_smoke": "passed_prior_run",
+    "visual_layout_gate": "passed_prior_run",
+    "screenshot_human_review": "pending",
+    "local_byte_exact_rollback": "in_ci_verification",
+    "deployment_rollback": "not_tested",
+    "editorial_approval": "pending",
+    "production_release": "blocked"
+  },
+  "next_actions": [
+    "inspect before/after screenshots for affected pages and five viewport widths",
+    "confirm primary official evidence and approve precise copy",
+    "test deployment rollback in isolated staging deployment using authorized provider actions",
+    "prepare large release with branch protection and explicit deployment authorization"
+  ],
+  "note": "A local file rollback is not a proof of production recovery. No HTML or review dates modified."
+}

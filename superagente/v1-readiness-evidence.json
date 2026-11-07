@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "notes": "Pending independent evidence. These flags do not authorize publication or automation.",
+  "official_sources_verified": false,
+  "seo_baseline_verified": false,
+  "mobile_visual_regression_passed": false,
+  "preview_content_verified": false,
+  "manual_editorial_approval": false,
+  "private_data_access_authorized": false,
+  "deployment_rollback_verified": false
+}

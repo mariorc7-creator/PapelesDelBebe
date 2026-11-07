@@ -1,0 +1,81 @@
+name: SuperAgente - Auditoria base
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'sitemap.xml'
+      - '**/index.html'
+      - 'scripts/superagente_audit.py'
+      - 'scripts/superagente_queue.py'
+      - 'scripts/superagente_v03_review_workplan.py'
+      - 'scripts/superagente_review_receipts.py'
+      - 'scripts/superagente_v03_editorial_batch.py'
+      - 'scripts/superagente_v03_evidence_dossiers.py'
+      - 'scripts/superagente_capture_handoff.py'
+      - 'scripts/test_superagente_capture_handoff.py'
+      - 'superagente/official-watchlist.json'
+      - 'scripts/test_superagente_v03_evidence_dossiers.py'
+      - 'scripts/test_superagente_v03_editorial_batch.py'
+      - 'scripts/test_superagente_review_receipts.py'
+      - 'superagente/review-receipts.json'
+      - 'scripts/test_superagente_v03_review_workplan.py'
+      - 'superagente/source-routing.json'
+      - 'superagente/official-document-candidates.json'
+      - 'superagente/reviews.json'
+      - 'scripts/superagente_facts.py'
+      - '.github/workflows/superagente-audit.yml'
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Audit sitemap and page basics (read-only)
+        run: python scripts/superagente_audit.py
+      - name: Build prioritized editorial queue
+        run: python scripts/superagente_queue.py
+      - name: Check V0.3 evidence-aware prioritization
+        run: |
+          python -m unittest discover -s scripts -p 'test_superagente_v03_review_workplan.py' -v
+          python scripts/superagente_v03_review_workplan.py
+      - name: Test editorial review receipts and validate submissions
+        shell: bash
+        run: |
+          python -m unittest discover -s scripts -p 'test_superagente_review_receipts.py' -v
+          if [ -f superagente/review-receipts.json ]; then
+            python scripts/superagente_review_receipts.py
+          else
+            echo 'No editorial review receipts supplied; no review completion implied.'
+          fi
+      - name: Build evidence-aware editorial work batch
+        run: |
+          python -m unittest discover -s scripts -p 'test_superagente_v03_editorial_batch.py' -v
+          python scripts/superagente_v03_editorial_batch.py --limit 12
+      - name: Generate evidence dossier templates for the selected batch
+        run: |
+          python -m unittest discover -s scripts -p 'test_superagente_v03_evidence_dossiers.py' -v
+          python scripts/superagente_v03_evidence_dossiers.py
+      - name: Verify capture handoff leaves absent evidence unverified
+        run: |
+          python -m unittest discover -s scripts -p 'test_superagente_capture_handoff.py' -v
+          python scripts/superagente_capture_handoff.py
+      - name: Extract aid facts for official verification
+        run: python scripts/superagente_facts.py
+      - name: Upload audit artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: superagente-audit
+          path: |
+            superagente/audit-report.json
+            superagente/editorial-queue.json
+            superagente/v03-review-workplan.json
+            superagente/v03-editorial-batch.json
+            superagente/v03-evidence-dossiers.json
+            superagente/v03-capture-handoff.json
+            superagente/review-receipt-report.json
+            superagente/fact-candidates.json

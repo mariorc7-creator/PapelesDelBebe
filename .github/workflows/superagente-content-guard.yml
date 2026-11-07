@@ -1,0 +1,25 @@
+name: SuperAgente - Content Evidence Gate
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '**/*.html'
+      - '**/*.htm'
+      - 'superagente/content-approval.json'
+      - 'scripts/superagente_content_guard.py'
+permissions:
+  contents: read
+jobs:
+  content-evidence:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check review evidence for HTML changes
+        env:
+          BASE_REF: origin/${{ github.base_ref || 'main' }}
+        run: python scripts/superagente_content_guard.py

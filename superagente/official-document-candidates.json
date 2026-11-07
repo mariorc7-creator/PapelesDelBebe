@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "discovered_on": "2026-11-06",
+  "references": [
+    {
+      "page": "https://www.papelesdelbebe.es/alta-bebe-seguridad-social/",
+      "source_url": "https://sede.seg-social.gob.es/wps/portal/sede/sede/Ciudadanos/informes%20y%20certificados/202044?changeLanguage=es",
+      "approved_host": "sede.seg-social.gob.es",
+      "authority": "Seguridad Social",
+      "document_type": "tramite",
+      "status": "candidate_needs_document_review"
+    },
+    {
+      "page": "https://www.papelesdelbebe.es/deduccion-maternidad/",
+      "source_url": "https://sede.agenciatributaria.gob.es/Sede/procedimientos/GZ25.shtml",
+      "approved_host": "sede.agenciatributaria.gob.es",
+      "authority": "AEAT",
+      "document_type": "tramite",
+      "status": "candidate_needs_document_review"
+    },
+    {
+      "page": "https://www.papelesdelbebe.es/permiso-nacimiento-cuidado-menor/",
+      "source_url": "https://prestaciones.seg-social.es/servicio/prestacion-nacimiento-adopcion-cuidado-menor",
+      "approved_host": "prestaciones.seg-social.es",
+      "authority": "Seguridad Social",
+      "document_type": "prestacion",
+      "status": "candidate_needs_document_review"
+    },
+    {
+      "page": "https://www.papelesdelbebe.es/ayuda-nacimiento-cataluna/",
+      "source_url": "https://tramits.gencat.cat/es/tramits/tramits-temes/Prestacio-per-a-families-amb-infants?moda=1",
+      "approved_host": "tramits.gencat.cat",
+      "authority": "Generalitat de Catalunya",
+      "document_type": "prestacion",
+      "status": "candidate_needs_document_review"
+    },
+    {
+      "page": "https://www.papelesdelbebe.es/ayuda-natalidad-madrid/",
+      "source_url": "https://sede.comunidad.madrid/node/236889",
+      "approved_host": "sede.comunidad.madrid",
+      "authority": "Comunidad de Madrid",
+      "document_type": "prestacion",
+      "status": "candidate_needs_document_review"
+    }
+  ]
+}

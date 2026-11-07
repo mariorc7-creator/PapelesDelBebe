@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "recorded_on": "2026-11-06",
+  "project": "papelesdelbebe",
+  "environment": "vercel_preview_not_production",
+  "staging_branch": "staging/superagente-cataluna-v04-20261106",
+  "candidate": {
+    "commit": "50c2e37cb6e6b51559c056a8a1a89e0f35d68e2c",
+    "deployment_id": "dpl_2fZ3gRUHJ9HNuukMPAtgYS1i4ANJ",
+    "url": "https://papelesdelbebe-cb4c7x5ju-mario-herramientas.vercel.app",
+    "vercel_state": "READY",
+    "target": "preview",
+    "content_changes": [
+      "deadline_pre_2026_07_14",
+      "residence_requirement_clarification"
+    ]
+  },
+  "rollback": {
+    "git_commit": "f1b6d373493a4a790422da416951c6a98c615434",
+    "restored_original_html_blob_sha": "d4211e98eaa9d13eb0b03f642fdcf4bc1b41457c",
+    "staging_vs_feature_file_diff_count": 0,
+    "git_restoration_verified": true,
+    "vercel_rollback_verified": false,
+    "blocked_reason": "Vercel Hobby account reached daily api-deployments-free-per-day limit (HTTP 402); restored commit has no confirmed READY deployment"
+  },
+  "production_changed": false,
+  "review_date_changed": false,
+  "publication_allowed": false,
+  "editorial_approval": false,
+  "next_required_checks": [
+    "Wait for quota refresh or legitimate plan adjustment initiated by owner",
+    "Verify Vercel preview deploy of restored commit and READY status",
+    "Verify protected preview HTTP content with authenticated request",
+    "Independent editorial approval",
+    "Sync superagent feature branch with latest main"
+  ]
+}

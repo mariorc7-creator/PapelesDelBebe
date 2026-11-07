@@ -1,0 +1,162 @@
+name: SuperAgente - Editorial Evidence CI
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/superagente_evidence_gate.py'
+      - 'scripts/test_superagente_evidence_gate.py'
+      - 'scripts/superagente_semantic_triage.py'
+      - 'scripts/superagente_claim_inventory.py'
+      - 'scripts/superagente_linked_triage.py'
+      - 'scripts/superagente_source_provenance.py'
+      - 'scripts/superagente_exact_document_links.py'
+      - 'scripts/test_superagente_exact_document_links.py'
+      - 'scripts/superagente_documentary_evidence.py'
+      - 'scripts/superagente_source_capture.py'
+      - 'scripts/test_superagente_pinned_capture.py'
+      - 'scripts/superagente_source_routes.py'
+      - 'scripts/superagente_document_candidates.py'
+      - 'scripts/superagente_editorial_preview.py'
+      - 'scripts/superagente_cataluna_package.py'
+      - 'scripts/superagente_cataluna_staging_http.py'
+      - 'scripts/test_superagente_cataluna_staging_http.py'
+      - 'scripts/test_superagente_cataluna_package.py'
+      - 'scripts/superagente_rollback_proof.py'
+      - 'scripts/test_superagente_rollback_proof.py'
+      - 'scripts/test_superagente_editorial_preview.py'
+      - 'superagente/proposals/**'
+      - 'scripts/test_superagente_document_candidates.py'
+      - 'superagente/official-document-candidates.json'
+      - 'scripts/test_superagente_source_routes.py'
+      - 'superagente/source-routing.json'
+      - 'scripts/test_superagente_source_capture.py'
+      - 'scripts/test_superagente_documentary_evidence.py'
+      - 'superagente/source-captures.json'
+      - 'scripts/test_superagente_source_provenance.py'
+      - 'superagente/official-watchlist.json'
+      - 'scripts/test_superagente_linked_triage.py'
+      - 'scripts/test_superagente_claim_inventory.py'
+      - 'scripts/test_superagente_semantic_triage.py'
+      - 'superagente/editorial-evidence.json'
+      - 'superagente/semantic-triage-input.json'
+      - '.github/workflows/superagente-evidence.yml'
+permissions:
+  contents: read
+jobs:
+  validate-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run editorial regression tests
+        run: |
+          python -m unittest discover -s scripts -p 'test_superagente_evidence_gate.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_semantic_triage.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_claim_inventory.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_linked_triage.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_source_provenance.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_exact_document_links.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_documentary_evidence.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_source_capture.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_pinned_capture.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_source_routes.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_document_candidates.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_editorial_preview.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_cataluna_package.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_cataluna_staging_http.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_rollback_proof.py' -v
+      - name: Build source discovery queue
+        run: python scripts/superagente_source_routes.py
+      - name: Upload source discovery report
+        uses: actions/upload-artifact@v4
+        with:
+          name: superagente-source-discovery
+          path: superagente/source-discovery-queue.json
+          retention-days: 14
+      - name: Validate discovered official document references
+        run: python scripts/superagente_document_candidates.py
+      - name: Upload document candidate report
+        uses: actions/upload-artifact@v4
+        with:
+          name: superagente-document-candidates
+          path: superagente/document-candidate-report.json
+          retention-days: 14
+      - name: Build editorial proposal diffs without editing HTML
+        run: python scripts/superagente_editorial_preview.py
+      - name: Build grouped Catalonia preview and isolated rollback proof
+        run: python scripts/superagente_cataluna_package.py
+      - name: Verify ephemeral HTTP staging and rollback of Catalonia candidate
+        run: python scripts/superagente_cataluna_staging_http.py
+      - name: Upload review-only editorial diffs
+        uses: actions/upload-artifact@v4
+        with:
+          name: superagente-editorial-diffs
+          path: |
+            superagente/proposals/preview-diffs.json
+            superagente/proposals/cataluna-2026-11-06-preview.json
+            superagente/proposals/cataluna-local-staging-rollback.json
+          retention-days: 14
+      - name: Prove byte-exact editorial rollback in temporary storage
+        run: python scripts/superagente_rollback_proof.py
+      - name: Upload isolated rollback proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: superagente-local-rollback-proof
+          path: superagente/proposals/rollback-proof.json
+          retention-days: 14
+      - name: Generate read-only page claim inventory
+        run: python scripts/superagente_claim_inventory.py
+      - name: Upload assertion inventory
+        uses: actions/upload-artifact@v4
+        with:
+          name: superagente-claim-inventory
+          path: superagente/claim-inventory.json
+          retention-days: 14
+      - name: Validate proposed editorial evidence when supplied
+        shell: bash
+        run: |
+          if [ -f superagente/editorial-evidence.json ]; then
+            python scripts/superagente_evidence_gate.py superagente/editorial-evidence.json
+          else
+            echo "No editorial evidence submitted. No editorial approval implied."
+          fi
+      - name: Verify source domain allowlist
+        shell: bash
+        run: |
+          if [ -f superagente/semantic-triage-input.json ]; then
+            python scripts/superagente_source_provenance.py --comparisons superagente/semantic-triage-input.json
+          else
+            echo 'No comparison input submitted; source provenance checking skipped.'
+          fi
+      - name: Verify submitted documentary excerpts
+        shell: bash
+        run: |
+          if [ -f superagente/semantic-triage-input.json ]; then
+            if [ ! -f superagente/source-captures.json ]; then
+              echo 'BLOCKED: source-captures.json required for submitted claims.'
+              exit 1
+            fi
+            python scripts/superagente_documentary_evidence.py --comparisons superagente/semantic-triage-input.json --captures superagente/source-captures.json
+            python scripts/superagente_exact_document_links.py --comparisons superagente/semantic-triage-input.json --captures superagente/source-captures.json
+          else
+            echo 'No documentary comparisons submitted.'
+          fi
+      - name: Verify claim anchors against current HTML inventory
+        shell: bash
+        run: |
+          if [ -f superagente/semantic-triage-input.json ]; then
+            python scripts/superagente_linked_triage.py --inventory superagente/claim-inventory.json --comparisons superagente/semantic-triage-input.json
+          else
+            echo 'No comparison input submitted; anchor checking skipped.'
+          fi
+      - name: Triage paired claims when supplied
+        shell: bash
+        run: |
+          if [ -f superagente/semantic-triage-input.json ]; then
+            python scripts/superagente_semantic_triage.py superagente/semantic-triage-input.json
+          else
+            echo "No paired claims submitted. No semantic verification implied."
+          fi

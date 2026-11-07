@@ -1,0 +1,28 @@
+name: SuperAgente - Release Gate
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'superagente/release-candidate.json'
+      - 'scripts/superagente_release_gate.py'
+      - 'scripts/test_superagente_vercel_policy.py'
+      - 'vercel.json'
+permissions:
+  contents: read
+jobs:
+  release-gate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check branch-scoped Vercel deployment policy
+        run: python -m unittest discover -s scripts -p 'test_superagente_vercel_policy.py' -v
+      - name: Verify release evidence
+        run: |
+          if [ -f superagente/release-candidate.json ]; then
+            python scripts/superagente_release_gate.py
+          else
+            echo 'No release candidate declared: deployment remains disabled.'
+          fi

@@ -1,0 +1,38 @@
+{
+  "schema_version": 2,
+  "policy": "exact_url_capture_only_not_legal_approval",
+  "sources": [
+    {
+      "url": "https://sede.agenciatributaria.gob.es/Sede/procedimientos/GZ25.shtml",
+      "approved_host": "sede.agenciatributaria.gob.es",
+      "require_document_path": true,
+      "topics": [
+        "deduccion_maternidad"
+      ],
+      "page": "https://www.papelesdelbebe.es/deduccion-maternidad/",
+      "research_status": "web_content_located_capture_unverified"
+    },
+    {
+      "url": "https://tramits.gencat.cat/es/tramits/tramits-temes/Prestacio-per-a-families-amb-infants?moda=1",
+      "approved_host": "tramits.gencat.cat",
+      "require_document_path": true,
+      "topics": [
+        "ayuda_nacimiento_cataluna"
+      ],
+      "page": "https://www.papelesdelbebe.es/ayuda-nacimiento-cataluna/",
+      "research_status": "web_content_located_capture_unverified"
+    }
+  ],
+  "blocked_sources": [
+    {
+      "page": "https://www.papelesdelbebe.es/ayuda-natalidad-madrid/",
+      "attempted_urls": [
+        "https://www.comunidad.madrid/asuntos-sociales/ayudas-economicas-natalidad",
+        "https://sede.comunidad.madrid/node/236889"
+      ],
+      "last_result": "http_404_from_github_runner",
+      "status": "manual_verification_required_not_allowlisted_for_capture",
+      "attempted_on": "2026-11-06"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "kind": "real_ci_capture_receipt",
+  "captured_at_utc": "2026-11-06T11:07:43Z",
+  "workflow_run": "https://github.com/mariorc7-creator/utiles-online/actions/runs/42207878132",
+  "artifact": "superagente-official-capture",
+  "status": "partial_success",
+  "captured": [
+    {
+      "page": "https://www.papelesdelbebe.es/deduccion-maternidad/",
+      "source_url": "https://sede.agenciatributaria.gob.es/Sede/procedimientos/GZ25.shtml",
+      "text_sha256": "0fb062a02b8e229e72dfbf4ee9b10b13202a4ca4dfeff74a9fb1ccef46dc80d3",
+      "captured_at_utc": "2026-11-06T11:07:42.756242+00:00",
+      "capture_state": "integrity_checked_needs_legal_review"
+    },
+    {
+      "page": "https://www.papelesdelbebe.es/ayuda-nacimiento-cataluna/",
+      "source_url": "https://tramits.gencat.cat/es/tramits/tramits-temes/Prestacio-per-a-families-amb-infants?moda=1",
+      "text_sha256": "1faa0d517e06fa89e006b6c625bab74438a033ecd7b0774ecd39bf9f7c8d014a",
+      "captured_at_utc": "2026-11-06T11:07:43.173754+00:00",
+      "capture_state": "integrity_checked_needs_legal_review"
+    }
+  ],
+  "failed": [
+    {
+      "page": "https://www.papelesdelbebe.es/ayuda-natalidad-madrid/",
+      "source_url": "https://www.comunidad.madrid/asuntos-sociales/ayudas-economicas-natalidad",
+      "error_type": "ValueError",
+      "next_action": "diagnose_http_status_without_following_redirects"
+    }
+  ],
+  "legal_review_completed": false,
+  "review_dates_updated": false,
+  "production_changed": false,
+  "disclaimer": "Capture digests are from the actual CI artifact, not inferred. Hashes certify the stored extracted text, not applicability or authority of individual claims."
+}

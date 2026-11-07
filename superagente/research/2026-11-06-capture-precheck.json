@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "kind": "captured_text_precheck",
+  "capture_run": "https://github.com/mariorc7-creator/utiles-online/actions/runs/42208498094",
+  "date": "2026-11-06",
+  "status": "partial_not_editorially_approved",
+  "production_changed": false,
+  "review_dates_updated": false,
+  "checks": [
+    {
+      "page": "https://www.papelesdelbebe.es/ayuda-nacimiento-cataluna/",
+      "sha256": "1faa0d517e06fa89e006b6c625bab74438a033ecd7b0774ecd39bf9f7c8d014a",
+      "fields": [
+        "general_amount_650",
+        "special_amount_750",
+        "new_deadline_3_months_from_2026_07_14",
+        "old_deadline_1_month"
+      ],
+      "next": "approve previously proposed clarification after full seven-topic evidence"
+    },
+    {
+      "page": "https://www.papelesdelbebe.es/deduccion-maternidad/",
+      "sha256": "0fb062a02b8e229e72dfbf4ee9b10b13202a4ca4dfeff74a9fb1ccef46dc80d3",
+      "fields": [
+        "modelo_140_advance_payment_procedure"
+      ],
+      "next": "check eligibility and remaining topics against specific AEAT guidance"
+    }
+  ],
+  "blocked": [
+    {
+      "page": "https://www.papelesdelbebe.es/ayuda-natalidad-madrid/",
+      "reason": "two official URLs returned HTTP 404 from GitHub capture"
+    }
+  ],
+  "warning": "Selected fields checked against real captured text; neither page has completed its seven-topic editorial audit."
+}
