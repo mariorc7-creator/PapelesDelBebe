@@ -1,0 +1,30 @@
+name: SuperAgente - Amazon Afiliados (auditoria sin publicar)
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/superagente_amazon_audit.py'
+      - 'scripts/test_superagente_amazon_audit.py'
+      - '.github/workflows/superagente-amazon-audit.yml'
+      - 'preparativos-bebe/**'
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Testar deteccion y seguridad de enlaces de afiliacion
+        run: python -m unittest discover -s scripts -p 'test_superagente_amazon_audit.py' -v
+      - name: Generar informe solo lectura, sin tocar el HTML
+        run: python scripts/superagente_amazon_audit.py --output affiliate-audit-report.json
+      - name: Subir informe como artefacto interno
+        uses: actions/upload-artifact@v4
+        with:
+          name: superagente-amazon-audit
+          path: affiliate-audit-report.json
+          retention-days: 14
