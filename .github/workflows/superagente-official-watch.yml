@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - 'scripts/superagente_official_watch.py'
+      - 'scripts/superagente_semantic_evidence.py'
+      - 'scripts/test_superagente_semantic_evidence.py'
       - 'scripts/superagente_editorial_loop.py'
       - 'scripts/test_superagente_editorial_loop.py'
       - 'scripts/superagente_official_content_tasks.py'
@@ -50,6 +52,16 @@ jobs:
             --watchlist superagente/official-watchlist.json \
             --report superagente/official-watch-report.json \
             --output superagente/official-editorial-queue.json
+      - name: Verificar integridad de evidencia y extracción semántica
+        run: python -m unittest discover -s scripts -p 'test_superagente_semantic_evidence.py' -v
+      - name: Comparar posibles cambios legales sin editar páginas
+        if: success()
+        run: |
+          python scripts/superagente_semantic_evidence.py \
+            --watchlist superagente/official-watchlist.json \
+            --watch-report superagente/official-watch-report.json \
+            --snapshots superagente/official-text-snapshots.json \
+            --output superagente/official-semantic-candidates.json
       - name: Upload review alerts
         if: always()
         uses: actions/upload-artifact@v4
@@ -60,3 +72,5 @@ jobs:
             superagente/official-content-tasks.json
             superagente/official-baseline-candidate.json
             superagente/official-editorial-queue.json
+            superagente/official-text-snapshots.json
+            superagente/official-semantic-candidates.json
