@@ -47,7 +47,7 @@ class RegionalContentSafety(unittest.TestCase):
                 now=self.page(slug)
                 self.assertIn('id="actualizacion-regional-2026"',now)
                 self.assertIn('Información revisada: 7 de noviembre de 2026',now)
-                self.assertIn('Última revisión: 7 de noviembre de 2026',now)
+                self.assertIn('Última revisión: <time datetime="2026-11-07">7 de noviembre de 2026</time>',now)
                 self.assertIn('"dateModified":"2026-11-07"',now)
                 self.assertIn('href="https://',now)
                 self.assertIn('contrasta',now.lower().replace('contrastada','contrasta'))
