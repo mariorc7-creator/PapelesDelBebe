@@ -104,8 +104,8 @@ def check_manifest(root, manifest):
                 raise ValueError("Missing exact edit")
             if original.count(search)!=1 or search==replacement:
                 raise ValueError("Stale or nonunique content anchor")
-            if re.search(r'<(?:script|style|nav|header|footer)\b', search+" "+replacement,re.I):
-                raise ValueError("Cannot edit protected page sections")
+            if any(char in text for text in (search,replacement) for char in "<>"):
+                raise ValueError("Only plain-text edits are allowed; HTML changes need separate review")
             changed=changed.replace(search,replacement,1)
             changed=re.sub(r'("dateModified"\s*:\s*")\d{4}-\d{2}-\d{2}(")',lambda m:m.group(1)+stamp+m.group(2),changed)
         else:
