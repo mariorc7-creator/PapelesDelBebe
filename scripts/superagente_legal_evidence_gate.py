@@ -102,7 +102,7 @@ def verify(claims, watchlist, watch_report, snapshots, root):
         last=iso_date(scope["effective_until"])
         if first and last and first>last:raise ValueError("Inverted validity dates")
         # Two explicit uncertainty gates, including future law and ambiguous scope.
-        if scope["application_status"]=="uncertain" or item.get("legal_conflict_detected") is True:
+        if scope["application_status"]=="uncertain" or item.get("legal_conflict_detected") is not False:
             raise ValueError("Uncertain applicability requires manual legal analysis")
         reviewer=item.get("reviewer")
         if (not isinstance(reviewer,dict) or not nonempty(reviewer.get("name")) or
