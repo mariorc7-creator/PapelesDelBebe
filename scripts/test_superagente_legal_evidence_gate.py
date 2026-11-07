@@ -83,4 +83,18 @@ class LegalEvidenceTests(unittest.TestCase):
                 self.sources,self.reports,self.snapshots,self.root)
     def test_html_changes_disallowed(self):
         self.claim["new_claim"]="<h1>500 euros</h1>";self.assert_blocks()
+    def test_verified_record_generates_non_publishable_manifest(self):
+        out=gate.to_branch_manifest(self.check(),date.today().isoformat())
+        self.assertFalse(out["publication_allowed"])
+        self.assertEqual(out["changes"][0]["search"],"300 euros")
+        self.assertEqual(out["changes"][0]["replacement"],"500 euros")
+        self.assertEqual(out["changes"][0]["source_sha256"],fingerprint(SOURCE))
+    def test_unverified_report_rejected_for_manifest(self):
+        with self.assertRaises(ValueError):
+            gate.to_branch_manifest({"mode":"arbitrary","records":[]},date.today().isoformat())
+    def test_multi_changes_same_page_requires_combined_review(self):
+        report=self.check()
+        report["records"].append(deepcopy(report["records"][0]))
+        with self.assertRaises(ValueError):
+            gate.to_branch_manifest(report,date.today().isoformat())
 if __name__=="__main__":unittest.main()
