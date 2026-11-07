@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "technical_fingerprints_only": true,
+  "legal_facts_verified": false,
+  "source": "GitHub Actions official-watch artifact",
+  "workflow_run_id": 42420302082,
+  "artifact_id": 13593271299,
+  "run_head_sha": "1f4e597ecff644e50722f52bb651a8ddc154e129",
+  "observed_at": "2026-11-07T22:22:52Z",
+  "sources_captured": 6,
+  "sources_failed": 1,
+  "missing_source": "https://juventud.asturias.es/-/ayudas-para-el-fomento-de-la-natalidad-y-la-adopci%C3%B3n-en-el-principado-de-asturias%C2%A0%C2%A0.-2025",
+  "warning": "Saving six technical baselines establishes what the public HTML said at capture time; it does NOT validate legal facts, timeliness or eligibility. No automatic publication."
+}
