@@ -5,6 +5,8 @@ on:
     paths:
       - 'scripts/superagente_integrated.py'
       - 'scripts/test_superagente_integrated.py'
+      - 'scripts/superagente_content_updater.py'
+      - 'scripts/test_superagente_content_updater.py'
       - 'scripts/superagente_v1_readiness.py'
       - 'scripts/test_superagente_v1_readiness.py'
       - 'superagente/v1-readiness-evidence.json'
@@ -26,6 +28,8 @@ jobs:
           python-version: '3.12'
       - name: Probar protecciones transversales y cola integrada
         run: python -m unittest discover -s scripts -p 'test_superagente_integrated.py' -v
+      - name: Probar actualizador de contenidos, fechas y protecciones SEO
+        run: python -m unittest discover -s scripts -p 'test_superagente_content_updater.py' -v
       - name: Probar puerta de activacion V1 y seguridad
         run: python -m unittest discover -s scripts -p 'test_superagente_v1_readiness.py' -v
       - name: Probar memoria de decisiones
