@@ -59,8 +59,8 @@ def _money(value):
         money = Decimal(value)
     except InvalidOperation as exc:
         raise ValueError("Invalid commission amount") from exc
-    if not money.is_finite() or money < 0 or money > Decimal("100000000"):
-        raise ValueError("Invalid nonnegative commission amount")
+    if not money.is_finite() or abs(money) > Decimal("100000000"):
+        raise ValueError("Invalid commission amount")
     if money.as_tuple().exponent < -2:
         raise ValueError("Commission must have at most two decimals")
     return money
