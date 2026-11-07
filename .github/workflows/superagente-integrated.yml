@@ -1,0 +1,55 @@
+name: SuperAgente - Integracion completa (solo lectura)
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/superagente_integrated.py'
+      - 'scripts/test_superagente_integrated.py'
+      - 'scripts/superagente_decision_memory.py'
+      - 'scripts/superagente_amazon_queue.py'
+      - 'scripts/superagente_affiliate_decisions.py'
+      - 'superagente/V04_REMOTE_STAGING_REPORT.json'
+      - '.github/workflows/superagente-integrated.yml'
+permissions:
+  contents: read
+jobs:
+  integrated:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Probar protecciones transversales y cola integrada
+        run: python -m unittest discover -s scripts -p 'test_superagente_integrated.py' -v
+      - name: Probar memoria de decisiones
+        run: python -m unittest discover -s scripts -p 'test_superagente_decision_memory.py' -v
+      - name: Probar auditor de Amazon y oportunidades editoriales
+        run: python -m unittest discover -s scripts -p 'test_superagente_amazon_*.py' -v
+      - name: Generar auditoría estática sin cambios de HTML
+        run: python scripts/superagente_amazon_audit.py --output amazon-static-audit.json
+      - name: Generar tablero ejecutivo con evidencia real disponible
+        run: |
+          python scripts/superagente_integrated.py \
+            --amazon-audit amazon-static-audit.json \
+            --staging-report superagente/V04_REMOTE_STAGING_REPORT.json \
+            --output-dir superagente-integrated-results
+      - name: Comprobar que ninguna salida autoriza despliegues
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('superagente-integrated-results/superagente-integrado.json').read_text())
+          assert d['gates']['automation_enabled'] is False
+          assert d['gates']['publish_to_production_allowed'] is False
+          assert d['gates']['staging_requires_reverification'] is True
+          assert d['no_live_data_or_revenue_inferred'] is True
+          print('Production, SEO, automation and rollback gates enforced')
+          PY
+      - name: Publicar únicamente informes no privados
+        uses: actions/upload-artifact@v4
+        with:
+          name: superagente-integrated-safe-review
+          path: superagente-integrated-results/
+          retention-days: 14
