@@ -1,8 +1,6 @@
 name: SuperAgente - Vigilancia fuentes oficiales
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '10 7 * * 1,4'
   pull_request:
     paths:
       - 'scripts/superagente_official_watch.py'
