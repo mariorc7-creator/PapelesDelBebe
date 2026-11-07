@@ -1,0 +1,33 @@
+name: SuperAgente - Puerta de evidencia juridica (sin publicar)
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/superagente_legal_evidence_gate.py'
+      - 'scripts/test_superagente_legal_evidence_gate.py'
+      - 'scripts/superagente_semantic_evidence.py'
+      - '.github/workflows/superagente-legal-evidence.yml'
+permissions:
+  contents: read
+jobs:
+  verify-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Prueba de requisitos jurídicos y bloqueo seguro
+        run: python -m unittest discover -s scripts -p 'test_superagente_legal_evidence_gate.py' -v
+      - name: Prueba del comparador y de la aplicación segura
+        run: |
+          python -m unittest discover -s scripts -p 'test_superagente_semantic_evidence.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_editorial_loop.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_content_updater.py' -v
+      - name: No cambiar contenido ni desplegar
+        run: |
+          test -z "$(git status --porcelain -- '*.html' 'vercel.json' 'sitemap.xml')"
+          echo 'Evidencia documental controlada; publicacion no autorizada'
