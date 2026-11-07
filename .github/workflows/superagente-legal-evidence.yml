@@ -5,6 +5,8 @@ on:
     paths:
       - 'scripts/superagente_legal_evidence_gate.py'
       - 'scripts/test_superagente_legal_evidence_gate.py'
+      - 'scripts/superagente_verified_batch.py'
+      - 'scripts/test_superagente_verified_batch.py'
       - 'scripts/superagente_semantic_evidence.py'
       - '.github/workflows/superagente-legal-evidence.yml'
 permissions:
@@ -22,6 +24,8 @@ jobs:
           python-version: '3.12'
       - name: Prueba de requisitos jurídicos y bloqueo seguro
         run: python -m unittest discover -s scripts -p 'test_superagente_legal_evidence_gate.py' -v
+      - name: Prueba real extremo a extremo de edición documental en rama
+        run: python -m unittest discover -s scripts -p 'test_superagente_verified_batch.py' -v
       - name: Prueba del comparador y de la aplicación segura
         run: |
           python -m unittest discover -s scripts -p 'test_superagente_semantic_evidence.py' -v
