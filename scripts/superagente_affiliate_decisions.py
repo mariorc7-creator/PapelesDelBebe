@@ -86,7 +86,7 @@ def build_decisions(report):
             "La comisión agregada no demuestra qué página o recomendación produjo el pedido.",
             {"net_commissions_eur_from_supplied_export": commissions, "data_verified": confirmed},
             "Revisión humana del informe original y devoluciones")
-    tasks.sort(key=lambda t:(t["priority"],t["id"]))
+    tasks.sort(key=lambda t:(t["priority"], -(t["evidence"].get("observed_clicks", 0)), t["id"]))
     return {
         "schema_version": 1,
         "month": report["month"],
