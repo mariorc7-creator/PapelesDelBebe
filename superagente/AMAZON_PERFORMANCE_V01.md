@@ -52,3 +52,19 @@ Cada CSV puede omitirse individualmente, pero hay que aportar al menos uno. Las 
 4. Mantener desactivado el cron y exigir QA SEO/móvil antes de cualquier cambio en páginas indexadas.
 
 El análisis no modifica HTML, canonical, sitemap, redirecciones, diseño ni fechas de revisión.
+
+## Informe mensual local sin suscripciones nuevas
+
+El comando siguiente genera un resumen privado en dos formatos (JSON y Markdown) a partir de CSV normalizados:
+
+```bash
+python scripts/superagente_affiliate_monthly.py \
+  --month 2026-11 \
+  --clicks-csv /ruta/privada/clicks.csv \
+  --amazon-csv /ruta/privada/amazon.csv \
+  --output-dir /ruta/privada/informes/
+```
+
+Los resultados son `affiliate-monthly-2026-11.json` y `affiliate-monthly-2026-11.md`. No subir esos archivos a GitHub si incluyen información privada. El reporte distingue cifras reales suministradas de métricas ausentes, ofrece comprobaciones posteriores y evita atribuir ventas a categorías de clics sin pruebas.
+
+**Decisión de herramientas:** no utilizar GSC Wizard en este proyecto. No utilizarlo en scripts, automatizaciones, recomendaciones ni como dependencia. Los eventos de clic de Vercel requieren acceso a datos autorizados o exportaciones; el plan Hobby no ofrece acceso API a eventos personalizados. Los informes de ventas deben obtenerse desde Amazon Associates, con autorización del propietario. No contratar planes ni incorporar instrumentos de seguimiento de usuarios sin aprobación.
