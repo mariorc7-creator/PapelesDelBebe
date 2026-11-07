@@ -61,6 +61,8 @@ class LegalEvidenceTests(unittest.TestCase):
         self.claim["scope"].pop("beneficiaries");self.assert_blocks()
     def test_uncertain_open_status_blocks(self):
         self.claim["scope"]["application_status"]="uncertain";self.assert_blocks()
+    def test_missing_conflict_attestation_blocks(self):
+        self.claim.pop("legal_conflict_detected");self.assert_blocks()
     def test_conflict_detected_blocks(self):
         self.claim["legal_conflict_detected"]=True;self.assert_blocks()
     def test_bad_date_order_blocks(self):
