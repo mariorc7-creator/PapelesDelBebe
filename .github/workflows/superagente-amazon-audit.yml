@@ -7,6 +7,8 @@ on:
       - 'scripts/test_superagente_amazon_audit.py'
       - 'scripts/superagente_amazon_queue.py'
       - 'scripts/test_superagente_amazon_queue.py'
+      - 'scripts/superagente_affiliate_performance.py'
+      - 'scripts/test_superagente_affiliate_performance.py'
       - '.github/workflows/superagente-amazon-audit.yml'
       - 'preparativos-bebe/**'
 permissions:
@@ -24,6 +26,8 @@ jobs:
         run: python -m unittest discover -s scripts -p 'test_superagente_amazon_audit.py' -v
       - name: Probar priorizacion editorial y proteccion SEO
         run: python -m unittest discover -s scripts -p 'test_superagente_amazon_queue.py' -v
+      - name: Comprobar importación segura de clics e ingresos reales
+        run: python -m unittest discover -s scripts -p 'test_superagente_affiliate_performance.py' -v
       - name: Generar informe solo lectura, sin tocar el HTML
         run: python scripts/superagente_amazon_audit.py --output affiliate-audit-report.json
       - name: Preparar cola editorial sin publicar
