@@ -43,6 +43,7 @@ def main():
     watchlist = json.loads(SOURCES.read_text(encoding="utf-8"))
     baseline = json.loads(args.baseline.read_text(encoding="utf-8")) if args.baseline.exists() else {}
     entries = []
+    snapshots = []
     opener = urllib.request.build_opener(urllib.request.HTTPSHandler(context=ssl.create_default_context()), NoRedirect())
     for item in watchlist.get("sources", []):
         url = item["url"]
@@ -70,8 +71,10 @@ def main():
             previous = baseline.get(url)
             status = "baseline_missing" if previous is None else ("changed_needs_review" if previous != digest else "unchanged")
             entries.append({"url": url, "status": status, "sha256": digest, "characters": len(text), "topics": item.get("topics", [])})
+            snapshots.append({"url": url, "sha256": digest, "text": text, "captured_on": datetime.now(timezone.utc).date().isoformat(), "verified_legal_facts": False})
         except Exception as exc:
             entries.append({"url": url, "status": "fetch_failed", "error": type(exc).__name__})
     OUT.write_text(json.dumps({"generated_at": datetime.now(timezone.utc).isoformat(), "warning": "Source HTML fingerprints are not legal verification. Changes require manual/semantic review.", "results": entries}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (ROOT / "superagente/official-text-snapshots.json").write_text(json.dumps({"schema_version": 1, "snapshots": snapshots, "warning": "Public official HTML text; not proof of legal accuracy."}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print("Official source watch:", {status: sum(x["status"] == status for x in entries) for status in sorted({x["status"] for x in entries})})
 if __name__ == "__main__": main()
