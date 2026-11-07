@@ -105,11 +105,11 @@ def verify(claims, watchlist, watch_report, snapshots, root):
         if scope["application_status"]=="uncertain" or item.get("legal_conflict_detected") is True:
             raise ValueError("Uncertain applicability requires manual legal analysis")
         reviewer=item.get("reviewer")
-        if not isinstance(reviewer,dict) or not nonempty(reviewer.get("name")) or
-           reviewer.get("independent_factual_check") is not True or
-           reviewer.get("scope_and_exceptions_checked") is not True or
-           not nonempty(reviewer.get("evidence_ref")) or
-           not nonempty(reviewer.get("reviewed_at")):
+        if (not isinstance(reviewer,dict) or not nonempty(reviewer.get("name")) or
+            reviewer.get("independent_factual_check") is not True or
+            reviewer.get("scope_and_exceptions_checked") is not True or
+            not nonempty(reviewer.get("evidence_ref")) or
+            not nonempty(reviewer.get("reviewed_at"))):
             raise ValueError("Missing accountable independent review")
         review_stamp=iso_date(reviewer["reviewed_at"])
         if review_stamp>date.today():raise ValueError("Future editorial review impossible")
