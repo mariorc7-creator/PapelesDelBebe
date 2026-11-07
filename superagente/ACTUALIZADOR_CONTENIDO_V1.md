@@ -5,10 +5,11 @@
 ## Piezas existentes y nuevas
 
 1. `superagente_official_watch.py`: consulta fuentes oficiales exactas y compara huellas digitales con una línea base. *Cambio de huella no significa que haya cambiado una norma.*
-2. `superagente_official_content_tasks.py` (nuevo): mapea cada fuente alterada a la página concreta de Papeles del Bebé y crea tareas de contraste semántico; no afirma importes ni plazos no comprobados.
-3. **Verificación editorial independiente de hechos**: sigue siendo un control necesario. Debe determinar convocatoria, cuantía, rango de fechas, requisitos, jurisdicción y texto exacto frente a la publicación oficial. No hay todavía un verificador semántico autónomo de garantías equivalentes.
-4. `superagente_content_updater.py` (nuevo): aplica **en un único lote** cambios exactos que hayan sido contrastados y aprobados, con SHA de cada HTML para impedir cambios sobre versiones desactualizadas.
-5. Después, una rama `batch/*`, pruebas SEO y móvil, una única preview y despliegue de producción revisado mediante el flujo ya disponible en `main`.
+2. `superagente_official_baseline.py` (nuevo): guarda como *propuesta* los fingerprints iniciales, y nunca reemplaza silenciosamente una versión anterior cuando la fuente cambia. La línea base revisada debe persistirse en el repositorio.
+3. `superagente_official_content_tasks.py` (nuevo): mapea cada fuente alterada a la página concreta de Papeles del Bebé y crea tareas de contraste semántico; no afirma importes ni plazos no comprobados.
+4. **Verificación editorial independiente de hechos**: sigue siendo un control necesario. Debe determinar convocatoria, cuantía, rango de fechas, requisitos, jurisdicción y texto exacto frente a la publicación oficial. No hay todavía un verificador semántico autónomo de garantías equivalentes.
+5. `superagente_content_updater.py` (nuevo): aplica **en un único lote** cambios exactos que hayan sido contrastados y aprobados, con SHA de cada HTML para impedir cambios sobre versiones desactualizadas.
+6. Después, una rama `batch/*`, pruebas SEO y móvil, una única preview y despliegue de producción revisado mediante el flujo ya disponible en `main`.
 
 ## Cómo prepara una modificación real
 
@@ -55,7 +56,7 @@ El comando no utiliza GitHub ni Vercel, no hace commits, no publica ni autoriza 
 
 ## Límites todavía pendientes
 
-- **Cobertura:** la lista inicial de vigilancia contiene muy pocas fuentes (ahora AEAT y Cataluña). Hay que ampliar con URLs oficiales verificadas por CCAA, BOE y normas relevantes.
+- **Cobertura:** la lista de vigilancia ha pasado de 2 a 7 fuentes concretas: AEAT, Cataluña, Asturias, Euskadi, Extremadura, Andalucía y Baleares. Para abarcar todas las CCAA aún faltan fuentes y comprobaciones de accesibilidad. El primer ciclo genera una propuesta de huellas iniciales, que debe validarse y guardar en el repositorio antes de poder comparar cambios reales.
 - **Semántica:** no basta un hash distinto. Es necesario extraer la parte relevante de los documentos, identificar diferencias jurídicas y contrastar cada propuesta antes de que el actualizador la aplique.
 - **Autonomía:** sin un verificador de hechos autorizado y sin pruebas de reversión remota, no se debe dejar que cambios legales se publiquen sin supervisión.
 - **Periodicidad:** la vigilancia automática continua permanece deliberadamente desactivada. Se pueden realizar ejecuciones manuales sin habilitar despliegues.
