@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - 'scripts/superagente_official_watch.py'
+      - 'scripts/superagente_official_content_tasks.py'
+      - 'scripts/test_superagente_official_content_tasks.py'
       - 'superagente/official-watchlist.json'
       - '.github/workflows/superagente-official-watch.yml'
 permissions:
@@ -18,9 +20,20 @@ jobs:
           python-version: '3.12'
       - name: Check official source fingerprints
         run: python scripts/superagente_official_watch.py
+      - name: Validar enlace fuente a página afectada
+        run: python -m unittest discover -s scripts -p 'test_superagente_official_content_tasks.py' -v
+      - name: Preparar tareas de actualización sin aprobarlas
+        if: success()
+        run: |
+          python scripts/superagente_official_content_tasks.py \
+            --watchlist superagente/official-watchlist.json \
+            --watch-report superagente/official-watch-report.json \
+            --output superagente/official-content-tasks.json
       - name: Upload review alerts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: superagente-official-watch
-          path: superagente/official-watch-report.json
+          path: |
+            superagente/official-watch-report.json
+            superagente/official-content-tasks.json
