@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - 'scripts/superagente_official_watch.py'
+      - 'scripts/superagente_editorial_loop.py'
+      - 'scripts/test_superagente_editorial_loop.py'
       - 'scripts/superagente_official_content_tasks.py'
       - 'scripts/test_superagente_official_content_tasks.py'
       - 'scripts/superagente_official_baseline.py'
@@ -40,6 +42,13 @@ jobs:
             --watchlist superagente/official-watchlist.json \
             --watch-report superagente/official-watch-report.json \
             --output superagente/official-content-tasks.json
+      - name: Conectar fuentes oficiales con borradores exactos de las guías
+        if: success()
+        run: |
+          python scripts/superagente_editorial_loop.py \
+            --watchlist superagente/official-watchlist.json \
+            --report superagente/official-watch-report.json \
+            --output superagente/official-editorial-queue.json
       - name: Upload review alerts
         if: always()
         uses: actions/upload-artifact@v4
@@ -49,3 +58,4 @@ jobs:
             superagente/official-watch-report.json
             superagente/official-content-tasks.json
             superagente/official-baseline-candidate.json
+            superagente/official-editorial-queue.json
