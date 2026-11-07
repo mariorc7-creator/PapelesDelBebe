@@ -21,6 +21,56 @@
       ],
       "page": "https://www.papelesdelbebe.es/ayuda-nacimiento-cataluna/",
       "research_status": "web_content_located_capture_unverified"
+    },
+    {
+      "url": "https://juventud.asturias.es/-/ayudas-para-el-fomento-de-la-natalidad-y-la-adopci%C3%B3n-en-el-principado-de-asturias%C2%A0%C2%A0.-2025",
+      "approved_host": "juventud.asturias.es",
+      "require_document_path": true,
+      "topics": [
+        "ayuda_nacimiento_asturias"
+      ],
+      "page": "https://www.papelesdelbebe.es/ayuda-nacimiento-asturias/",
+      "research_status": "official_web_content_located_capture_unverified"
+    },
+    {
+      "url": "https://www.euskadi.eus/ayudas-mensuales-a-familias-con-hijas-o-hijos/web01-a2famil/es/",
+      "approved_host": "www.euskadi.eus",
+      "require_document_path": true,
+      "topics": [
+        "ayudas_hijos_pais_vasco"
+      ],
+      "page": "https://www.papelesdelbebe.es/ayudas-hijos-pais-vasco/",
+      "research_status": "official_web_content_located_capture_unverified"
+    },
+    {
+      "url": "https://www.juntaex.es/w/0702824",
+      "approved_host": "www.juntaex.es",
+      "require_document_path": true,
+      "topics": [
+        "ayuda_natalidad_extremadura"
+      ],
+      "page": "https://www.papelesdelbebe.es/ayuda-natalidad-extremadura/",
+      "research_status": "official_web_content_located_capture_unverified"
+    },
+    {
+      "url": "https://www.juntadeandalucia.es/boja/2025/251/2",
+      "approved_host": "www.juntadeandalucia.es",
+      "require_document_path": true,
+      "topics": [
+        "deduccion_nacimiento_andalucia"
+      ],
+      "page": "https://www.papelesdelbebe.es/comunidades/andalucia/",
+      "research_status": "official_web_content_located_capture_unverified"
+    },
+    {
+      "url": "https://www.atib.es/General/Novedad.aspx?idTexto=16987&idTipoTexto=1&lang=es",
+      "approved_host": "www.atib.es",
+      "require_document_path": true,
+      "topics": [
+        "deduccion_nacimiento_baleares"
+      ],
+      "page": "https://www.papelesdelbebe.es/comunidades/islas-baleares/",
+      "research_status": "official_web_content_located_capture_unverified"
     }
   ],
   "blocked_sources": [
