@@ -11,6 +11,7 @@ on:
       - 'scripts/superagente_official_baseline.py'
       - 'scripts/test_superagente_official_baseline.py'
       - 'superagente/official-watchlist.json'
+      - 'superagente/official-baseline.json'
       - '.github/workflows/superagente-official-watch.yml'
 permissions:
   contents: read
