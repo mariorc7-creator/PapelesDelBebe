@@ -35,7 +35,7 @@ class AffiliateDecisionsTests(unittest.TestCase):
     def test_verified_clicks_prioritise_review_not_sale_claims(self):
         plan = decisions.build_decisions(monthly(10, {"trona": 7, "cuna": 2, "carrito": 1}, "5.00", True))
         category_tasks = [t for t in plan["tasks"] if t["id"].startswith("review-category-")]
-        self.assertEqual([t["evidence"]["category"] for t in category_tasks], ["carrito", "cuna", "trona"] if False else ["carrito", "cuna", "trona"])
+        self.assertEqual([t["evidence"]["category"] for t in category_tasks], ["trona", "cuna", "carrito"])
         self.assertFalse(plan["affiliate_attribution_available"])
         self.assertTrue(all(not t["website_changes_allowed"] for t in plan["tasks"]))
 
