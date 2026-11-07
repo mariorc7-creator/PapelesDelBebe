@@ -59,8 +59,12 @@ class AffiliatePerformanceTests(unittest.TestCase):
         self.assertEqual(result["clicks"]["total"], 0)
         self.assertIsNone(result["amazon"]["ordered_items"])
 
-    def test_reject_negative_commissions(self):
-        sales = self.write("amazon.csv", "date,ordered_items,shipped_items,commission_eur\n2026-11-01,1,1,-1.00\n")
+    def test_negative_commissions_capture_refunds(self):
+        sales = self.write("amazon.csv", "date,ordered_items,shipped_items,commission_eur\n2026-11-01,1,1,4.00\n2026-11-02,0,0,-1.00\n")
+        self.assertEqual(performance.build_report(amazon_path=sales)["amazon"]["commissions_eur"], "3.00")
+
+    def test_reject_nan_commissions(self):
+        sales = self.write("amazon.csv", "date,ordered_items,shipped_items,commission_eur\n2026-11-01,1,1,NaN\n")
         with self.assertRaises(ValueError):
             performance.build_report(amazon_path=sales)
 
