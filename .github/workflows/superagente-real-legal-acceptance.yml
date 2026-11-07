@@ -1,0 +1,33 @@
+name: SuperAgente - Aceptación legal con convocatorias reales (sin publicar)
+on:
+  pull_request:
+    paths:
+      - 'scripts/superagente_real_legal_cases.py'
+      - 'scripts/test_superagente_real_legal_cases.py'
+      - 'superagente/acceptance/regional-legal-2026.json'
+      - '.github/workflows/superagente-real-legal-acceptance.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-regional-facts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Ejecutar casos basados en convocatorias oficiales
+        run: python -m unittest discover -s scripts -p 'test_superagente_real_legal_cases.py' -v
+      - name: Validar matriz de aceptación documentada
+        run: |
+          python scripts/superagente_real_legal_cases.py \
+            --casebook superagente/acceptance/regional-legal-2026.json \
+            --output /tmp/real-regional-2026-results.json
+      - name: Impedir cambios de producción
+        run: |
+          test -z "$(git status --porcelain -- '*.html' 'vercel.json' 'sitemap.xml')"
+          echo 'Pruebas reales verificadas; ninguna modificación de páginas ni de producción.'
