@@ -1,0 +1,54 @@
+name: Publicación por lotes - QA único previo a PROD
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '**/index.html'
+      - 'index.html'
+      - 'vercel.json'
+      - 'scripts/build-static.cjs'
+      - 'scripts/batch_release_check.py'
+      - 'scripts/test_batch_release_check.py'
+      - '.github/workflows/batch-content-release.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: content-batch-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  batch-qa:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verificar invariantes del validador
+        run: python -m unittest discover -s scripts -p 'test_batch_release_check.py' -v
+      - name: Comprobar páginas del lote (sin despliegue)
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          changed="$(git diff --name-only "$BASE_SHA" HEAD --)"
+          if printf '%s\n' "$changed" | grep -Eq '(^|/)index\.html$'; then
+            python scripts/batch_release_check.py --base "$BASE_SHA" --output /tmp/batch-release-report.json
+          else
+            echo 'Sin HTML editado: se comprueba el proceso pero no se simula un lote vacío.'
+          fi
+      - name: Compilar una sola vez y auditar sitemap, canonical y redirecciones
+        run: node scripts/build-static.cjs
+      - name: Confirmar que la compilación no cambia código fuente
+        run: |
+          git diff --exit-code -- vercel.json scripts/build-static.cjs
+      - name: Resultado
+        run: echo 'QA completo. No se publica automáticamente desde GitHub Actions.'
