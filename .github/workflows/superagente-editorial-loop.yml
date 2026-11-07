@@ -1,0 +1,37 @@
+name: SuperAgente - Actualización editorial integrada (sin publicación)
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/superagente_editorial_loop.py'
+      - 'scripts/test_superagente_editorial_loop.py'
+      - 'scripts/superagente_content_updater.py'
+      - 'scripts/test_superagente_content_updater.py'
+      - 'scripts/superagente_official_content_tasks.py'
+      - 'scripts/test_superagente_official_content_tasks.py'
+      - '.github/workflows/superagente-editorial-loop.yml'
+permissions:
+  contents: read
+jobs:
+  editorial-loop-test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pruebas del circuito oficial -> guía -> revisión -> lote
+        run: |
+          python -m unittest discover -s scripts -p 'test_superagente_editorial_loop.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_content_updater.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_official_content_tasks.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_official_baseline.py' -v
+      - name: Confirmar ninguna mutación de páginas ni aprobación de PROD
+        shell: bash
+        run: |
+          test -z "$(git status --porcelain -- '*.html' 'vercel.json' 'sitemap.xml')"
+          echo 'Circuito editorial probado, sin escritura en web ni publicación.'
