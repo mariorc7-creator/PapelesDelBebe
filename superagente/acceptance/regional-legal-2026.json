@@ -1,0 +1,354 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-11-07",
+  "published_automatically": false,
+  "source_records": [
+    {
+      "scheme": "extremadura",
+      "official_url": "https://www.juntaex.es/w/0702824",
+      "publication": "convocatoria 2026; fuera de plazo; 7 agosto a 30 septiembre; evento 1 sept 2025 a 31 ago 2026; población menor a 3000; 500 euros"
+    },
+    {
+      "scheme": "asturias",
+      "official_url": "https://juventud.asturias.es/-/ayudas-para-el-fomento-de-la-natalidad-y-la-adopci%C3%B3n-en-el-principado-de-asturias%C2%A0%C2%A0.-2025",
+      "publication": "convocatoria de 2026: cobertura 1 oct 2025 a 30 sept 2026, regla de 2 meses desde nacimiento posterior a publicación; 1200 / 1700 / 2200 euros; casuística previa publicación requiere extracto BOPA"
+    },
+    {
+      "scheme": "cataluna",
+      "official_url": "https://tramits.gencat.cat/es/tramits/tramits-temes/Prestacio-per-a-families-amb-infants?moda=1",
+      "publication": "2026: 650/750 euros; desde 14 julio 3 meses; antes 13 julio 1 mes, ingreso y títulos condicionados"
+    }
+  ],
+  "cases": [
+    {
+      "id": "extremadura_closed_november",
+      "input": {
+        "scheme": "extremadura",
+        "event_date": "2026-05-01",
+        "population": 2200
+      },
+      "expected": {
+        "verdict": "closed",
+        "deadline": "2026-09-30",
+        "amount_eur": 500,
+        "eligible_confirmed": false,
+        "publication_allowed": false
+      }
+    },
+    {
+      "id": "extremadura_open_september",
+      "input": {
+        "scheme": "extremadura",
+        "event_date": "2026-05-01",
+        "population": 2200
+      },
+      "as_of": "2026-09-13",
+      "expected": {
+        "verdict": "open_pending_checks",
+        "deadline": "2026-09-30",
+        "amount_eur": 500,
+        "eligible_confirmed": false,
+        "publication_allowed": false
+      }
+    },
+    {
+      "id": "extremadura_not_open_july",
+      "input": {
+        "scheme": "extremadura",
+        "event_date": "2026-05-01",
+        "population": 2200
+      },
+      "as_of": "2026-07-20",
+      "expected": {
+        "verdict": "not_open_yet",
+        "deadline": "2026-09-30",
+        "amount_eur": 500,
+        "eligible_confirmed": false,
+        "publication_allowed": false
+      }
+    },
+    {
+      "id": "extremadura_event_september_excluded",
+      "input": {
+        "scheme": "extremadura",
+        "event_date": "2026-09-01",
+        "population": 2200
+      },
+      "expected": {
+        "verdict": "out_of_event_window",
+        "deadline": null,
+        "amount_eur": null,
+        "eligible_confirmed": false,
+        "publication_allowed": false
+      }
+    },
+    {
+      "id": "extremadura_town_population_3000",
+      "input": {
+        "scheme": "extremadura",
+        "event_date": "2026-06-01",
+        "population": 3000
+      },
+      "expected": {
+        "verdict": "outside_population_scope",
+        "deadline": null,
+        "amount_eur": null,
+        "eligible_confirmed": false,
+        "publication_allowed": false
+      }
+    },
+    {
+      "id": "extremadura_missing_population",
+      "input": {
+        "scheme": "extremadura",
+        "event_date": "2026-06-01"
+      },
+      "expected": {
+        "verdict": "manual_review",
+        "deadline": null,
+        "amount_eur": null,
+        "eligible_confirmed": false,
+        "publication_allowed": false
+      }
+    },
+    {
+      "id": "extremadura_birth_start_boundary",
+      "input": {
+        "scheme": "extremadura",
+        "event_date": "2025-09-01",
+        "population": 2999
+      },
+      "expected": {
+        "verdict": "closed",
+        "deadline": "2026-09-30",
+        "amount_eur": 500,
+        "eligible_confirmed": false,
+        "publication_allowed": false
+      }
+    },
+    {
+      "id": "extremadura_birth_end_boundary",
+      "input": {
+        "scheme": "extremadura",
+        "event_date": "2026-08-31",
+        "population": 2999
+      },
+      "expected": {
+        "verdict": "closed",
+        "deadline": "2026-09-30",
+        "amount_eur": 500,
+        "eligible_confirmed": false,
+        "publication_allowed": false
+      }
+    },
+    {
+      "id": "asturias_september_end_deadline",
+      "input": {
+        "scheme": "asturias",
+        "event_date": "2026-09-30",
+        "child_order": 1,
+        "depopulated_municipality": false
+      },
+      "expected": {
+        "verdict": "open_pending_checks",
+        "deadline": "2026-11-30",
+        "amount_eur": 1200,
+        "eligible_confirmed": false,
+        "publication_allowed": false
+      }
+    },
+    {
+      "id": "asturias_april_deadline_expired",
+      "input": {
+        "scheme": "asturias",
+        "event_date": "2026-04-12",
+        "child_order": 1,
+        "depopulated_municipality": false
+      },
+      "expected": {
+        "verdict": "individual_deadline_passed",
+        "deadline": "2026-06-12",
+        "amount_eur": 1200,
+        "eligible_confirmed": false,
+        "publication_allowed": false
+      }
+    },
+    {
+      "id": "asturias_second_child",
+      "input": {
+        "scheme": "asturias",
+        "event_date": "2026-09-10",
+        "child_order": 2,
+        "depopulated_municipality": false
+      },
+      "expected": {
+        "verdict": "open_pending_checks",
+        "deadline": "2026-11-10",
+        "amount_eur": 1700,
+        "eligible_confirmed": false,
+        "publication_allowed": false
+      }
+    },
+    {
+      "id": "asturias_depopulated",
+      "input": {
+        "scheme": "asturias",
+        "event_date": "2026-09-20",
+        "child_order": 1,
+        "depopulated_municipality": true
+      },
+      "expected": {
+        "verdict": "open_pending_checks",
+        "deadline": "2026-11-20",
+        "amount_eur": 2200,
+        "eligible_confirmed": false,
+        "publication_allowed": false
+      }
+    },
+    {
+      "id": "asturias_prepublication_exception",
+      "input": {
+        "scheme": "asturias",
+        "event_date": "2026-02-01"
+      },
+      "expected": {
+        "verdict": "manual_review",
+        "deadline": null,
+        "amount_eur": null,
+        "eligible_confirmed": false,
+        "publication_allowed": false
+      }
+    },
+    {
+      "id": "asturias_october_excluded",
+      "input": {
+        "scheme": "asturias",
+        "event_date": "2026-10-01"
+      },
+      "expected": {
+        "verdict": "out_of_event_window",
+        "deadline": null,
+        "amount_eur": null,
+        "eligible_confirmed": false,
+        "publication_allowed": false
+      }
+    },
+    {
+      "id": "asturias_ordinal_unknown",
+      "input": {
+        "scheme": "asturias",
+        "event_date": "2026-09-29"
+      },
+      "expected": {
+        "verdict": "open_pending_checks",
+        "deadline": "2026-11-29",
+        "amount_eur": null,
+        "eligible_confirmed": false,
+        "publication_allowed": false
+      }
+    },
+    {
+      "id": "cataluna_new_deadline",
+      "input": {
+        "scheme": "cataluna",
+        "event_date": "2026-09-08",
+        "large_or_single_parent_certified": false
+      },
+      "expected": {
+        "verdict": "open_pending_checks",
+        "deadline": "2026-12-08",
+        "amount_eur": 650,
+        "eligible_confirmed": false,
+        "publication_allowed": false
+      }
+    },
+    {
+      "id": "cataluna_older_deadline",
+      "input": {
+        "scheme": "cataluna",
+        "event_date": "2026-07-13",
+        "large_or_single_parent_certified": false
+      },
+      "expected": {
+        "verdict": "individual_deadline_passed",
+        "deadline": "2026-08-13",
+        "amount_eur": 650,
+        "eligible_confirmed": false,
+        "publication_allowed": false
+      }
+    },
+    {
+      "id": "cataluna_new_cutoff",
+      "input": {
+        "scheme": "cataluna",
+        "event_date": "2026-07-14",
+        "large_or_single_parent_certified": true
+      },
+      "expected": {
+        "verdict": "individual_deadline_passed",
+        "deadline": "2026-10-14",
+        "amount_eur": 750,
+        "eligible_confirmed": false,
+        "publication_allowed": false
+      }
+    },
+    {
+      "id": "cataluna_month_end_leap",
+      "input": {
+        "scheme": "cataluna",
+        "event_date": "2026-01-31",
+        "large_or_single_parent_certified": false
+      },
+      "expected": {
+        "verdict": "individual_deadline_passed",
+        "deadline": "2026-02-28",
+        "amount_eur": 650,
+        "eligible_confirmed": false,
+        "publication_allowed": false
+      }
+    },
+    {
+      "id": "cataluna_october_deadline",
+      "input": {
+        "scheme": "cataluna",
+        "event_date": "2026-10-31",
+        "large_or_single_parent_certified": false
+      },
+      "expected": {
+        "verdict": "open_pending_checks",
+        "deadline": "2027-01-31",
+        "amount_eur": 650,
+        "eligible_confirmed": false,
+        "publication_allowed": false
+      }
+    },
+    {
+      "id": "cataluna_certificate_unknown",
+      "input": {
+        "scheme": "cataluna",
+        "event_date": "2026-09-09"
+      },
+      "expected": {
+        "verdict": "open_pending_checks",
+        "deadline": "2026-12-09",
+        "amount_eur": null,
+        "eligible_confirmed": false,
+        "publication_allowed": false
+      }
+    },
+    {
+      "id": "cataluna_future_event",
+      "input": {
+        "scheme": "cataluna",
+        "event_date": "2026-12-15"
+      },
+      "expected": {
+        "verdict": "manual_review",
+        "deadline": null,
+        "amount_eur": null,
+        "eligible_confirmed": false,
+        "publication_allowed": false
+      }
+    }
+  ]
+}
