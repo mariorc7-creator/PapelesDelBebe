@@ -1,0 +1,41 @@
+name: Paquete regional v2.5-v3.1 - bloqueo seguro
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/regional_release_gate.py'
+      - 'scripts/test_regional_release_gate.py'
+      - 'scripts/test_regional_content_2026.py'
+      - 'release/regional-v25-v31-readiness.json'
+      - 'comunidades/**'
+permissions:
+  contents: read
+jobs:
+  regional-readiness:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pruebas de prohibición de publicación incompleta
+        run: python -m unittest discover -s scripts -p 'test_regional_release_gate.py' -v
+      - name: Verificar contenido regional, canonicals, navegación y viewport móvil
+        run: python -m unittest discover -s scripts -p 'test_regional_content_2026.py' -v
+      - name: Verificar que el paquete todavía NO está preparado para producción
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import sys
+          sys.path.insert(0, 'scripts')
+          from regional_release_gate import REGIONS,release_readiness
+          receipts=json.loads(Path('release/regional-v25-v31-readiness.json').read_text())
+          result=release_readiness(set(),receipts,{p for p in REGIONS.values() if Path(p).exists()})
+          assert result['production_deploy_allowed'] is False
+          assert result['ready_count']==0
+          print('Regional publication intentionally BLOCKED: no verified package.')
+          PY
