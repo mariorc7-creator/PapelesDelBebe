@@ -134,6 +134,38 @@ def verify(claims, watchlist, watch_report, snapshots, root):
         "warning":"Exact quote + human scope attestation is review evidence, not a machine proof of legal validity."
     }
 
+def to_branch_manifest(report, review_date):
+    """Convert externally reviewed, bound evidence to an updater input.
+
+    The updater still performs page SHA and source mapping checks independently.
+    This conversion is not a deployment authorization.
+    """
+    iso_date(review_date)
+    if not isinstance(report,dict) or report.get("mode")!="documentary_evidence_validation":
+        raise ValueError("Unverified report")
+    rows=report.get("records")
+    if not isinstance(rows,list) or not rows:
+        raise ValueError("Empty verification report")
+    paths=set()
+    changes=[]
+    for row in rows:
+        path=row.get("path")
+        if path in paths:
+            raise ValueError("Multiple facts in a page need combined editorial revision")
+        paths.add(path)
+        if row.get("ready_for_branch_only") is not True or row.get("auto_publish_allowed") is not False:
+            raise ValueError("Unverified or publishable claim")
+        changes.append({
+            "path":path, "original_sha256":row["page_sha256"],
+            "source_sha256":row["source_sha256"], "official_source_url":row["source_url"],
+            "action":"change","search":row["old_claim"],"replacement":row["new_claim"],
+            "review_date":review_date, "independent_source_verification":True,
+            "editorial_approval":True, "reviewer":row["reviewer"],
+            "evidence_ref":row["evidence_ref"],
+        })
+    return {"schema_version":1,"status":"editorially_verified_for_branch_only",
+            "publication_allowed":False,"changes":changes}
+
 def main():
     p=argparse.ArgumentParser()
     p.add_argument("--claims",type=Path,required=True)
