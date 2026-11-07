@@ -5,6 +5,8 @@ on:
     paths:
       - 'scripts/superagente_amazon_audit.py'
       - 'scripts/test_superagente_amazon_audit.py'
+      - 'scripts/superagente_amazon_queue.py'
+      - 'scripts/test_superagente_amazon_queue.py'
       - '.github/workflows/superagente-amazon-audit.yml'
       - 'preparativos-bebe/**'
 permissions:
@@ -20,11 +22,17 @@ jobs:
           python-version: '3.12'
       - name: Testar deteccion y seguridad de enlaces de afiliacion
         run: python -m unittest discover -s scripts -p 'test_superagente_amazon_audit.py' -v
+      - name: Probar priorizacion editorial y proteccion SEO
+        run: python -m unittest discover -s scripts -p 'test_superagente_amazon_queue.py' -v
       - name: Generar informe solo lectura, sin tocar el HTML
         run: python scripts/superagente_amazon_audit.py --output affiliate-audit-report.json
+      - name: Preparar cola editorial sin publicar
+        run: python scripts/superagente_amazon_queue.py --audit affiliate-audit-report.json --output affiliate-review-queue.json
       - name: Subir informe como artefacto interno
         uses: actions/upload-artifact@v4
         with:
           name: superagente-amazon-audit
-          path: affiliate-audit-report.json
+          path: |
+            affiliate-audit-report.json
+            affiliate-review-queue.json
           retention-days: 14
