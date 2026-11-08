@@ -1,0 +1,100 @@
+name: SuperAgente - Vigilancia oficial automatica (solo lectura)
+
+on:
+  schedule:
+    # Laborables 06:17 UTC; solo fuentes oficiales, NUNCA cambios SEO ni despliegues.
+    - cron: '17 6 * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: superagente-safe-official-watch
+  cancel-in-progress: true
+
+jobs:
+  official-content-watch:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Usar codigo auditado del SuperAgente, no contenido de produccion
+        uses: actions/checkout@v4
+        with:
+          ref: acf76b4aebe0d0e08ad148fd8757c50d6758f160
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Vigilar las fuentes oficiales (sin editar la web)
+        run: python scripts/superagente_official_watch.py --workers 4
+      - name: Clasificar novedades con modo rapido
+        id: fast
+        run: |
+          python scripts/superagente_fast_path.py \
+            --watchlist superagente/official-watchlist.json \
+            --report superagente/official-watch-report.json \
+            --snapshots superagente/official-text-snapshots.json \
+            --out-dir superagente/fast-path \
+            --github-output "$GITHUB_OUTPUT"
+      - name: Identificar fuentes que requieren revision
+        run: |
+          python scripts/superagente_official_content_tasks.py \
+            --watchlist superagente/official-watchlist.json \
+            --watch-report superagente/official-watch-report.json \
+            --output superagente/official-content-tasks.json
+      - name: Contrastar posibles diferencias solo en fuentes cambiadas
+        if: steps.fast.outputs.has_changes == 'true'
+        run: |
+          python scripts/superagente_semantic_evidence.py \
+            --watchlist superagente/fast-path/changed-watchlist.json \
+            --watch-report superagente/fast-path/changed-watch-report.json \
+            --snapshots superagente/fast-path/changed-snapshots.json \
+            --output superagente/official-semantic-candidates.json
+      - name: Crear cola editorial solo para paginas afectadas
+        if: steps.fast.outputs.has_changes == 'true'
+        run: |
+          python scripts/superagente_editorial_loop.py \
+            --watchlist superagente/fast-path/changed-watchlist.json \
+            --report superagente/fast-path/changed-watch-report.json \
+            --output superagente/official-editorial-queue.json
+      - name: Garantizar que no se modifican paginas, SEO o configuracion web
+        run: |
+          if [ -n "$(git status --porcelain -- '*.html' '*.htm' 'vercel.json' 'robots.txt' 'sitemap.xml' 'public/' 'src/' 'assets/')" ]; then
+            echo "::error::Prohibidas modificaciones a HTML, SEO y recursos de producción."
+            exit 1
+          fi
+          echo "SEO congelado: sin cambios de HTML, canonicals, robots, sitemap ni desplegues."
+      - name: Resumen visible del trabajo
+        if: always()
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          p=Path("superagente/fast-path/fast-path-summary.json")
+          summary=["## SuperAgente — vigilancia oficial (solo lectura)",
+                   "SEO congelado: este flujo no publica ni edita paginas, metas, URLs o fechas."]
+          if p.is_file():
+              info=json.loads(p.read_text(encoding="utf-8"))
+              summary += [f"- Fuentes consultadas: {info['source_count']}",
+                          f"- Fuentes modificadas: {info['changed_count']}",
+                          f"- Problemas de consulta o linea base: {len(info['followup_required'])}",
+                          "- Novedades: propuestas para revision documental, NO cambios legales confirmados."]
+          else:
+              summary.append("- La comprobación no terminó: revisar los registros.")
+          Path(os.environ['GITHUB_STEP_SUMMARY']).write_text("\n".join(summary)+"\n",encoding="utf-8")
+          PY
+      - name: Conservar solo informes para revision
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: superagente-official-watch-reports
+          retention-days: 14
+          if-no-files-found: warn
+          path: |
+            superagente/official-watch-report.json
+            superagente/official-content-tasks.json
+            superagente/official-text-snapshots.json
+            superagente/official-editorial-queue.json
+            superagente/official-semantic-candidates.json
+            superagente/fast-path/fast-path-summary.json
