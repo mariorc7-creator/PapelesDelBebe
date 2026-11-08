@@ -8,6 +8,7 @@ on:
     paths:
       - 'scripts/superagente_gencat_amount_sync.py'
       - 'scripts/test_superagente_gencat_amount_sync.py'
+      - 'scripts/test_superagente_gencat_live_site.py'
       - 'superagente/gencat-amount-policy.json'
       - '.github/workflows/superagente-gencat-auto.yml'
 
@@ -31,7 +32,9 @@ jobs:
         with:
           python-version: '3.12'
       - name: Probar cambios legales sincronizados, bloqueos, QA SEO y no mutacion
-        run: python -m unittest discover -s scripts -p 'test_superagente_gencat_amount_sync.py' -v
+        run: |
+          python -m unittest discover -s scripts -p 'test_superagente_gencat_amount_sync.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_gencat_live_site.py' -v
 
   sync-factual-amounts:
     if: >-
@@ -80,7 +83,9 @@ jobs:
           cp "$RUNNER_TEMP/factual-watch/superagente/official-watch-report.json" "$RUNNER_TEMP/official-watch/"
           cp "$RUNNER_TEMP/factual-watch/superagente/official-text-snapshots.json" "$RUNNER_TEMP/official-watch/"
       - name: Ejecutar suite factual antes de escribir paginas
-        run: python -m unittest discover -s scripts -p 'test_superagente_gencat_amount_sync.py' -v
+        run: |
+          python -m unittest discover -s scripts -p 'test_superagente_gencat_amount_sync.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_gencat_live_site.py' -v
       - name: Comprobar importes y aplicar solo si Gencat confirma nueva cuantía
         id: sync
         shell: bash
