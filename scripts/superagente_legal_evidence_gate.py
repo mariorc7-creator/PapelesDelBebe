@@ -14,6 +14,7 @@ from pathlib import Path
 import re
 from urllib.parse import urlsplit
 from superagente_claim_consistency import check_claim
+from superagente_scope_verifier import verify_scope
 
 HEX=re.compile(r"^[0-9a-f]{64}$")
 DATE=re.compile(r"^\d{4}-\d{2}-\d{2}$")
@@ -105,6 +106,9 @@ def verify(claims, watchlist, watch_report, snapshots, root):
         first=iso_date(scope["effective_from"])
         last=iso_date(scope["effective_until"])
         if first and last and first>last:raise ValueError("Inverted validity dates")
+        scope_check=verify_scope(scope,item.get("scope_evidence"),text)
+        if scope_check["potential_exclusion_requires_review"] and item.get("reviewer",{}).get("exclusions_resolved") is not True:
+            raise ValueError("Excluded beneficiaries or exceptions must be independently resolved")
         # Two explicit uncertainty gates, including future law and ambiguous scope.
         if scope["application_status"]=="uncertain" or item.get("legal_conflict_detected") is not False:
             raise ValueError("Uncertain applicability requires manual legal analysis")
@@ -124,7 +128,7 @@ def verify(claims, watchlist, watch_report, snapshots, root):
             "path":rel, "source_url":source_url,
             "source_sha256":digest,"page_sha256":sha(html),
             "source_quote":source_quote,"old_claim":original,"new_claim":replacement,
-            "kind":kind,"scope":scope,"reviewer":reviewer["name"],
+            "kind":kind,"scope":scope,"scope_evidence":scope_check,"reviewer":reviewer["name"],
             "evidence_ref":reviewer["evidence_ref"],
             "ready_for_branch_only":True,
             "auto_publish_allowed":False
