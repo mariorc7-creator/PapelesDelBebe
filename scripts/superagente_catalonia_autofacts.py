@@ -129,12 +129,18 @@ def build(policy,watch_report,snapshots,root,as_of=None):
         modified=original
         for index,prev in enumerate(old):
             modified=re.sub(rf"(?<!\d){prev}(?!\d)",str(new[index]),modified)
+        if '"dateModified"' not in original:
+            raise ValueError("Missing factual publication date")
+        modified=re.sub(r'("dateModified"\s*:\s*")[0-9]{4}-[0-9]{2}-[0-9]{2}(")',
+                        lambda match:match.group(1)+as_of.isoformat()+match.group(2),modified)
         if protected(original)!=protected(modified):
             raise ValueError("Navigation, canonical or mobile layout changed")
         # No hidden structural changes: every difference is a registered amount.
         replay=original
         for index,prev in enumerate(old):
             replay=re.sub(rf"(?<!\d){prev}(?!\d)",str(new[index]),replay)
+        replay=re.sub(r'("dateModified"\s*:\s*")[0-9]{4}-[0-9]{2}-[0-9]{2}(")',
+                      lambda match:match.group(1)+as_of.isoformat()+match.group(2),replay)
         if replay!=modified or modified==original:
             raise ValueError("Unsupported page transformation")
         if any(re.search(rf"(?<!\d){prev}(?!\d)",textual(modified)+" "+seo_claims(modified)) for prev in old):
