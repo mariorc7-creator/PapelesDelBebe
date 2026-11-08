@@ -1,0 +1,167 @@
+name: SuperAgente - Sincronizar importes Gencat (solo cambios legales)
+on:
+  workflow_run:
+    workflows: ["SuperAgente - Vigilancia oficial automatica (solo lectura)"]
+    types: [completed]
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/superagente_gencat_amount_sync.py'
+      - 'scripts/test_superagente_gencat_amount_sync.py'
+      - 'scripts/test_superagente_gencat_live_site.py'
+      - 'superagente/gencat-amount-policy.json'
+      - '.github/workflows/superagente-gencat-auto.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: superagente-gencat-verified-publication
+  cancel-in-progress: false
+
+jobs:
+  regression-tests:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Probar cambios legales sincronizados, bloqueos, QA SEO y no mutacion
+        run: |
+          python -m unittest discover -s scripts -p 'test_superagente_gencat_amount_sync.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_gencat_live_site.py' -v
+
+  sync-factual-amounts:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main' &&
+       (github.event.workflow_run.event == 'schedule' ||
+        github.event.workflow_run.event == 'workflow_dispatch'))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Obtener solo capturas oficiales del watcher confiable
+        if: github.event_name == 'workflow_run'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          WATCH_RUN: ${{ github.event.workflow_run.id }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/official-watch"
+          gh run download "$WATCH_RUN" --repo "$GITHUB_REPOSITORY" \
+            --name superagente-official-watch-reports \
+            --dir "$RUNNER_TEMP/official-watch"
+      - name: Consulta fresca en ejecución manual
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          git clone --filter=blob:none --no-checkout \
+            "https://github.com/$GITHUB_REPOSITORY.git" "$RUNNER_TEMP/factual-watch"
+          git -C "$RUNNER_TEMP/factual-watch" checkout acf76b4aebe0d0e08ad148fd8757c50d6758f160
+          python "$RUNNER_TEMP/factual-watch/scripts/superagente_official_watch.py" --workers 4
+          mkdir -p "$RUNNER_TEMP/official-watch"
+          cp "$RUNNER_TEMP/factual-watch/superagente/official-watch-report.json" "$RUNNER_TEMP/official-watch/"
+          cp "$RUNNER_TEMP/factual-watch/superagente/official-text-snapshots.json" "$RUNNER_TEMP/official-watch/"
+      - name: Ejecutar suite factual antes de escribir paginas
+        run: |
+          python -m unittest discover -s scripts -p 'test_superagente_gencat_amount_sync.py' -v
+          python -m unittest discover -s scripts -p 'test_superagente_gencat_live_site.py' -v
+      - name: Comprobar importes y aplicar solo si Gencat confirma nueva cuantía
+        id: sync
+        shell: bash
+        run: |
+          set -euo pipefail
+          REPORT=$(find "$RUNNER_TEMP/official-watch" -name 'official-watch-report.json' -type f | head -1)
+          SNAPSHOTS=$(find "$RUNNER_TEMP/official-watch" -name 'official-text-snapshots.json' -type f | head -1)
+          test -n "$REPORT" && test -n "$SNAPSHOTS"
+          python scripts/superagente_gencat_amount_sync.py \
+            --root . \
+            --policy superagente/gencat-amount-policy.json \
+            --report "$REPORT" \
+            --snapshots "$SNAPSHOTS" \
+            --output "$RUNNER_TEMP/gencat-factual-decision.json" \
+            --apply
+          if git diff --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Pasar control estricto de ficheros y build movil
+        if: steps.sync.outputs.changed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import subprocess
+          allowed={
+              "ayuda-nacimiento-cataluna/index.html",
+              "ca/ajut-naixement-catalunya-2026/index.html",
+              "comunidades/cataluna/index.html",
+              "superagente/gencat-amount-policy.json",
+          }
+          changed=set(subprocess.check_output(["git","diff","--name-only"],text=True).splitlines())
+          if changed!=allowed:
+              raise SystemExit(f"BLOCK: files differ from authorized factual batch: {changed ^ allowed}")
+          print("Four allowlisted fact files; no CSS, JS, URLs or site layout changed")
+          PY
+          git diff --check
+          node scripts/build-static.cjs
+          test -f dist/ayuda-nacimiento-cataluna/index.html
+          test -f dist/comunidades/cataluna/index.html
+      - name: Publicar cambio factual único, o preparar PR si main está protegido
+        if: steps.sync.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ayuda-nacimiento-cataluna/index.html ca/ajut-naixement-catalunya-2026/index.html comunidades/cataluna/index.html superagente/gencat-amount-policy.json
+          git commit -m "content: actualizar cuantias oficiales Gencat 2026 en tres guias ES y CA"
+          if git push origin HEAD:main; then
+            echo "Publicado automáticamente en main; Vercel desplegará un único lote factual." >> "$GITHUB_STEP_SUMMARY"
+          else
+            branch="batch/superagente-gencat-$GITHUB_RUN_ID"
+            git checkout -b "$branch"
+            git push origin "$branch"
+            gh pr create --base main --head "$branch" \
+              --title "SuperAgente: sincronizar cuantías oficiales de Cataluña" \
+              --body "Actualización factual en tres guías ES/CA, vinculada a fuente oficial y aprobada por comprobaciones deterministas. Rama main protegida; revisar el PR antes de publicar."
+            echo "Main protegido: PR creado; no se ha publicado aún." >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Resumen incluso si no hay novedades
+        if: always()
+        run: |
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          f=Path(os.environ["RUNNER_TEMP"])/"gencat-factual-decision.json"
+          if f.is_file():
+              report=json.loads(f.read_text(encoding="utf-8"))
+              with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as out:
+                  out.write("\n### Revisión de cuantías de Gencat\n")
+                  out.write(f"- Páginas factuales modificadas: {report['result']['changed_pages']}\n")
+                  out.write(f"- Fuente oficial: {report['source_sha256']}\n")
+                  out.write("- Sin retoques periódicos de SEO ni diseño.\n")
+          PY

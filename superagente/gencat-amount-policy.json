@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "mode": "gencat-2026-two-amounts",
+  "publication_allowed": false,
+  "official_url": "https://tramits.gencat.cat/es/tramits/tramits-temes/Prestacio-per-a-families-amb-infants?moda=1",
+  "pages": [
+    "ayuda-nacimiento-cataluna/index.html",
+    "ca/ajut-naixement-catalunya-2026/index.html",
+    "comunidades/cataluna/index.html"
+  ],
+  "current_amounts": [
+    650,
+    750
+  ],
+  "notes": "Recurring auto factual amount sync only if Gencat exact wording, 2026 income thresholds, beneficiary conditions and 3-month deadline remain unchanged. Any unexpected variation blocks publication. Content facts in titles/meta are synchronized for accuracy only, no SEO rewriting."
+}
