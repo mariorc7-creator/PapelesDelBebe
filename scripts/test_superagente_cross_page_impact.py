@@ -57,6 +57,22 @@ class ImpactTests(unittest.TestCase):
         self.put(self.p,self.html(f'<p>Extremadura natalidad: convocatoria abierta. <a href="{URL}">Fuente</a></p>'))
         self.put(self.q,self.html('<script>Extremadura natalidad: convocatoria 2026 cerrada.</script>'))
         self.assertTrue(self.check([self.p])["ready_for_auto_publication"])
+    def test_stale_meta_description_blocks_even_if_visible_page_correct(self):
+        self.put(self.p,'<html><head><title>Extremadura</title>'
+                 '<meta name="description" content="Extremadura natalidad: convocatoria 2026 cerrada.">'
+                 '</head><body><main><p>Extremadura natalidad: convocatoria abierta.'
+                 f'<a href="{URL}">Fuente</a></p></main></body></html>')
+        r=self.check([self.p])
+        self.assertFalse(r["ready_for_auto_publication"])
+        self.assertTrue(r["findings"][0]["references"][0]["seo_metadata_contains_old_claim"])
+    def test_stale_structured_faq_blocks(self):
+        self.put(self.p,'<html><head><script type="application/ld+json">'
+                 '{"@type":"FAQPage","answer":"Extremadura natalidad: convocatoria 2026 cerrada."}'
+                 '</script></head><body><main><p>Extremadura natalidad: convocatoria abierta.'
+                 f'<a href="{URL}">Fuente</a></p></main></body></html>')
+        r=self.check([self.p])
+        self.assertFalse(r["ready_for_auto_publication"])
+        self.assertEqual(r["findings"][0]["uncovered_old_claims"],[self.p])
     def test_no_changed_files_cannot_auto_publish(self):
         self.put(self.p,self.html('<p>Extremadura natalidad: convocatoria abierta.</p>'))
         self.assertFalse(self.check()["ready_for_auto_publication"])
