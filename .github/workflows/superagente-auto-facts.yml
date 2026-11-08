@@ -40,6 +40,12 @@ jobs:
           python-version: '3.12'
       - run: python -m unittest discover -s scripts -p 'test_superagente_status_autopublisher.py' -v
       - run: python -m unittest discover -s scripts -p 'test_superagente_cross_page_impact.py' -v
+      - name: Verificar cobertura real de las referencias legales del sitio
+        run: |
+          python scripts/superagente_cross_page_impact.py \
+            --policy superagente/impact-policy.json \
+            --changed-file comunidades/extremadura/index.html \
+            --output /tmp/current-site-impact.json
   publish-verified-status:
     if: >-
       github.event_name == 'workflow_dispatch' ||
