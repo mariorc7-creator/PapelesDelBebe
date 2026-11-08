@@ -33,6 +33,16 @@ jobs:
           python-version: '3.12'
       - name: Probar actualización completa y bloqueo de contradicciones
         run: python -m unittest discover -s scripts -p 'test_superagente_catalonia_autofacts.py' -v
+      - name: Comprobar referencias reales fuera del contrato
+        run: |
+          PYTHONPATH=scripts python - <<'PY'
+          from pathlib import Path
+          from superagente_catalonia_autofacts import amounts_on_related_pages
+          remaining=amounts_on_related_pages(Path("."),[650,750])
+          print("Páginas fuera del contrato que impedirían publicar:",remaining)
+          if remaining:
+              print("::warning::Hay referencias legales adicionales; la publicación se bloqueará hasta incorporarlas al contrato.")
+          PY
 
   automatic-facts:
     if: >-
