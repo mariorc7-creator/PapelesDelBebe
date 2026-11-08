@@ -43,7 +43,10 @@ class GencatSyncTests(unittest.TestCase):
         self.temp=TemporaryDirectory();self.root=Path(self.temp.name)
         for rel in sync.PAGES:
             file=self.root/rel;file.parent.mkdir(parents=True,exist_ok=True)
-            file.write_text(html(),encoding="utf-8")
+            content=html()
+            if rel.startswith("ca/"):
+                content=content.replace(URL,URL.replace("/es/tramits/","/ca/tramits/"))
+            file.write_text(content,encoding="utf-8")
         (self.root/"superagente").mkdir(exist_ok=True)
         self.p=policy()
     def tearDown(self):self.temp.cleanup()
