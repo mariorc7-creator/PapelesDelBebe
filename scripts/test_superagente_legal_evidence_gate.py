@@ -47,6 +47,12 @@ class LegalEvidenceTests(unittest.TestCase):
         self.assertFalse(out["automatic_legal_truth_established"])
         self.assertFalse(out["automatic_publication_allowed"])
         self.assertEqual(self.page.read_text(),HTML)
+    def test_fabricated_amount_is_blocked_even_with_real_source_quote(self):
+        self.claim["new_claim"]="1.000 euros"
+        self.assert_blocks()
+    def test_same_amount_cannot_claim_a_legal_change(self):
+        self.claim["new_claim"]="300 euros"
+        self.assert_blocks()
     def test_missing_source_quote_blocks(self):
         self.claim["source_quote"]="something false long enough to be a quote";self.assert_blocks()
     def test_stale_source_blocks(self):
