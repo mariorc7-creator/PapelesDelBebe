@@ -11,6 +11,7 @@ All changes are applied together; ambiguous facts fail closed.
 import argparse
 from datetime import date,timedelta
 from hashlib import sha256
+from html.parser import HTMLParser
 import json
 from pathlib import Path
 import re
@@ -75,6 +76,37 @@ def choose_source(report,snapshots,as_of):
         raise ValueError("Old or future official evidence cannot authorize a publish")
     return payload,h
 
+class StructuralTokens(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.tags=[]
+        self.urls=[]
+    def handle_starttag(self,tag,attrs):
+        self.tags.append(("open",tag,tuple(k for k,v in attrs)))
+        for k,v in attrs:
+            if k in ("href","src","action","srcset"):
+                self.urls.append((tag,k,v))
+    def handle_endtag(self,tag):
+        self.tags.append(("close",tag))
+    def handle_startendtag(self,tag,attrs):
+        self.tags.append(("single",tag,tuple(k for k,v in attrs)))
+        for k,v in attrs:
+            if k in ("href","src","action","srcset"):
+                self.urls.append((tag,k,v))
+
+def guard_factual_page(original,updated,rel):
+    if original==updated:
+        raise ValueError("No real fact change for "+rel)
+    a=StructuralTokens();b=StructuralTokens()
+    a.feed(original);b.feed(updated)
+    if a.tags!=b.tags or a.urls!=b.urls:
+        raise ValueError("Factual amount update changed HTML structure or links: "+rel)
+    if original.count('<link rel="canonical"')!=updated.count('<link rel="canonical"'):
+        raise ValueError("Canonical changed: "+rel)
+    for token in ("<h1","<main","<header","<footer","<nav","<script","<style"):
+        if original.count(token)!=updated.count(token):
+            raise ValueError("Protected HTML altered: "+rel)
+
 def token_pattern(old):
     vals="|".join(re.escape(str(i)) for i in old)
     return re.compile(TOKEN.format(values=vals),re.I)
@@ -105,6 +137,8 @@ def propose(root,policy,report,snapshots,as_of=None):
         if root not in target.parents or not target.is_file() or target.is_symlink():
             raise ValueError("Missing/unsafe approved ES/CA page")
         html=target.read_text(encoding="utf-8")
+        if not (("Cataluña" in html or "Catalunya" in html) and SOURCE_URL in html):
+            raise ValueError("Missing Catalonia grant identity and official link: "+rel)
         match_counts={old[0]:0,old[1]:0}
         def replace(m):
             value=int(m.group("number"))
@@ -122,6 +156,7 @@ def propose(root,policy,report,snapshots,as_of=None):
         updated,dates=DATE_MODIFIED.subn(lambda m:m.group(1)+as_of.isoformat()+m.group(3),updated)
         if dates==0:
             raise ValueError("Missing dateModified in approved guide: "+rel)
+        guard_factual_page(html,updated,rel)
         changed.append({"path":rel,"before_sha256":digest(html),
                         "content":updated,"old_token_counts":match_counts})
     next_policy={**policy,"current_amounts":new,
