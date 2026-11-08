@@ -109,6 +109,14 @@ jobs:
           mkdir -p "$RUNNER_TEMP/official"
           cp "$RUNNER_TEMP/agent/superagente/official-watch-report.json" "$RUNNER_TEMP/official/"
           cp "$RUNNER_TEMP/agent/superagente/official-text-snapshots.json" "$RUNNER_TEMP/official/"
+      - name: Localizar los dos informes oficiales dentro del artefacto
+        id: evidence
+        run: |
+          REPORT=$(find "$RUNNER_TEMP/official" -name 'official-watch-report.json' -type f | head -1)
+          SNAP=$(find "$RUNNER_TEMP/official" -name 'official-text-snapshots.json' -type f | head -1)
+          test -n "$REPORT" && test -n "$SNAP"
+          echo "report=$REPORT" >> "$GITHUB_OUTPUT"
+          echo "snapshots=$SNAP" >> "$GITHUB_OUTPUT"
       - name: Comprobar versión oficial y editar todas las referencias juntas
         id: edit
         run: |
@@ -116,8 +124,8 @@ jobs:
           python scripts/superagente_catalonia_autofacts.py \
             --root . \
             --policy superagente/catalonia-amount-contract.json \
-            --watch-report "$RUNNER_TEMP/official/official-watch-report.json" \
-            --snapshots "$RUNNER_TEMP/official/official-text-snapshots.json" \
+            --watch-report "${{ steps.evidence.outputs.report }}" \
+            --snapshots "${{ steps.evidence.outputs.snapshots }}" \
             --out "$RUNNER_TEMP/catalonia-amount-update.json" \
             --apply
           if git diff --quiet; then
@@ -165,7 +173,7 @@ jobs:
           gh pr create --base main --head "$branch" \
             --title "SuperAgente: cuantías oficiales actualizadas en siete páginas de Cataluña" \
             --body "Valores extraídos de la ficha oficial de Tràmits Gencat, captura vinculada por SHA-256; siete páginas ES/CA actualizadas conjuntamente con títulos y datos estructurados solo cuando contienen el dato factual cambiado. Sin optimización SEO rutinaria. Precisa comprobaciones y políticas de fusión del repositorio."
-          gh pr merge "$branch" --squash --auto --delete-branch
+          gh pr merge "$branch" --squash --delete-branch
       - name: Resumen del resultado
         if: always()
         run: |
