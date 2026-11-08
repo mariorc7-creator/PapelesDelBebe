@@ -4,6 +4,14 @@ on:
     workflows: ["SuperAgente - Vigilancia oficial automatica (solo lectura)"]
     types: [completed]
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/superagente_status_autopublisher.py'
+      - 'scripts/superagente_autofact_guard.py'
+      - 'scripts/test_superagente_status_autopublisher.py'
+      - 'superagente/autopublish-rules.json'
+      - 'comunidades/extremadura/index.html'
+      - '.github/workflows/superagente-auto-facts.yml'
 
 permissions:
   contents: write
@@ -15,6 +23,19 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  test-automatic-status:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest discover -s scripts -p 'test_superagente_status_autopublisher.py' -v
   publish-verified-status:
     if: >-
       github.event_name == 'workflow_dispatch' ||
@@ -80,6 +101,22 @@ jobs:
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
+      - name: Registrar novedades que necesitan analisis juridico
+        if: always() && steps.update.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          report=json.loads((Path(os.environ['RUNNER_TEMP'])/'autofact-decision.json').read_text())
+          incidents=report["decision"]["incidents"]
+          if incidents:
+              with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as summary:
+                  summary.write("\n### Novedades bloqueadas para revision\n")
+                  for i in incidents: summary.write(f"- {i['id']}: {i['reason']}\n")
+              print(f"Blocked without modifying production: {len(incidents)}")
+          PY
       - name: Comprobar cambios permitidos, sin SEO ni estructura
         if: steps.update.outputs.changed == 'true'
         run: |
