@@ -13,6 +13,7 @@ import json
 from pathlib import Path
 import re
 from urllib.parse import urlsplit
+from superagente_claim_consistency import check_claim
 
 HEX=re.compile(r"^[0-9a-f]{64}$")
 DATE=re.compile(r"^\d{4}-\d{2}-\d{2}$")
@@ -89,6 +90,9 @@ def verify(claims, watchlist, watch_report, snapshots, root):
             raise ValueError("HTML edits prohibited")
         if html.count(original)!=1:
             raise ValueError("Claim is stale, missing or duplicated")
+        # Independent factual attestation alone is insufficient: exact
+        # monetary, deadline and status assertions must match the quoted text.
+        check_claim(item.get("kind"), original, replacement, source_quote)
         kind=item.get("kind")
         if kind not in ALLOWED_KIND:raise ValueError("Unknown legal claim type")
         scope=item.get("scope")
