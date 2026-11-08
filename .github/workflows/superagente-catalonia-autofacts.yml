@@ -114,12 +114,16 @@ jobs:
             "comunidades/cataluna/index.html",
             "ayuda-nacimiento-cataluna/index.html",
             "ca/ajut-naixement-catalunya-2026/index.html",
+            "ayuda-nacimiento-cataluna-2026/index.html",
+            "ayudas-nacimiento-cataluna-2026/index.html",
+            "compatibilidad-ayudas-nacimiento/index.html",
+            "observatorio/index.html",
             "superagente/catalonia-amount-contract.json",
           }
           changed=set(subprocess.check_output(["git","diff","--name-only"],text=True).splitlines())
           if changed!=allowed:
               raise SystemExit(f"Unexpected or incomplete factual batch: {changed}")
-          print("Verified factual amount batch: exactly 3 pages + source contract")
+          print("Verified factual amount batch: exactly 7 pages + source contract")
           PY
       - name: Crear y fusionar PR de datos oficiales cuando las comprobaciones permitan
         if: steps.edit.outputs.changed == 'true'
@@ -131,12 +135,15 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b "$branch"
           git add comunidades/cataluna/index.html ayuda-nacimiento-cataluna/index.html \
-            ca/ajut-naixement-catalunya-2026/index.html superagente/catalonia-amount-contract.json
+            ca/ajut-naixement-catalunya-2026/index.html \
+            ayuda-nacimiento-cataluna-2026/index.html ayudas-nacimiento-cataluna-2026/index.html \
+            compatibilidad-ayudas-nacimiento/index.html observatorio/index.html \
+            superagente/catalonia-amount-contract.json
           git commit -m "content: sincronizar cuantías oficiales de ayuda por nacimiento Cataluña"
           git push origin "$branch"
           gh pr create --base main --head "$branch" \
-            --title "SuperAgente: cuantías oficiales actualizadas en tres guías de Cataluña" \
-            --body "Valores extraídos de la ficha oficial de Tràmits Gencat, captura vinculada por SHA-256; tres guías ES/CA actualizadas conjuntamente con títulos y datos estructurados solo cuando contienen el dato factual cambiado. Sin optimización SEO rutinaria. Precisa comprobaciones y políticas de fusión del repositorio."
+            --title "SuperAgente: cuantías oficiales actualizadas en siete páginas de Cataluña" \
+            --body "Valores extraídos de la ficha oficial de Tràmits Gencat, captura vinculada por SHA-256; siete páginas ES/CA actualizadas conjuntamente con títulos y datos estructurados solo cuando contienen el dato factual cambiado. Sin optimización SEO rutinaria. Precisa comprobaciones y políticas de fusión del repositorio."
           gh pr merge "$branch" --squash --auto --delete-branch
       - name: Resumen del resultado
         if: always()
