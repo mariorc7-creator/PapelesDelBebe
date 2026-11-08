@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "publication_allowed": false,
+  "scheme": "cataluna-family-benefit",
+  "year": 2026,
+  "source_url": "https://tramits.gencat.cat/es/tramits/tramits-temes/Prestacio-per-a-families-amb-infants?moda=1",
+  "pages": [
+    "comunidades/cataluna/index.html",
+    "ayuda-nacimiento-cataluna/index.html",
+    "ca/ajut-naixement-catalunya-2026/index.html",
+    "ayuda-nacimiento-cataluna-2026/index.html",
+    "ayudas-nacimiento-cataluna-2026/index.html",
+    "compatibilidad-ayudas-nacimiento/index.html",
+    "observatorio/index.html"
+  ],
+  "last_published_amounts": [
+    650,
+    750
+  ],
+  "notes": "Only general and certified large/single-parent benefit amounts from exact official clauses. Any ambiguity, unknown page, calendar-year change, unsupported fact => fail closed. Keep SEO stable except strictly necessary factual text/metadata consistency."
+}
