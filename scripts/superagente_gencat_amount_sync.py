@@ -137,7 +137,9 @@ def propose(root,policy,report,snapshots,as_of=None):
         if root not in target.parents or not target.is_file() or target.is_symlink():
             raise ValueError("Missing/unsafe approved ES/CA page")
         html=target.read_text(encoding="utf-8")
-        if not (("Cataluña" in html or "Catalunya" in html) and SOURCE_URL in html):
+        expected_official_link=(SOURCE_URL.replace("/es/tramits/","/ca/tramits/")
+                                if rel.startswith("ca/") else SOURCE_URL)
+        if not (("Cataluña" in html or "Catalunya" in html) and expected_official_link in html):
             raise ValueError("Missing Catalonia grant identity and official link: "+rel)
         match_counts={old[0]:0,old[1]:0}
         def replace(m):
