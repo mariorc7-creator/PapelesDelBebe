@@ -47,7 +47,7 @@ def parse_status(text,as_of):
         # A historical status is not current evidence of a reopened call.
         # Only a *closed* window with an explicitly older update timestamp
         # may override that stale badge. The reverse (reopening) is forbidden.
-        last_update=re.search(r"Fecha de actualización\\s*:\\s*(\\d{1,2}/\\d{1,2}/20\\d{2})",text,re.I)
+        last_update=re.search(r"Fecha de actualización\s*:\s*(\d{1,2}/\d{1,2}/20\d{2})",text,re.I)
         if not (expected=="closed" and observed=="open" and last_update):
             raise ValueError("Official status conflicts with filing window and check date")
         updated=datetime.strptime(last_update.group(1),"%d/%m/%Y").date()
