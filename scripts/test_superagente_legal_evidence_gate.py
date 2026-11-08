@@ -12,7 +12,7 @@ gate=importlib.util.module_from_spec(spec);spec.loader.exec_module(gate)
 URL="https://www.juntaex.es/w/0702824"
 PAGE="https://www.papelesdelbebe.es/comunidades/extremadura/"
 PATH="comunidades/extremadura/index.html"
-SOURCE="La ayuda por nacimiento es de 500 euros para familias que cumplan los requisitos y estén dentro de plazo."
+SOURCE="La ayuda de Natalidad en Extremadura es de 500 euros para Familias elegibles. Se aplican Límites de renta. Vigencia desde 2026-01-01 hasta 2026-12-31. La convocatoria está abierta."
 HTML='''<!doctype html><html><head><title>Extremadura</title></head><body><main><h1>Extremadura</h1><p>La ayuda es de 300 euros.</p></main></body></html>'''
 def fingerprint(x):return sha256(x.encode()).hexdigest()
 
@@ -30,7 +30,8 @@ class LegalEvidenceTests(unittest.TestCase):
             "kind":"amount",
             "scope":{"jurisdiction":"Extremadura","benefit":"Natalidad","beneficiaries":"Familias elegibles",
                 "effective_from":"2026-01-01","effective_until":"2026-12-31",
-                "exceptions":"Consultar límites y requisitos","application_status":"open"},
+                "exceptions":"Límites de renta","application_status":"open"},
+            "scope_evidence":{k:{"quote":SOURCE,"literal":v} for k,v in {"jurisdiction":"Extremadura","benefit":"Natalidad","beneficiaries":"Familias elegibles","exceptions":"Límites de renta","effective_from":"2026-01-01","effective_until":"2026-12-31","application_status":"abierta"}.items()},
             "legal_conflict_detected":False,
             "reviewer":{"name":"revisor","reviewed_at":date.today().isoformat(),
                 "independent_factual_check":True,"scope_and_exceptions_checked":True,
@@ -75,9 +76,17 @@ class LegalEvidenceTests(unittest.TestCase):
         self.claim["scope"]["effective_from"]="2027-01-01";self.assert_blocks()
     def test_future_editorial_attestation_blocks(self):
         self.claim["reviewer"]["reviewed_at"]="2099-01-01";self.assert_blocks()
-    def test_closed_but_attested_is_not_automatically_published(self):
+    def test_closed_claim_when_official_source_says_open_is_rejected(self):
         self.claim["scope"]["application_status"]="closed"
-        self.assertFalse(self.check()["automatic_publication_allowed"])
+        self.assert_blocks()
+    def test_missing_scope_evidence_rejected(self):
+        self.claim.pop("scope_evidence");self.assert_blocks()
+    def test_unsupported_beneficiary_class_rejected(self):
+        self.claim["scope"]["beneficiaries"]="Todas las familias sin excepción";self.assert_blocks()
+    def test_unsupported_exception_rejected(self):
+        self.claim["scope_evidence"]["exceptions"]["literal"]="Sin límites";self.assert_blocks()
+    def test_invented_effective_date_rejected(self):
+        self.claim["scope"]["effective_until"]="2027-12-31";self.assert_blocks()
     def test_unmapped_page_blocks(self):
         self.sources["sources"][0]["page"]="https://evil.example/a/";self.assert_blocks()
     def test_source_redirect_host_mismatch_blocks(self):
