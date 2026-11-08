@@ -95,7 +95,9 @@ def impacted(root,policy,changed_files=()):
                              "direct_official_link":source in html,
                              "sample_context":context[:3],
                              "covered_by_batch":rel in changed})
-        missing=[x["path"] for x in affected if x["contains_old_claim"] and not x["covered_by_batch"]]
+        missing=[x["path"] for x in affected if x["contains_old_claim"]]
+        # Even a changed page is unsafe if any old claim remains elsewhere
+        # within that page (FAQ, second paragraph, callout, etc.).
         findings.append({"benefit_id":code,"official_source_url":source,
                          "references":affected,"uncovered_old_claims":missing,
                          "ready_for_auto_publication":not missing and bool(affected) and bool(changed)})
