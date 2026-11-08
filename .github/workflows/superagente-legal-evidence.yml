@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - 'scripts/superagente_legal_evidence_gate.py'
+      - 'scripts/superagente_claim_consistency.py'
+      - 'scripts/test_superagente_claim_consistency.py'
       - 'scripts/superagente_real_legal_cases.py'
       - 'scripts/test_superagente_real_legal_cases.py'
       - 'superagente/acceptance/regional-legal-2026.json'
@@ -27,6 +29,8 @@ jobs:
           python-version: '3.12'
       - name: Validar escenarios reales de ayudas, plazos y excepciones
         run: python -m unittest discover -s scripts -p 'test_superagente_real_legal_cases.py' -v
+      - name: Comprobar coherencia exacta de importes, plazos y apertura/cierre
+        run: python -m unittest discover -s scripts -p 'test_superagente_claim_consistency.py' -v
       - name: Prueba de requisitos jurídicos y bloqueo seguro
         run: python -m unittest discover -s scripts -p 'test_superagente_legal_evidence_gate.py' -v
       - name: Prueba real extremo a extremo de edición documental en rama
