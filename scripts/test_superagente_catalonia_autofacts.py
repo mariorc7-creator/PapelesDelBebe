@@ -53,7 +53,7 @@ class CataloniaAutoTests(unittest.TestCase):
     def test_new_amounts_update_all_three_localized_pages(self):
         decision=self.plan()
         self.assertTrue(decision["changed"])
-        self.assertEqual(len(decision["changes"]),3)
+        self.assertEqual(len(decision["changes"]),len(PAGES))
         for row in decision["changes"]:
             updated=row["after"]
             self.assertIn("800 €",updated)
@@ -71,7 +71,7 @@ class CataloniaAutoTests(unittest.TestCase):
         path.parent.mkdir(parents=True)
         path.write_text("{}")
         count=m.apply(self.root,decision,path,True)
-        self.assertEqual(count,3)
+        self.assertEqual(count,len(PAGES))
         self.assertIn("800 €",(self.root/PAGES[1]).read_text())
         self.assertEqual(__import__("json").loads(path.read_text())["last_published_amounts"],[800,950])
     def test_dry_run_never_changes_pages(self):
