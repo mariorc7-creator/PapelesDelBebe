@@ -33,7 +33,7 @@ def parse_status(text,as_of):
     found=WINDOW.findall(text)
     if len(found)!=1:
         raise ValueError("Filing window missing or ambiguous")
-    start=date.strptime(found[0][0],"%d/%m/%Y") if hasattr(date,"strptime") else datetime.strptime(found[0][0],"%d/%m/%Y").date()
+    start=datetime.strptime(found[0][0],"%d/%m/%Y").date()
     end=datetime.strptime(found[0][1],"%d/%m/%Y").date()
     if start>end:raise ValueError("Invalid application period")
     # Match status only near procedure title, not archived breadcrumbs or FAQ.
@@ -52,7 +52,7 @@ def plan(policy,report,snapshots,root,as_of=None):
     if policy.get("schema_version")!=1 or policy.get("publication_allowed") is not False:
         raise ValueError("Unapproved automatic-edit policy")
     rules=policy.get("rules")
-    if not isinstance(rules,list):raise ValueError("Invalid rules")
+    if not isinstance(rules,list) or len(rules)!=1:raise ValueError("Exactly one pre-approved regional rule required")
     report_by={x["url"]:x for x in report.get("results",[])}
     snap_by={x["url"]:x for x in snapshots.get("snapshots",[])}
     if len(report_by)!=len(report.get("results",[])) or len(snap_by)!=len(snapshots.get("snapshots",[])):
@@ -62,7 +62,10 @@ def plan(policy,report,snapshots,root,as_of=None):
         rid=rule.get("id")
         url=rule.get("source_url")
         rel=rule.get("page")
-        if rule.get("type")!="extremadura_2026_status" or not isinstance(rel,str) or not re.fullmatch(r"comunidades/[a-z-]+/index\.html",rel):
+        if (rid!="extremadura-natalidad-2026" or
+            url!="https://www.juntaex.es/w/0702824" or
+            rule.get("type")!="extremadura_2026_status" or
+            rel!="comunidades/extremadura/index.html"):
             raise ValueError("Unsupported automatic legal rule")
         target=(root/rel).resolve()
         if root not in target.parents or not target.is_file() or target.is_symlink():
