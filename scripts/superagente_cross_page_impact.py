@@ -35,6 +35,29 @@ def textual(html):
     p=Visible();p.feed(html)
     return " ".join(" ".join(p.parts).split())
 
+class SEOFacts(HTMLParser):
+    """Collect searchable claims in descriptions and JSON-LD, without edits."""
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.parts=[]
+        self.jsonld=False
+    def handle_starttag(self,tag,attrs):
+        a=dict(attrs)
+        if tag=="meta" and (a.get("name","").lower()=="description" or
+                            a.get("property","").lower() in ("og:description","twitter:description")):
+            self.parts.append(a.get("content",""))
+        if tag=="script" and a.get("type","").lower()=="application/ld+json":
+            self.jsonld=True
+    def handle_endtag(self,tag):
+        if tag=="script":self.jsonld=False
+    def handle_data(self,text):
+        if self.jsonld:self.parts.append(text)
+
+def seo_claims(html):
+    reader=SEOFacts();reader.feed(html)
+    return " ".join(" ".join(reader.parts).split())
+
+
 def strict_terms(values,name):
     if not isinstance(values,list) or not 1<=len(values)<=12:
         raise ValueError("Missing "+name)
@@ -83,8 +106,10 @@ def impacted(root,policy,changed_files=()):
             # Require territory and benefit, then a claim token or official link.
             is_topic=(any(x.casefold() in content for x in territory) and
                       any(x.casefold() in content for x in benefit))
+            metadata=seo_claims(html).casefold()
             is_claim=any(x.casefold() in content for x in prior)
-            if not (is_topic and (is_claim or source in html)):
+            metadata_claim=any(x.casefold() in metadata for x in prior)
+            if not (is_topic and (is_claim or metadata_claim or source in html)):
                 continue
             context=[]
             for token in prior:
@@ -93,9 +118,10 @@ def impacted(root,policy,changed_files=()):
                     context.append(content[max(0,offset-80):offset+len(token)+110])
             affected.append({"path":rel,"contains_old_claim":is_claim,
                              "direct_official_link":source in html,
+                             "seo_metadata_contains_old_claim":metadata_claim,
                              "sample_context":context[:3],
                              "covered_by_batch":rel in changed})
-        missing=[x["path"] for x in affected if x["contains_old_claim"]]
+        missing=[x["path"] for x in affected if x["contains_old_claim"] or x["seo_metadata_contains_old_claim"]]
         # Even a changed page is unsafe if any old claim remains elsewhere
         # within that page (FAQ, second paragraph, callout, etc.).
         findings.append({"benefit_id":code,"official_source_url":source,
