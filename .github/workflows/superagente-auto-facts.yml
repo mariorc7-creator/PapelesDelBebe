@@ -1,0 +1,111 @@
+name: SuperAgente - Publicacion factual acotada (sin cambios SEO)
+on:
+  workflow_run:
+    workflows: ["SuperAgente - Vigilancia oficial automatica (solo lectura)"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: read
+
+concurrency:
+  group: superagente-bounded-fact-publisher
+  cancel-in-progress: false
+
+jobs:
+  publish-verified-status:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main' &&
+       (github.event.workflow_run.event == 'schedule' ||
+        github.event.workflow_run.event == 'workflow_dispatch'))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Obtener evidencia de la vigilancia anterior
+        if: github.event_name == 'workflow_run'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/official-reports"
+          gh run download "$SOURCE_RUN_ID" \
+            --repo "$GITHUB_REPOSITORY" \
+            --name superagente-official-watch-reports \
+            --dir "$RUNNER_TEMP/official-reports"
+      - name: Ejecutar comprobacion oficial directa si se inicia manualmente
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          git clone --depth 1 --branch feature/superagente-foundations-20261106 \
+            "https://github.com/$GITHUB_REPOSITORY.git" "$RUNNER_TEMP/official-agent"
+          git -C "$RUNNER_TEMP/official-agent" checkout acf76b4aebe0d0e08ad148fd8757c50d6758f160
+          python "$RUNNER_TEMP/official-agent/scripts/superagente_official_watch.py" --workers 4
+          mkdir -p "$RUNNER_TEMP/official-reports"
+          cp "$RUNNER_TEMP/official-agent/superagente/official-watch-report.json" "$RUNNER_TEMP/official-reports/"
+          cp "$RUNNER_TEMP/official-agent/superagente/official-text-snapshots.json" "$RUNNER_TEMP/official-reports/"
+      - name: Localizar capturas oficiales firmadas por SHA
+        id: evidence
+        run: |
+          REPORT=$(find "$RUNNER_TEMP/official-reports" -name 'official-watch-report.json' -type f | head -1)
+          SNAP=$(find "$RUNNER_TEMP/official-reports" -name 'official-text-snapshots.json' -type f | head -1)
+          test -n "$REPORT" && test -n "$SNAP"
+          echo "report=$REPORT" >> "$GITHUB_OUTPUT"
+          echo "snapshots=$SNAP" >> "$GITHUB_OUTPUT"
+      - name: Probar actualizador acotado y proteccion de SEO
+        run: python -m unittest discover -s scripts -p 'test_superagente_status_autopublisher.py' -v
+      - name: Intentar solo correccion factual inequívoca
+        id: update
+        run: |
+          python scripts/superagente_status_autopublisher.py \
+            --root . \
+            --policy superagente/autopublish-rules.json \
+            --watch-report "${{ steps.evidence.outputs.report }}" \
+            --snapshots "${{ steps.evidence.outputs.snapshots }}" \
+            --output "$RUNNER_TEMP/autofact-decision.json" \
+            --apply
+          git diff --check
+          if git diff --quiet -- comunidades/extremadura/index.html; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Comprobar cambios permitidos, sin SEO ni estructura
+        if: steps.update.outputs.changed == 'true'
+        run: |
+          files=$(git diff --name-only)
+          test "$files" = "comunidades/extremadura/index.html"
+          git diff --check
+          python - <<'PY'
+          from pathlib import Path
+          page=Path("comunidades/extremadura/index.html").read_text()
+          assert page.count("<!-- superagente:extremadura-2026:start -->")==1
+          assert page.count("<!-- superagente:extremadura-2026:end -->")==1
+          print("Only the approved fact status changed; SEO unchanged")
+          PY
+      - name: Crear PR acotado y activar fusion automatica con las comprobaciones
+        if: steps.update.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          branch="batch/superagente-estado-$GITHUB_RUN_ID"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add comunidades/extremadura/index.html
+          git commit -m "content: actualizar estado oficial de natalidad en Extremadura"
+          git push origin "$branch"
+          gh pr create --base main --head "$branch" \
+            --title "SuperAgente: actualizar estado oficial contrastado de ayuda" \
+            --body "Cambio de contenido delimitado, contrastado con la fuente oficial y la fecha. No cambia metadatos SEO, URLs, canonicals, diseño ni reglas jurídicas. Los casos ambiguos se bloquean."
+          gh pr merge "$branch" --squash --auto --delete-branch
