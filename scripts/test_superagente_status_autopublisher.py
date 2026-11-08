@@ -60,6 +60,21 @@ class AutoStatusTests(unittest.TestCase):
         result=self.call()
         self.assertEqual(result["edits"],[])
         self.assertEqual(m.apply(self.root,result,True)["changed_pages"],0)
+    def test_real_official_old_badge_correctly_closes_expired_window(self):
+        old_badge=SOURCE_OPEN.replace("En plazo. ","En plazo. Fecha de actualización: 10/8/2026. ")
+        found=m.parse_status(old_badge,date(2026,11,8))
+        self.assertEqual(found["status"],"closed")
+        self.assertTrue(found["badge_stale"])
+        result=self.call(old_badge)
+        self.assertEqual(len(result["edits"]),1)
+    def test_stale_badge_cannot_reopen_2026_without_fresh_call(self):
+        text=SOURCE_CLOSED.replace("Fuera de plazo. ","Fuera de plazo. Fecha de actualización: 10/8/2026. ")
+        with self.assertRaises(ValueError):
+            m.parse_status(text,date(2026,9,10))
+    def test_newer_official_badge_conflicting_with_deadline_blocks(self):
+        bad=SOURCE_OPEN.replace("En plazo. ","En plazo. Fecha de actualización: 10/10/2026. ")
+        with self.assertRaises(ValueError):
+            m.parse_status(bad,date(2026,11,8))
     def test_calendar_and_source_disagree_blocks(self):
         result=self.call(SOURCE_OPEN)
         self.assertEqual(result["edits"],[])
