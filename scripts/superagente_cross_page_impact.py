@@ -16,7 +16,7 @@ from pathlib import Path
 import re
 from urllib.parse import urlsplit
 
-IGNORED={"script","style","template","noscript"}
+IGNORED={"script","style","template","noscript","header","footer","nav"}
 MAX_FILES=15000
 MAX_FILE_BYTES=1_200_000
 
