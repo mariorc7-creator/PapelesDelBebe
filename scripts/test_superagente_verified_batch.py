@@ -12,7 +12,7 @@ spec.loader.exec_module(batch)
 URL="https://www.juntaex.es/w/0702824"
 PAGE="https://www.papelesdelbebe.es/comunidades/extremadura/"
 PATH="comunidades/extremadura/index.html"
-SOURCE="La ayuda por nacimiento se eleva a 500 euros para familias elegibles según la convocatoria de 2026."
+SOURCE="La Ayuda por nacimiento en Extremadura se eleva a 500 euros para Familias con requisitos. Se aplican Sujetos a renta. Vigencia 2026-01-01 hasta 2026-12-31. La convocatoria se encuentra cerrada."
 HTML='''<!doctype html><html><head><title>Extremadura</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="index, follow">
@@ -39,6 +39,7 @@ class VerifiedBatchTests(unittest.TestCase):
             "scope":{"jurisdiction":"Extremadura","benefit":"Ayuda por nacimiento","beneficiaries":"Familias con requisitos",
                      "effective_from":"2026-01-01","effective_until":"2026-12-31",
                      "exceptions":"Sujetos a renta","application_status":"closed"},
+            "scope_evidence":{k:{"quote":SOURCE,"literal":v} for k,v in {"jurisdiction":"Extremadura","benefit":"Ayuda por nacimiento","beneficiaries":"Familias con requisitos","exceptions":"Sujetos a renta","effective_from":"2026-01-01","effective_until":"2026-12-31","application_status":"cerrada"}.items()},
             "reviewer":{"name":"reviewer","reviewed_at":date.today().isoformat(),
                         "independent_factual_check":True,"scope_and_exceptions_checked":True,
                         "evidence_ref":"gazette-2026-verified"}
