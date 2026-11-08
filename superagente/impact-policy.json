@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "publication_allowed": false,
+  "benefits": [
+    {
+      "id": "extremadura-natalidad-2026",
+      "official_source_url": "https://www.juntaex.es/w/0702824",
+      "territory_tokens": [
+        "Extremadura",
+        "extremeño"
+      ],
+      "benefit_tokens": [
+        "natalidad",
+        "nacimiento"
+      ],
+      "old_claim_tokens": [
+        "fuera de plazo",
+        "convocatoria 2026 cerrada",
+        "convocatoria cerrada"
+      ]
+    }
+  ]
+}

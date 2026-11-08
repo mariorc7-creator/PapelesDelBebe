@@ -9,6 +9,9 @@ on:
       - 'scripts/superagente_status_autopublisher.py'
       - 'scripts/superagente_autofact_guard.py'
       - 'scripts/test_superagente_status_autopublisher.py'
+      - 'scripts/superagente_cross_page_impact.py'
+      - 'scripts/test_superagente_cross_page_impact.py'
+      - 'superagente/impact-policy.json'
       - 'superagente/autopublish-rules.json'
       - 'comunidades/extremadura/index.html'
       - '.github/workflows/superagente-auto-facts.yml'
@@ -36,6 +39,13 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m unittest discover -s scripts -p 'test_superagente_status_autopublisher.py' -v
+      - run: python -m unittest discover -s scripts -p 'test_superagente_cross_page_impact.py' -v
+      - name: Verificar cobertura real de las referencias legales del sitio
+        run: |
+          python scripts/superagente_cross_page_impact.py \
+            --policy superagente/impact-policy.json \
+            --changed-file comunidades/extremadura/index.html \
+            --output /tmp/current-site-impact.json
   publish-verified-status:
     if: >-
       github.event_name == 'workflow_dispatch' ||
@@ -129,6 +139,24 @@ jobs:
           assert page.count("<!-- superagente:extremadura-2026:start -->")==1
           assert page.count("<!-- superagente:extremadura-2026:end -->")==1
           print("Only the approved fact status changed; SEO unchanged")
+          PY
+      - name: Bloquear publicación incompleta en otras guías y FAQ
+        if: steps.update.outputs.changed == 'true'
+        run: |
+          python scripts/superagente_cross_page_impact.py \
+            --root . \
+            --policy superagente/impact-policy.json \
+            --changed-file comunidades/extremadura/index.html \
+            --output "$RUNNER_TEMP/sitewide-impact.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          data=json.loads((Path(os.environ["RUNNER_TEMP"])/"sitewide-impact.json").read_text())
+          if not data["ready_for_auto_publication"]:
+              for item in data["findings"]:
+                  print("::error::Factual claims not updated in: "+", ".join(item["uncovered_old_claims"]))
+              raise SystemExit("Blocked: partial or inconsistent legal update")
+          print("Every known legal status reference updated; SEO remains unchanged")
           PY
       - name: Crear PR acotado y activar fusion automatica con las comprobaciones
         if: steps.update.outputs.changed == 'true'
