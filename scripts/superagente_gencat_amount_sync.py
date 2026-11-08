@@ -149,7 +149,8 @@ def propose(root,policy,report,snapshots,as_of=None):
             raise ValueError("Each approved page must reference both original grant amounts: "+rel)
         # If any old token is still present after replacement, a visible title,
         # FAQ or metadata fact was missed. Never leave mixed amounts.
-        if pattern.search(updated):
+        changed_old=[old[i] for i in range(2) if old[i]!=new[i]]
+        if changed_old and token_pattern(changed_old).search(updated):
             raise ValueError("Residual original grant amounts: "+rel)
         # Preserve every character except approved numeric values and JSON-LD
         # dateModified, which must represent the real content edit date.
