@@ -54,7 +54,7 @@ class ImpactTests(unittest.TestCase):
         self.put("ayudas-nacimiento/index.html",self.html('<p>Convocatoria 2026 cerrada de otra ayuda.</p>'))
         self.assertTrue(self.check([self.p])["ready_for_auto_publication"])
     def test_script_only_reference_not_fact(self):
-        self.put(self.p,self.html('<p>Extremadura natalidad: convocatoria abierta.</p>'))
+        self.put(self.p,self.html(f'<p>Extremadura natalidad: convocatoria abierta. <a href="{URL}">Fuente</a></p>'))
         self.put(self.q,self.html('<script>Extremadura natalidad: convocatoria 2026 cerrada.</script>'))
         self.assertTrue(self.check([self.p])["ready_for_auto_publication"])
     def test_no_changed_files_cannot_auto_publish(self):
