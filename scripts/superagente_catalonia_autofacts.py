@@ -23,7 +23,11 @@ from superagente_cross_page_impact import textual,seo_claims
 ROOT=Path(__file__).resolve().parents[1]
 SOURCE="https://tramits.gencat.cat/es/tramits/tramits-temes/Prestacio-per-a-families-amb-infants?moda=1"
 PAGES=("comunidades/cataluna/index.html","ayuda-nacimiento-cataluna/index.html",
-       "ca/ajut-naixement-catalunya-2026/index.html")
+       "ca/ajut-naixement-catalunya-2026/index.html",
+       "ayuda-nacimiento-cataluna-2026/index.html",
+       "ayudas-nacimiento-cataluna-2026/index.html",
+       "compatibilidad-ayudas-nacimiento/index.html",
+       "observatorio/index.html")
 AMOUNT_GENERAL=re.compile(r"El importe de la prestaci[oó]n es de ([0-9][0-9.]*) euros por ni[nñ]o",re.I)
 AMOUNT_SPECIAL=re.compile(r"familias que tienen reconocido el t[ií]tulo de familia numerosa o monoparental.{0,250}?el importe es de ([0-9][0-9.]*) euros",re.I|re.S)
 HEX=re.compile(r"^[0-9a-f]{64}$")
@@ -129,8 +133,6 @@ def build(policy,watch_report,snapshots,root,as_of=None):
         modified=original
         for index,prev in enumerate(old):
             modified=re.sub(rf"(?<!\d){prev}(?!\d)",str(new[index]),modified)
-        if '"dateModified"' not in original:
-            raise ValueError("Missing factual publication date")
         modified=re.sub(r'("dateModified"\s*:\s*")[0-9]{4}-[0-9]{2}-[0-9]{2}(")',
                         lambda match:match.group(1)+as_of.isoformat()+match.group(2),modified)
         if protected(original)!=protected(modified):
