@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "publication_allowed": false,
+  "notes": "Preapproved deterministic status facts only; publication needs the independent GH Actions PR/QA gate. No eligibility or amount automation.",
+  "rules": [
+    {
+      "id": "extremadura-natalidad-2026",
+      "type": "extremadura_2026_status",
+      "source_url": "https://www.juntaex.es/w/0702824",
+      "page": "comunidades/extremadura/index.html",
+      "scope": "Only 2026 filing-window status. New aid calls/years/eligibility and conflicting site text go to review."
+    }
+  ]
+}
