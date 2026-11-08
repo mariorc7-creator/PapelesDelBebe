@@ -6,6 +6,7 @@ on:
       - 'scripts/superagente_official_watch.py'
       - 'scripts/superagente_fast_path.py'
       - 'scripts/test_superagente_fast_path.py'
+      - 'scripts/test_superagente_parallel_watch.py'
       - 'scripts/superagente_real_legal_cases.py'
       - 'scripts/test_superagente_real_legal_cases.py'
       - 'superagente/acceptance/regional-legal-2026.json'
@@ -33,6 +34,9 @@ jobs:
       - name: Evitar regresiones en convocatorias reales 2026
         if: github.event_name == 'pull_request'
         run: python -m unittest discover -s scripts -p 'test_superagente_real_legal_cases.py' -v
+      - name: Verificar paralelismo acotado sin perder errores ni orden
+        if: github.event_name == 'pull_request'
+        run: python -m unittest discover -s scripts -p 'test_superagente_parallel_watch.py' -v
       - name: Check official source fingerprints
         run: python scripts/superagente_official_watch.py
       - name: Validar enlace fuente a página afectada
