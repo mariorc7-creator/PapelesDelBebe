@@ -6,13 +6,12 @@ on:
         description: "Prueba de conexión (safe) o publicar un tweet"
         required: true
         type: choice
-        options: [test, morning, evening]
+        options: [test, morning, midday, evening, all]
         default: test
   schedule:
-    # Franjas de mañana/tarde en UTC. El horario de verano se cubre con dos opciones.
-    # La ejecución puede retrasarse: identificamos la franja por el cron, no por la hora real.
-    - cron: '17 6,7 * * *'
-    - cron: '23 16,17 * * *'
+    # Generar los 3 posts antes del primer horario configurado en Buffer.
+    # 02:37 UTC = 03:37 invierno / 04:37 verano en Madrid.
+    - cron: '37 2 * * *'
 permissions:
   contents: write
 concurrency:
@@ -26,6 +25,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Confirmar slots de Buffer
+        run: echo 'Buffer debe tener los horarios 09:15, 14:02 y 19:15 (Europe/Madrid)'
       - name: Validar sintaxis del generador
         run: node --check scripts/buffer-x-auto.mjs
       - name: Verificar conexión o añadir tweet
@@ -40,19 +41,25 @@ jobs:
           SCHEDULE: ${{ github.event.schedule }}
         shell: bash
         run: |
-          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
-            if [ "$MODE" = "test" ]; then
-              node scripts/buffer-x-auto.mjs
-            else
-              SLOT="$MODE" PUBLISH=true node scripts/buffer-x-auto.mjs
-            fi
+          set -euo pipefail
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$MODE" = "test" ]; then
+            node scripts/buffer-x-auto.mjs
+            exit 0
+          fi
+          if [ "$AUTO_PUBLISH_ENABLED" != "true" ]; then
+            echo "Publicación desactivada. Solo prueba de conexión."
+            node scripts/buffer-x-auto.mjs
+            exit 0
+          fi
+          if [ "$EVENT_NAME" = "schedule" ] || [ "$MODE" = "all" ]; then
+            # Añadir en orden cronológico para respetar las tres franjas de Buffer.
+            for SLOT in morning midday evening; do
+              echo "Enviando franja $SLOT a la cola de Buffer"
+              SLOT="$SLOT" PUBLISH=true node scripts/buffer-x-auto.mjs
+            done
           else
-            case "$SCHEDULE" in
-              '17 6,7 * * *') SLOT=morning ;;
-              '23 16,17 * * *') SLOT=evening ;;
-              *) echo "Error: cron no reconocido: $SCHEDULE"; exit 1 ;;
+            case "$MODE" in
+              morning|midday|evening) SLOT="$MODE" PUBLISH=true node scripts/buffer-x-auto.mjs ;;
+              *) echo "Modo no reconocido: $MODE"; exit 1 ;;
             esac
-            echo "Franja programada: $SLOT; hora actual: $(TZ=Europe/Madrid date +'%Y-%m-%d %H:%M:%S %Z')"
-            if [ "$AUTO_PUBLISH_ENABLED" != "true" ]; then echo "Publicación no activada. Ejecutando prueba de conexión."; node scripts/buffer-x-auto.mjs; exit 0; fi
-            SLOT="$SLOT" PUBLISH=true node scripts/buffer-x-auto.mjs
           fi
