@@ -26,6 +26,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Validar sintaxis del generador
+        run: node --check scripts/buffer-x-auto.mjs
       - name: Verificar conexión o añadir tweet
         env:
           BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
