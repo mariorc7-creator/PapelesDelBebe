@@ -9,8 +9,10 @@ on:
         options: [test, morning, evening]
         default: test
   schedule:
-    # Dos ventanas UTC para cubrir cambio de horario de España.
-    - cron: '0 6,7,16,17 * * *'
+    # Franjas de mañana/tarde en UTC. El horario de verano se cubre con dos opciones.
+    # La ejecución puede retrasarse: identificamos la franja por el cron, no por la hora real.
+    - cron: '17 6,7 * * *'
+    - cron: '23 16,17 * * *'
 permissions:
   contents: write
 concurrency:
@@ -43,10 +45,12 @@ jobs:
               SLOT="$MODE" PUBLISH=true node scripts/buffer-x-auto.mjs
             fi
           else
-            HOUR_ES=$(TZ=Europe/Madrid date +%H)
-            if [ "$HOUR_ES" = "08" ]; then SLOT=morning
-            elif [ "$HOUR_ES" = "18" ]; then SLOT=evening
-            else echo "Fuera de horario español, sin publicar."; exit 0; fi
+            case "$SCHEDULE" in
+              '17 6,7 * * *') SLOT=morning ;;
+              '23 16,17 * * *') SLOT=evening ;;
+              *) echo "Error: cron no reconocido: $SCHEDULE"; exit 1 ;;
+            esac
+            echo "Franja programada: $SLOT; hora actual: $(TZ=Europe/Madrid date +'%Y-%m-%d %H:%M:%S %Z')"
             if [ "$AUTO_PUBLISH_ENABLED" != "true" ]; then echo "Publicación no activada. Ejecutando prueba de conexión."; node scripts/buffer-x-auto.mjs; exit 0; fi
             SLOT="$SLOT" PUBLISH=true node scripts/buffer-x-auto.mjs
           fi
