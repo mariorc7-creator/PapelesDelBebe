@@ -47,7 +47,7 @@ if(today==='2026-10-29' && slot==='morning'){
 }
 const recent=history.posts.slice(-45).map(x=>x.text).join(' | ').slice(-8000);
 // Rotate bad jokes and everyday posts. Both slots stay friendly and on brand.
-const formats=['chiste','observacion','anecdota','chiste','reflexion-divertida','observacion','chiste'];
+const formats=['chiste','pregunta','observacion','anecdota','pregunta','reflexion-divertida','observacion','chiste'];
 const dayNumber=Math.floor(Date.parse(today+'T00:00:00Z')/86400000);
 const format=formats[(dayNumber+(slot==='evening'?3:0))%formats.length];
 const themes={
@@ -57,12 +57,13 @@ const themes={
 const topic=themes[slot][dayNumber%themes[slot].length];
 const role={
  chiste:'Haz un chiste malo de los buenos: juego de palabras, pregunta-respuesta o remate absurdo que arranque una carcajada.',
+ pregunta:'Haz UNA pregunta divertida, natural y facilísima de responder sobre la vida con bebés o hijos pequeños. Debe invitar a los seguidores a contar algo concreto, elegir entre dos opciones o recordar una anécdota. Que tenga gracia por sí misma y que no suene a encuesta comercial, frase genérica ni pregunta forzada. Incluye ¿ y ?.',
  observacion:'Escribe un post como los habituales: una observación simpática, ingeniosa y muy reconocible de la vida cotidiana. NO lo plantees como un chiste de pregunta-respuesta.',
  anecdota:'Escribe una pequeña situación o escena ficticia de familia, graciosa y cercana, con un giro final. No finjas que es una experiencia personal real de la cuenta.',
  'reflexion-divertida':'Escribe un pensamiento cotidiano entrañable con humor y una sorpresa final; que invite a sonreír y a identificarse, sin moralinas.'
 }[format];
 const instructions=`Eres la voz simpática de Papeles del Bebé en X España. Crea UN post ORIGINAL, breve, gracioso, humano y compartible, con personalidad propia. Hoy toca formato ${format} y tema ${topic}. ${role}
-NO todos los días son chistes: alterna entre chistes malos, observaciones cotidianas, anécdotas ficticias y comentarios divertidos. La cuenta puede comentar otras cosas de la vida, pero mantén afinidad con familias y padres. No escribas publicidad, moralinas, frases motivacionales vacías ni texto de IA corporativa. Busca sonrisas, no polémicas ni sarcasmo agresivo.
+NO todos los días son chistes: alterna chistes malos, preguntas para la audiencia, observaciones cotidianas, anécdotas ficticias y comentarios divertidos. En formato pregunta, haz una sola pregunta fácil y graciosa que invite a responder sin pedir likes, reposts ni seguidores. La cuenta puede comentar otras cosas de la vida, pero mantén afinidad con familias y padres. No escribas publicidad, moralinas, frases motivacionales vacías ni texto de IA corporativa. Busca sonrisas, no polémicas ni sarcasmo agresivo.
 De 40 a 125 caracteres en el cuerpo. Puedes usar un emoji. No escribas hashtags ni arrobas: el programa añade SIEMPRE #humorDePadres. No inventes noticias, cifras, derechos o beneficios públicos. No te burles de víctimas, accidentes, fallecidos o colectivos. Sin URLs. Devuelve solamente el texto de la publicación.
 Historial reciente para evitar repeticiones: ${recent||'vacío'}`;
 async function generate(){
@@ -79,7 +80,7 @@ for(let n=0;n<3;n++){
  const raw=(await generate()).replace(/^[\"“]|[\"”]$/g,'').trim();
  const joke=raw.replace(/#[A-Za-zÀ-ÿ0-9_]+/g,'').replace(/\s+/g,' ').trim();
  const candidate=joke+'\n\n'+fixedHashtag;
- if(joke && [...joke].length>=35 && [...joke].length<=125 && [...candidate].length<=175 && !prev.includes(normalize(candidate)) && !joke.includes('http://') && !joke.includes('https://')){message=candidate;break;}
+ if(joke && [...joke].length>=35 && [...joke].length<=125 && [...candidate].length<=175 && (format!=='pregunta'||(joke.includes('¿')&&joke.includes('?'))) && !prev.includes(normalize(candidate)) && !joke.includes('http://') && !joke.includes('https://')){message=candidate;break;}
 }
 if(!message)throw Error('La IA no generó un tweet válido. Se omite publicación.');
 // Solo generar texto nuevo: nunca sustituir por contenido fijo.
