@@ -22,7 +22,7 @@ if(process.env.PUBLISH!=='true') {console.log('MODO PRUEBA: no se creó ninguna 
 if(process.env.AUTO_PUBLISH_ENABLED!=='true') throw new Error('Publicación desactivada: configurar variable AUTO_PUBLISH_ENABLED=true para activarla.');
 
 const slot=process.env.SLOT;
-if (!['morning','evening'].includes(slot)) throw new Error('SLOT inválido');
+if (!['morning','midday','evening'].includes(slot)) throw new Error('SLOT inválido');
 const key=process.env.OPENAI_API_KEY;
 if(!key) throw new Error('Falta OPENAI_API_KEY. No publicaremos textos repetidos.');
 const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Madrid',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
@@ -46,12 +46,13 @@ if(today==='2026-10-29' && slot==='morning'){
  console.log('Franja del 29/10 a las 09:15 ocupada por tweet de prueba. Se omite.');process.exit(0);
 }
 const recent=history.posts.slice(-45).map(x=>x.text).join(' | ').slice(-8000);
-// Rotate bad jokes and everyday posts. Both slots stay friendly and on brand.
+// Tres posts diarios: humor matinal, pregunta interactiva al mediodía y variedad por la tarde.
 const formats=['chiste','pregunta','observacion','anecdota','pregunta','reflexion-divertida','observacion','chiste'];
 const dayNumber=Math.floor(Date.parse(today+'T00:00:00Z')/86400000);
-const format=formats[(dayNumber+(slot==='evening'?3:0))%formats.length];
+const format=slot==='midday'?'pregunta':formats[(dayNumber+(slot==='evening'?3:0))%formats.length];
 const themes={
  morning:['pañales y bebés','vida adulta con niños','juegos de palabras de padres','guarderías y conciliación','sueño de padres primerizos','preparativos para el bebé','biberones y chupetes'],
+ midday:['la cosa más rara que tu hijo se lleva a dormir','rutinas surrealistas de casa','comida infantil y caprichos','rabietas de niños pequeños','frases graciosas de hijos','guardería y crianza','la batalla de acostar a los niños'],
  evening:['ocurrencias de niños pequeños','vida familiar y rutinas','trámites para familias contados con humor','rabietas vistas con ternura','padres agotados y orgullosos','guardería y primeras veces','pequeñas alegrías de la crianza']
 };
 const topic=themes[slot][dayNumber%themes[slot].length];
@@ -62,8 +63,8 @@ const role={
  anecdota:'Escribe una pequeña situación o escena ficticia de familia, graciosa y cercana, con un giro final. No finjas que es una experiencia personal real de la cuenta.',
  'reflexion-divertida':'Escribe un pensamiento cotidiano entrañable con humor y una sorpresa final; que invite a sonreír y a identificarse, sin moralinas.'
 }[format];
-const instructions=`Eres la voz simpática de Papeles del Bebé en X España. Crea UN post ORIGINAL, breve, gracioso, humano y compartible, con personalidad propia. Hoy toca formato ${format} y tema ${topic}. ${role}
-NO todos los días son chistes: alterna chistes malos, preguntas para la audiencia, observaciones cotidianas, anécdotas ficticias y comentarios divertidos. En formato pregunta, haz una sola pregunta fácil y graciosa que invite a responder sin pedir likes, reposts ni seguidores. La cuenta puede comentar otras cosas de la vida, pero mantén afinidad con familias y padres. No escribas publicidad, moralinas, frases motivacionales vacías ni texto de IA corporativa. Busca sonrisas, no polémicas ni sarcasmo agresivo.
+const instructions=`Eres Bebé Peleón, la mascota bebé gamberra y simpática de Papeles del Bebé en X España. Tu humor es pícaro, absurdo y cercano, sin lenguaje corporativo. Crea UN post ORIGINAL, breve, gracioso, humano y compartible, con personalidad propia. Hoy toca formato ${format} y tema ${topic}. ${role}
+NO todos los días son chistes: alterna chistes malos, preguntas para la audiencia, observaciones cotidianas, anécdotas ficticias y comentarios divertidos. En formato pregunta, haz una sola pregunta fácil y graciosa que invite a responder sin pedir likes, reposts ni seguidores. No repitas preguntas recientes. La cuenta puede comentar otras cosas de la vida, pero mantén afinidad con familias y padres. No escribas publicidad, moralinas, frases motivacionales vacías ni texto de IA corporativa. Busca sonrisas, no polémicas ni sarcasmo agresivo.
 De 40 a 125 caracteres en el cuerpo. Puedes usar un emoji. No escribas hashtags ni arrobas: el programa añade SIEMPRE #humorDePadres. No inventes noticias, cifras, derechos o beneficios públicos. No te burles de víctimas, accidentes, fallecidos o colectivos. Sin URLs. Devuelve solamente el texto de la publicación.
 Historial reciente para evitar repeticiones: ${recent||'vacío'}`;
 async function generate(){
