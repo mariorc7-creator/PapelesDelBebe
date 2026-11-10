@@ -9,6 +9,17 @@
   "outputDirectory": "dist",
   "redirects": [
     {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "papelesdelbebe\\.es"
+        }
+      ],
+      "destination": "https://www.papelesdelbebe.es/:path*",
+      "statusCode": 301
+    },
+    {
       "source": "/permiso-lactancia-2026",
       "destination": "/permiso-lactancia/",
       "permanent": true
@@ -307,17 +318,6 @@
       "source": "/herramientas/que-me-falta/",
       "destination": "/mi-panel/",
       "permanent": true
-    },
-    {
-      "source": "/:path*",
-      "has": [
-        {
-          "type": "host",
-          "value": "papelesdelbebe\\.es"
-        }
-      ],
-      "destination": "https://www.papelesdelbebe.es/:path*",
-      "statusCode": 301
     }
   ],
   "headers": [
