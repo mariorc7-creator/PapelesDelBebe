@@ -59,6 +59,16 @@ class BatchCheckTests(unittest.TestCase):
     def test_invalid_base_rejected(self):
         with self.assertRaises(ValueError):
             batch.inspect_batch("main")
+    def test_repair_missing_header_and_footer_is_allowed(self):
+        previous = PAGE.replace("<header></header>", "").replace("<footer></footer>", "")
+        r = inspect(PAGE, previous=previous)
+        self.assertTrue(r["technical_checks_passed"])
+        self.assertFalse(r["production_deploy_authorized"])
+
+    def test_removing_existing_footer_is_still_blocked(self):
+        r = inspect(PAGE.replace("<footer></footer>", ""))
+        self.assertFalse(r["technical_checks_passed"])
+
     def test_structural_change_blocks(self):
         r=inspect(PAGE.replace("<main>","<div>"))
         self.assertFalse(r["technical_checks_passed"])
