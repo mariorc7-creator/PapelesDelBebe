@@ -33,7 +33,7 @@ jobs:
         env:
           BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          AUTO_PUBLISH_ENABLED: ${{ vars.AUTO_PUBLISH_ENABLED }}
+          AUTO_PUBLISH_ENABLED: 'true'
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
           MODE: ${{ github.event.inputs.mode }}
@@ -46,11 +46,7 @@ jobs:
             node scripts/buffer-x-auto.mjs
             exit 0
           fi
-          if [ "$AUTO_PUBLISH_ENABLED" != "true" ]; then
-            echo "Publicación desactivada. Solo prueba de conexión."
-            node scripts/buffer-x-auto.mjs
-            exit 0
-          fi
+          echo 'Modo publicación activo. Enviando a Buffer (errores detienen el job).'
           if [ "$EVENT_NAME" = "schedule" ] || [ "$MODE" = "all" ]; then
             # Añadir en orden cronológico para respetar las tres franjas de Buffer.
             for SLOT in morning midday evening; do
