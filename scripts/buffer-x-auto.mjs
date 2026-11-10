@@ -87,7 +87,7 @@ Objetivo: que la gente quiera responder, compartir o seguir la pequeña historia
 No hables solo de pañales: también vida adulta, dinero, trabajo, fútbol, tecnología y actualidad atemporal desde los ojos de un niño pequeño. Nunca inventes noticias de actualidad, datos verificables, métricas, seguidores, ingresos, patrocinios ni resultados de la cuenta.
 En conversación haz exactamente UNA pregunta fácil y relevante, en lenguaje natural, con signos ¿?. No pidas likes, reposts o seguidores. En humor y diario evita preguntas de relleno. Los avances del personaje son ficción humorística, NO resultados reales del perfil.
 Usa español de España coloquial, humor rápido e inteligente, nada cursi, nada ofensivo. Evita frases genéricas como «la vida es», «ser padre es», «pregunta seria», «confesad» reiterados. Evita repetición de estructuras, coletillas y emojis. Entre 45 y 180 caracteres de cuerpo. Hasta un emoji si encaja.
-NO hashtags ni arrobas, el programa añadirá #humorDePadres. Sin URLs ni publicidad, sin afirmaciones inventadas sobre hechos actuales y sin contenido denigrante.
+NO hashtags ni arrobas. Sin URLs ni publicidad, sin afirmaciones inventadas sobre hechos actuales y sin contenido denigrante.
 Devuelve solo el texto del tuit, sin comillas ni explicaciones.
 Historial reciente (no repitas temas o remates): ${recent||'vacío'}`;
 async function generate(){
@@ -99,11 +99,10 @@ async function generate(){
 let message='';
 const normalize=t=>t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ').trim();
 const prev=history.posts.map(p=>normalize(p.text));
-const fixedHashtag='#humorDePadres';
 for(let n=0;n<3;n++){
  const raw=(await generate()).replace(/^[\"“]|[\"”]$/g,'').trim();
  const joke=raw.replace(/#[A-Za-zÀ-ÿ0-9_]+/g,'').replace(/\s+/g,' ').trim();
- const candidate=joke+'\n\n'+fixedHashtag;
+ const candidate=joke;
  if(joke && [...joke].length>=40 && [...joke].length<=180 && [...candidate].length<=220 && (category!=='conversacion'||(joke.includes('¿')&&joke.includes('?'))) && !prev.includes(normalize(candidate)) && !joke.includes('http://') && !joke.includes('https://')){message=candidate;break;}
 }
 if(!message)throw Error('La IA no generó un tweet válido. Se omite publicación.');
