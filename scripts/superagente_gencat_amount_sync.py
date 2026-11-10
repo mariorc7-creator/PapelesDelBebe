@@ -45,10 +45,10 @@ def digest(s):return sha256(s.encode("utf-8")).hexdigest()
 def money_from_official(source):
     if not isinstance(source,str) or len(source)>1_000_000:
         raise ValueError("Official text is absent or too large")
-    matches=list(AMOUNTS.finditer(source))
+    # Gencat may insert NBSP, newlines or tabs between words. Normalize only\n    # whitespace; never relax the approved legal wording or duplicate check.\n    normalized=re.sub(r"\\s+", " ", source).strip()\n    matches=list(AMOUNTS.finditer(normalized))
     if len(matches)!=1:
         raise ValueError("Missing or duplicated exact Gencat grant paragraph")
-    if any(text not in source for text in REQUIRED_SCOPE):
+    if any(re.sub(r"\\s+", " ", text).strip() not in normalized for text in REQUIRED_SCOPE):
         raise ValueError("A legal scope, income-limit or deadline clause differs from the approved 2026 snapshot")
     amounts=[int(matches[0].group("general")),int(matches[0].group("special"))]
     if not 400<=amounts[0]<amounts[1]<=2000:
