@@ -47,12 +47,8 @@ jobs:
             --changed-file comunidades/extremadura/index.html \
             --output /tmp/current-site-impact.json
   publish-verified-status:
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.workflow_run.conclusion == 'success' &&
-       github.event.workflow_run.head_branch == 'main' &&
-       (github.event.workflow_run.event == 'schedule' ||
-        github.event.workflow_run.event == 'workflow_dispatch'))
+    # SEO stabilization freeze: explicit manual action only; watcher remains read-only.
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     timeout-minutes: 7
     steps:
