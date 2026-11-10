@@ -133,7 +133,7 @@ function walk(dir, cb) {
 }
 function shouldSkip(rel) {
   // Legacy sitemaps must never be published; only the generated sitemap.xml is authoritative.
-  if (/^sitemap[^/]*\.xml$/i.test(rel)) return true;
+  if (/^sitemap[^\\/]*\.xml$/i.test(rel)) return true;
   return rel.startsWith('.git/') || rel.startsWith('node_modules/') || rel.startsWith('dist/') || rel.startsWith('.vercel/');
 }
 function copyAll() {
@@ -162,23 +162,23 @@ function audit(dir) {
       if (!/rel=["']canonical["']/i.test(html)) warnings.push(`${rel}: sin canonical`);
       if (!html.includes('/global-ui.js')) warnings.push(`${rel}: sin global-ui.js`);
       // Quality diagnostics only: never reject functional pages for a word count.
-      const indexable = !/<meta\\b[^>]*name=[\"']robots[\"'][^>]*content=[\"'][^\"']*noindex/i.test(html);
+      const indexable = !/<meta\b[^>]*name=[\"']robots[\"'][^>]*content=[\"'][^\"']*noindex/i.test(html);
       if (indexable) {
-        const title = (html.match(/<title>([^<]+)<\\/title>/i) || [])[1];
-        const meta = (html.match(/<meta\\b[^>]*name=[\"']description[\"'][^>]*content=[\"']([^\"']+)/i) || [])[1];
+        const title = (html.match(/<title>([^<]+)<\/title>/i) || [])[1];
+        const meta = (html.match(/<meta\b[^>]*name=[\"']description[\"'][^>]*content=[\"']([^\"']+)/i) || [])[1];
         for (const [value, seen, type] of [[title, titles, 'title'], [meta, descriptions, 'meta description']]) {
           if (!value) continue;
           const key = value.trim().toLowerCase();
           if (seen.has(key)) warnings.push(rel + ': ' + type + ' duplicado con ' + seen.get(key));
           else seen.set(key, rel);
         }
-        const visible = html.replace(/<script\\b[^>]*>[\\s\\S]*?<\\/script>/gi, ' ')
-          .replace(/<style\\b[^>]*>[\\s\\S]*?<\\/style>/gi, ' ')
-          .replace(/<header\\b[^>]*>[\\s\\S]*?<\\/header>/gi, ' ')
-          .replace(/<footer\\b[^>]*>[\\s\\S]*?<\\/footer>/gi, ' ')
-          .replace(/<nav\\b[^>]*>[\\s\\S]*?<\\/nav>/gi, ' ')
+        const visible = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, ' ')
+          .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, ' ')
+          .replace(/<header\b[^>]*>[\s\S]*?<\/header>/gi, ' ')
+          .replace(/<footer\b[^>]*>[\s\S]*?<\/footer>/gi, ' ')
+          .replace(/<nav\b[^>]*>[\s\S]*?<\/nav>/gi, ' ')
           .replace(/<[^>]+>/g, ' ').replace(/&[a-z]+;/gi, ' ');
-        const words = visible.trim().split(/\\s+/).filter(Boolean).length;
+        const words = visible.trim().split(/\s+/).filter(Boolean).length;
         if (words < 400 && /^(comunidades|tarjeta-sanitaria-bebe-|titulo-familia-numerosa-|ayuda-|ayudas-)/.test(rel)) {
           warnings.push(rel + ': guía con ' + words + ' palabras visibles (<400, revisar calidad sin añadir relleno)');
         }
@@ -341,7 +341,7 @@ function validatePublishedSitemap() {
   const host = 'https://www.papelesdelbebe.es';
   const urls = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]);
   const errors = [];
-  const publishedSitemaps = fs.readdirSync(OUT).filter(name => /^sitemap[^/]*\.xml$/i.test(name));
+  const publishedSitemaps = fs.readdirSync(OUT).filter(name => /^sitemap[^\\/]*\.xml$/i.test(name));
   if (publishedSitemaps.length !== 1 || publishedSitemaps[0] !== 'sitemap.xml') {
     errors.push('Solo debe publicarse sitemap.xml; encontrados: ' + publishedSitemaps.join(', '));
   }
