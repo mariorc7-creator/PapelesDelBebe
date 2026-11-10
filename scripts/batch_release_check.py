@@ -92,7 +92,11 @@ def inspect_batch(base, root=ROOT):
                 if old_match and (not new_match or old_match.group(1) != new_match.group(1)):
                     problems.append(f"{path}: changed {name}; separate SEO review required")
             for marker in ('<header', '<footer', '<main'):
-                if before.lower().count(marker) != now.lower().count(marker):
+                previous = before.lower().count(marker)
+                current = now.lower().count(marker)
+                # Permit repairing one missing semantic wrapper without accepting
+                # removals, duplicates or changes to an existing wrapper count.
+                if previous != current and not (previous == 0 and current == 1):
                     problems.append(f"{path}: structural marker changed {marker}")
         pages.append(path)
     return {
