@@ -45,30 +45,53 @@ if(history.posts.some(x=>x.date===today&&x.slot===slot)){
 if(today==='2026-10-29' && slot==='morning'){
  console.log('Franja del 29/10 a las 09:15 ocupada por tweet de prueba. Se omite.');process.exit(0);
 }
-const recent=history.posts.slice(-45).map(x=>x.text).join(' | ').slice(-8000);
-// Tres posts diarios: humor matinal, pregunta interactiva al mediodía y variedad por la tarde.
-const formats=['chiste','pregunta','observacion','anecdota','pregunta','reflexion-divertida','observacion','chiste'];
+const recent=history.posts.slice(-55).map(x=>x.text).join(' | ').slice(-12000);
+// Mezcla editorial por cada 20 días = 60 posts: 24 conversación (40%), 21 humor (35%), 15 diario (25%).
+// Se publica una pregunta diaria a mediodía; los otros formatos rotan sin convertir todo en encuestas.
 const dayNumber=Math.floor(Date.parse(today+'T00:00:00Z')/86400000);
-const format=slot==='midday'?'pregunta':formats[(dayNumber+(slot==='evening'?3:0))%formats.length];
-const themes={
- morning:['pañales y bebés','vida adulta con niños','juegos de palabras de padres','guarderías y conciliación','sueño de padres primerizos','preparativos para el bebé','biberones y chupetes'],
- midday:['la cosa más rara que tu hijo se lleva a dormir','rutinas surrealistas de casa','comida infantil y caprichos','rabietas de niños pequeños','frases graciosas de hijos','guardería y crianza','la batalla de acostar a los niños'],
- evening:['ocurrencias de niños pequeños','vida familiar y rutinas','trámites para familias contados con humor','rabietas vistas con ternura','padres agotados y orgullosos','guardería y primeras veces','pequeñas alegrías de la crianza']
+const cycleDay=dayNumber%20;
+const morningDiario=[3,7,11,15,19].includes(cycleDay);
+const eveningConversation=[2,7,12,17].includes(cycleDay);
+const eveningHumor=[0,3,6,9,13,16].includes(cycleDay);
+const category=slot==='midday'?'conversacion':
+ slot==='morning'?(morningDiario?'diario':'humor'):
+ (eveningConversation?'conversacion':eveningHumor?'humor':'diario');
+const formats={
+ conversacion:['pregunta-abierta','eleccion-divertida','dilema','pregunta-abierta'],
+ humor:['chiste','observacion','anecdota','contradiccion'],
+ diario:['diario-del-bebe','aprendizaje','pequeño-logro','confesion']
 };
-const topic=themes[slot][dayNumber%themes[slot].length];
+const format=formats[category][(dayNumber+(slot==='evening'?2:slot==='midday'?1:0))%formats[category].length];
+const themes={
+ conversacion:['cosas absurdas que hacen los niños','dinero y primeras inversiones','situaciones en el trabajo','costumbres familiares','tecnología y móviles','dormir y madrugar','fútbol y hobbies','pequeños logros personales','recuerdos de infancia','el dilema de hacerse mayor'],
+ humor:['pañales y presupuestos','adultos que no entienden a los bebés','guardería','rutinas de casa','dinero y caprichos','reuniones y trabajo','siesta','tecnología','comida','fútbol'],
+ diario:['misiones imposibles de un bebé','aprendiendo a hablar','mis pequeños planes para conquistar X','cosas que aprendo observando a mis padres','las primeras veces','descubrimientos cotidianos','errores inocentes de principiante','humor sobre querer ser mayor']
+};
+const topic=themes[category][(dayNumber+(slot==='evening'?4:slot==='midday'?2:0))%themes[category].length];
 const role={
- chiste:'Haz un chiste malo de los buenos: juego de palabras, pregunta-respuesta o remate absurdo que arranque una carcajada.',
- pregunta:'Haz UNA pregunta divertida, natural y facilísima de responder sobre la vida con bebés o hijos pequeños. Debe invitar a los seguidores a contar algo concreto, elegir entre dos opciones o recordar una anécdota. Que tenga gracia por sí misma y que no suene a encuesta comercial, frase genérica ni pregunta forzada. Incluye ¿ y ?.',
- observacion:'Escribe un post como los habituales: una observación simpática, ingeniosa y muy reconocible de la vida cotidiana. NO lo plantees como un chiste de pregunta-respuesta.',
- anecdota:'Escribe una pequeña situación o escena ficticia de familia, graciosa y cercana, con un giro final. No finjas que es una experiencia personal real de la cuenta.',
- 'reflexion-divertida':'Escribe un pensamiento cotidiano entrañable con humor y una sorpresa final; que invite a sonreír y a identificarse, sin moralinas.'
+ 'pregunta-abierta':'Plantea UNA pregunta directa que cualquier persona pueda responder con una anécdota; añade un giro divertido desde la perspectiva de un bebé. Termina en ?.',
+ 'eleccion-divertida':'Plantea UNA elección divertida entre dos opciones muy reconocibles para adultos, sin encuesta formal ni opciones numeradas. Termina en ?.',
+ dilema:'Plantea UN dilema cotidiano gracioso que invite a contar experiencias; no hagas preguntas retóricas. Termina en ?.',
+ chiste:'Escribe un chiste breve con remate sorprendente; evita los mismos chistes gastados de pañales.',
+ observacion:'Observa una contradicción cotidiana de los adultos con voz de bebé, de manera ingeniosa.',
+ anecdota:'Cuenta una escena cómica ficticia del personaje bebé; no la presentes como un hecho real.',
+ contradiccion:'Abre con una frase que despierte curiosidad y remata con una paradoja divertida de la vida adulta vista por un bebé.',
+ 'diario-del-bebe':'Cuenta un avance pequeño o una peripecia humorística del personaje como una mini-historia en primera persona; ficticia, no un acontecimiento real confirmado.',
+ aprendizaje:'Cuenta algo curioso que el personaje dice haber aprendido hoy sobre los adultos con un remate pícaro.',
+ 'pequeño-logro':'Cuenta un pequeño logro inventado y absurdo propio de un bebé. NO inventes cifras, seguidores, ingresos ni hitos reales de la cuenta.',
+ confesion:'Haz una confesión simpática ficticia de Bebé Peleón que haga a los lectores reconocer algo de su vida.'
 }[format];
-const instructions=`Eres Bebé Peleón, la mascota bebé gamberra y simpática de Papeles del Bebé en X España. Tu humor es pícaro, absurdo y cercano, sin lenguaje corporativo. Crea UN post ORIGINAL, breve, gracioso, humano y compartible, con personalidad propia. Hoy toca formato ${format} y tema ${topic}. ${role}
-NO todos los días son chistes: alterna chistes malos, preguntas para la audiencia, observaciones cotidianas, anécdotas ficticias y comentarios divertidos. En formato pregunta, haz una sola pregunta fácil y graciosa que invite a responder sin pedir likes, reposts ni seguidores. No repitas preguntas recientes. La cuenta puede comentar otras cosas de la vida, pero mantén afinidad con familias y padres. No escribas publicidad, moralinas, frases motivacionales vacías ni texto de IA corporativa. Busca sonrisas, no polémicas ni sarcasmo agresivo.
-De 40 a 125 caracteres en el cuerpo. Puedes usar un emoji. No escribas hashtags ni arrobas: el programa añade SIEMPRE #humorDePadres. No inventes noticias, cifras, derechos o beneficios públicos. No te burles de víctimas, accidentes, fallecidos o colectivos. Sin URLs. Devuelve solamente el texto de la publicación.
-Historial reciente para evitar repeticiones: ${recent||'vacío'}`;
+const instructions=`Eres Bebé Peleón, un bebé gamberro, travieso, entrañable y muy ingenioso que escribe en primera persona en X España.
+Crea UN tuit ORIGINAL, humano y con voz propia, sin apariencia de texto generado por IA. Categoría: ${category}. Formato: ${format}. Tema: ${topic}. ${role}
+Objetivo: que la gente quiera responder, compartir o seguir la pequeña historia de Bebé Peleón. Usa un comienzo concreto o sorprendente, una sola idea y un remate fuerte; que no suene a anuncio ni a pregunta artificial.
+No hables solo de pañales: también vida adulta, dinero, trabajo, fútbol, tecnología y actualidad atemporal desde los ojos de un niño pequeño. Nunca inventes noticias de actualidad, datos verificables, métricas, seguidores, ingresos, patrocinios ni resultados de la cuenta.
+En conversación haz exactamente UNA pregunta fácil y relevante, en lenguaje natural, con signos ¿?. No pidas likes, reposts o seguidores. En humor y diario evita preguntas de relleno. Los avances del personaje son ficción humorística, NO resultados reales del perfil.
+Usa español de España coloquial, humor rápido e inteligente, nada cursi, nada ofensivo. Evita frases genéricas como «la vida es», «ser padre es», «pregunta seria», «confesad» reiterados. Evita repetición de estructuras, coletillas y emojis. Entre 45 y 180 caracteres de cuerpo. Hasta un emoji si encaja.
+NO hashtags ni arrobas, el programa añadirá #humorDePadres. Sin URLs ni publicidad, sin afirmaciones inventadas sobre hechos actuales y sin contenido denigrante.
+Devuelve solo el texto del tuit, sin comillas ni explicaciones.
+Historial reciente (no repitas temas o remates): ${recent||'vacío'}`;
 async function generate(){
- const r=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({model:process.env.OPENAI_MODEL||'gpt-4.1-mini',instructions,input:'Escribe un post nuevo para '+slot+'; formato '+format+'; tema '+topic+'. Cada intento debe tener una idea distinta.',max_output_tokens:190,store:false})});
+ const r=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({model:process.env.OPENAI_MODEL||'gpt-4.1-mini',instructions,input:'Escribe un post nuevo para '+slot+'; categoría '+category+'; formato '+format+'; tema '+topic+'. Cada intento debe tener una idea y un remate distintos.',max_output_tokens:190,store:false})});
  if(!r.ok)throw Error('OpenAI HTTP '+r.status+': '+(await r.text()).slice(0,350));
  const j=await r.json();
  return (j.output||[]).flatMap(x=>x.content||[]).filter(x=>x.type==='output_text').map(x=>x.text).join('').trim();
@@ -81,7 +104,7 @@ for(let n=0;n<3;n++){
  const raw=(await generate()).replace(/^[\"“]|[\"”]$/g,'').trim();
  const joke=raw.replace(/#[A-Za-zÀ-ÿ0-9_]+/g,'').replace(/\s+/g,' ').trim();
  const candidate=joke+'\n\n'+fixedHashtag;
- if(joke && [...joke].length>=35 && [...joke].length<=125 && [...candidate].length<=175 && (format!=='pregunta'||(joke.includes('¿')&&joke.includes('?'))) && !prev.includes(normalize(candidate)) && !joke.includes('http://') && !joke.includes('https://')){message=candidate;break;}
+ if(joke && [...joke].length>=40 && [...joke].length<=180 && [...candidate].length<=220 && (category!=='conversacion'||(joke.includes('¿')&&joke.includes('?'))) && !prev.includes(normalize(candidate)) && !joke.includes('http://') && !joke.includes('https://')){message=candidate;break;}
 }
 if(!message)throw Error('La IA no generó un tweet válido. Se omite publicación.');
 // Solo generar texto nuevo: nunca sustituir por contenido fijo.
