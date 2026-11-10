@@ -58,6 +58,21 @@ class GencatSyncTests(unittest.TestCase):
         output=self.check()
         self.assertTrue(output["verified_unchanged"])
         self.assertEqual(sync.apply(self.root,output,True)["changed_pages"],0)
+    def test_official_nonbreaking_spaces_and_linebreaks_are_accepted(self):
+        raw=source(650,750)
+        raw=raw.replace("El importe de la prestación es de 650 euros por niño. Para las", "El importe de la prestación es de 650 euros por niño.\\nPara las")
+        raw=raw.replace("durante 3 meses", "durante 3\\u00a0meses")
+        raw=raw.replace("Para el año 2026 el límite es:", "Para el año 2026\\u00a0el límite es:")
+        raw=raw.replace("título de familia numerosa o monoparental", "título de familia numerosa\\t o monoparental")
+        output=self.check(raw)
+        self.assertTrue(output["verified_unchanged"])
+        self.assertEqual(output["changes"],[])
+
+    def test_changed_deadline_with_nonbreaking_space_still_blocks(self):
+        raw=source(700,800).replace("durante 3 meses", "durante 2\\u00a0meses")
+        with self.assertRaises(ValueError):
+            self.check(raw)
+
     def test_new_explicit_amounts_update_three_pages_atomically(self):
         d=self.check(source(700,800))
         self.assertEqual(len(d["changes"]),3)
