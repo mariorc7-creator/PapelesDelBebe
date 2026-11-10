@@ -132,6 +132,8 @@ function walk(dir, cb) {
   }
 }
 function shouldSkip(rel) {
+  // Legacy sitemaps must never be published; only the generated sitemap.xml is authoritative.
+  if (/^sitemap[^/]*\.xml$/i.test(rel)) return true;
   return rel.startsWith('.git/') || rel.startsWith('node_modules/') || rel.startsWith('dist/') || rel.startsWith('.vercel/');
 }
 function copyAll() {
@@ -316,6 +318,10 @@ function validatePublishedSitemap() {
   const host = 'https://www.papelesdelbebe.es';
   const urls = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]);
   const errors = [];
+  const publishedSitemaps = fs.readdirSync(OUT).filter(name => /^sitemap[^/]*\.xml$/i.test(name));
+  if (publishedSitemaps.length !== 1 || publishedSitemaps[0] !== 'sitemap.xml') {
+    errors.push('Solo debe publicarse sitemap.xml; encontrados: ' + publishedSitemaps.join(', '));
+  }
   if (!xml.startsWith('<?xml') || !xml.includes('<urlset ') || !xml.includes('</urlset>')) errors.push('XML sin estructura urlset');
   if (!urls.length) errors.push('Sitemap sin URLs');
   if (new Set(urls).size !== urls.length) errors.push('URLs duplicadas');
