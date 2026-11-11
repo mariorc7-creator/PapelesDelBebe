@@ -1,0 +1,24 @@
+name: SuperAgente - Amazon y QA (manual, sin despliegue)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  coordinate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Ejecutar coordinación segura
+        run: python3 scripts/superagent_coordinator.py
+      - name: Guardar informes incluso con incidencias
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: superagent-staging-reports
+          path: |
+            reports/amazon-affiliates-audit.json
+            reports/superagent-coordination.json
+          if-no-files-found: warn
