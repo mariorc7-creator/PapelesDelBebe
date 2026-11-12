@@ -323,6 +323,15 @@ function validatePrioritySeo() {
     if (!xml.includes('<loc>' + url + '</loc>')) errors.push(slug + ': ausente del sitemap');
     if (redirects.some(r => r.source.replace(/\/$/, '') === '/' + slug)) errors.push(slug + ': redirige la URL canonica');
   }
+  // Evitar que las guías específicas queden huérfanas tras nuevos lotes de contenido.
+  const riojaGuide = '/deduccion-nacimiento-la-rioja/';
+  for (const hubPath of ['comunidades/la-rioja/index.html', 'ayudas-nacimiento/index.html']) {
+    const hubHtml = fs.readFileSync(path.join(OUT, hubPath), 'utf8');
+    if (!hubHtml.includes('href="' + riojaGuide + '"')) errors.push(hubPath + ': falta enlace a deducción de La Rioja');
+  }
+  if (!fs.existsSync(path.join(OUT, 'deduccion-nacimiento-la-rioja', 'index.html'))) {
+    errors.push('Deducción La Rioja: falta página perenne');
+  }
   const oldCataluna = '/ayuda-nacimiento-cataluna-2026/';
   if (fs.existsSync(path.join(OUT, 'ayuda-nacimiento-cataluna-2026', 'index.html'))) {
     errors.push('Cataluña: HTML antiguo duplicado publicado en dist');
