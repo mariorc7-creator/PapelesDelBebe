@@ -248,8 +248,8 @@ body.pb-aid-results-view #resultados{margin-top:26px}
   const botonIA = document.getElementById('preguntarIA');
   let ultimaSimulacion = null;
   let paginasPublicadas = [];
-  const normalizar = s => (s || '').toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
-  const canonicalPath = url => url.replace(/-2026(?=\\/|$)/g,'').replace(/\\/$/,'');
+  const normalizar = s => (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+  const canonicalPath = url => url.replace(/-2026(?=\/|$)/g,'').replace(/\/$/,'');
   const catalogoPromesa = fetch('/site-search-index.json',{cache:'no-cache'})
     .then(r=>{if(!r.ok)throw new Error('Índice no disponible');return r.json();})
     .then(data=>{if(!Array.isArray(data))throw new Error('Índice inválido');paginasPublicadas=data;return data;})
