@@ -149,6 +149,14 @@ body.pb-aid-results-view #resultados{margin-top:26px}
     <p>Indica dónde vives y tu situación familiar y laboral. Te mostraremos qué prestaciones, deducciones y ayudas conviene revisar en tu caso, sin prometer una concesión que depende de la Administración.</p>
   </section>
 
+  <section class="tool-panel" aria-labelledby="pbSiteSearchTitle" style="margin:0 0 20px">
+    <h2 id="pbSiteSearchTitle">Buscar ayudas y guías en toda la web</h2>
+    <p>Escribe una comunidad, deducción, ayuda o trámite. El buscador incluye automáticamente las páginas publicadas y no depende de una lista manual.</p>
+    <label for="pbSiteSearchInput" style="display:block;font-weight:700;margin:10px 0 6px">¿Qué necesitas encontrar?</label>
+    <input id="pbSiteSearchInput" type="search" autocomplete="off" placeholder="Ej.: deducción nacimiento La Rioja" aria-controls="pbSiteSearchResults" style="width:100%;max-width:660px;box-sizing:border-box;padding:13px;border-radius:12px;border:1px solid #bdc6dc;font:inherit">
+    <div id="pbSiteSearchResults" aria-live="polite" role="region" style="display:grid;gap:8px;margin-top:12px"></div>
+  </section>
+
   <div class="sim-grid" id="pbAidQuestions">
     <section class="tool-panel" aria-labelledby="sim-form-title">
       <h2 id="sim-form-title">Tu situación</h2>
@@ -239,6 +247,38 @@ body.pb-aid-results-view #resultados{margin-top:26px}
   const simAI = document.getElementById('simAI');
   const botonIA = document.getElementById('preguntarIA');
   let ultimaSimulacion = null;
+  let paginasPublicadas = [];
+  const normalizar = s => (s || '').toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+  const canonicalPath = url => url.replace(/-2026(?=\\/|$)/g,'').replace(/\\/$/,'');
+  const catalogoPromesa = fetch('/site-search-index.json',{cache:'no-cache'})
+    .then(r=>{if(!r.ok)throw new Error('Índice no disponible');return r.json();})
+    .then(data=>{if(!Array.isArray(data))throw new Error('Índice inválido');paginasPublicadas=data;return data;})
+    .catch(()=>[]);
+  const buscarInput=document.getElementById('pbSiteSearchInput');
+  const buscarResultados=document.getElementById('pbSiteSearchResults');
+  function buscarEnWeb() {
+    const query=normalizar(buscarInput.value);
+    buscarResultados.replaceChildren();
+    if(!query)return;
+    if(!paginasPublicadas.length) {
+      const p=document.createElement('p');p.textContent='Cargando el índice de páginas…';buscarResultados.append(p);return;
+    }
+    const words=query.split(' ').filter(Boolean);
+    const scored=paginasPublicadas.map(p=>{
+      const title=normalizar(p.title),text=normalizar(p.title+' '+p.description+' '+p.keywords+' '+p.url);
+      if(!words.every(w=>text.includes(w)))return null;
+      return {p,score:words.reduce((acc,w)=>acc+(title.includes(w)?5:0)+(normalizar(p.url).includes(w)?3:0),0)+(p.aid?2:0)};
+    }).filter(Boolean).sort((a,b)=>b.score-a.score).slice(0,12);
+    if(!scored.length){const p=document.createElement('p');p.textContent='No hay coincidencias. Prueba con menos palabras o con otra comunidad.';buscarResultados.append(p);return;}
+    for(const {p} of scored) {
+      const a=document.createElement('a');a.href=p.url;a.style.cssText='display:block;padding:11px 13px;border:1px solid #e1e5f0;border-radius:10px;text-decoration:none';
+      const title=document.createElement('strong');title.textContent=p.title;
+      const info=document.createElement('small');info.style.cssText='display:block;color:#68758a;margin-top:3px';info.textContent=p.description || (p.region ? 'Guía de '+p.region : 'Guía disponible');
+      a.append(title,info);buscarResultados.append(a);
+    }
+  }
+  buscarInput.addEventListener('input',buscarEnWeb);
+  catalogoPromesa.then(buscarEnWeb);
 
   const territorios = {
     'Andalucía': { guia:'/comunidades/andalucia/', especialMultiple:'/ayuda-partos-multiples-andalucia-2026/' },
@@ -312,6 +352,19 @@ body.pb-aid-results-view #resultados{margin-top:26px}
       items.push(item('guia-numerosa','Ayudas para familias numerosas','Comprueba deducciones y beneficios que dependen del reconocimiento del título de familia numerosa.','/familias-numerosas-ayudas-2026/'));
     }
 
+    // Incorporar todas las ayudas/deducciones autonómicas publicadas, no solo una por comunidad.
+    // La coincidencia territorial indica que deben REVISARSE, nunca que el usuario sea elegible.
+    const seen=new Set(items.map(x=>canonicalPath(x.href)));
+    for(const guia of paginasPublicadas) {
+      if(!guia.aid || guia.region!==datos.comunidad || seen.has(canonicalPath(guia.url)))continue;
+      items.push(item('catalogo-'+items.length,guia.title,'Guía específica de '+datos.comunidad+'. Revisa requisitos, año fiscal, plazos y fuentes oficiales antes de solicitar o aplicar esta medida.',guia.url));
+      seen.add(canonicalPath(guia.url));
+    }
+    // Si tenemos la URL perenne, enlazarla directamente, evitando una redirección intermedia.
+    for(const x of items) {
+      const canonical=paginasPublicadas.find(p=>canonicalPath(p.url)===canonicalPath(x.href));
+      if(canonical)x.href=canonical.url;
+    }
     return items;
   }
 
@@ -352,11 +405,13 @@ body.pb-aid-results-view #resultados{margin-top:26px}
       return;
     }
     error.classList.remove('show');
-    const items = calcular(datos);
+    catalogoPromesa.then(() => {
+      const items = calcular(datos);
     ultimaSimulacion = { version:1, generatedAt:new Date().toISOString(), ...datos, candidates:items.map(x => x.id) };
     try { sessionStorage.setItem('papelesbebe_simulador_ayudas_v1', JSON.stringify(ultimaSimulacion)); } catch(e) {}
     window.dispatchEvent(new CustomEvent('papelesbebe:simulacion-ayudas',{detail:ultimaSimulacion}));
     render(items, datos);
+    });
   });
 
   botonIA.addEventListener('click', () => {
