@@ -98,6 +98,13 @@
       "text": "He probado un plato nuevo: puré de verduras. La sorpresa fue que el menú salió corriendo, no yo. ¿Quién dijo que la comida no tiene miedo?",
       "bufferId": "6af439c95add622f644810ca",
       "dueAt": "2026-11-11T13:07:00.000Z"
+    },
+    {
+      "date": "2026-11-12",
+      "slot": "morning",
+      "text": "Los adultos se enfadan cuando su equipo pierde, pero se pasan horas discutiendo por un balón que lleva muerte y gloria en sus costuras. ¿No sería más fácil jugar y olvidarse?",
+      "bufferId": "6af5911749bcfed3aa754a39",
+      "dueAt": "2026-11-12T13:07:00.000Z"
     }
   ]
 }
