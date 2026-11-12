@@ -26,6 +26,7 @@ class Page(HTMLParser):
         self.title = []
         self.h1 = []
         self.descriptions = []
+        self.robots = []
         self.mains = []
         self.crumbs = []
         self._title = self._h1 = self._crumb = False
@@ -39,6 +40,8 @@ class Page(HTMLParser):
             self.canonicals.append(a.get("href", ""))
         if tag == "meta" and a.get("name", "").lower() == "description":
             self.descriptions.append(a.get("content", ""))
+        if tag == "meta" and a.get("name", "").lower() == "robots":
+            self.robots.append(a.get("content", "").lower())
         if tag == "main":
             self.mains.append(a)
         if tag == "title": self._title = True
@@ -91,6 +94,7 @@ def audit():
     for path in sorted(set(actual) - listed):
         if path not in EXEMPT and not path.startswith("404"):
             flag("warning","NOT_IN_SITEMAP",path,"Página HTML sin entrada en sitemap")
+    inbound = Counter()
     for rel, file in actual.items():
         content = file.read_text(encoding="utf-8", errors="replace")
         p = Page()
@@ -116,11 +120,17 @@ def audit():
         for tag, link in p.links:
             target = local_path(link, rel)
             if target is None: continue
+            if tag == "a" and target in actual and not any("noindex" in rule for rule in p.robots) and target != rel:
+                inbound[target] += 1
             if target.startswith("../") or target.startswith("/"):
                 flag("warning","OUTSIDE_ROOT",rel,link); continue
             candidate = ROOT / target
             if not candidate.is_file():
                 flag("error","BROKEN_INTERNAL_LINK",rel,f"{tag}: {link} → {target}")
+    # Localiza páginas públicas que carecen de enlaces HTML entrantes.
+    for rel in sorted(listed & set(actual)):
+        if rel != "index.html" and inbound[rel] == 0:
+            flag("warning", "ORPHAN_PAGE", rel, "No tiene enlaces internos entrantes; comprobar navegación y hubs temáticos")
     return pages, listed, findings
 
 def main():
