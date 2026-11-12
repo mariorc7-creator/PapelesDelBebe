@@ -376,9 +376,55 @@ function validatePublishedSitemap() {
   console.log('Sitemap OK: ' + urls.length + ' URLs, sin duplicados ni redirecciones declaradas.');
 }
 
+
+function generateSiteSearchIndex() {
+  // Se genera en cada build desde las páginas publicadas, no desde una lista manual.
+  const host = 'https://www.papelesdelbebe.es';
+  const sitemap = fs.readFileSync(path.join(OUT, 'sitemap.xml'), 'utf8');
+  const urls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]);
+  const regions = {
+    'Andalucía':['andalucia'],'Aragón':['aragon'],'Asturias':['asturias'],
+    'Islas Baleares':['baleares','illes-balears'],'Canarias':['canarias'],
+    'Cantabria':['cantabria'],'Castilla-La Mancha':['castilla-la-mancha'],
+    'Castilla y León':['castilla-leon','castilla-y-leon'],
+    'Cataluña':['cataluna','catalunya'],'Comunidad Valenciana':['comunitat-valenciana','comunidad-valenciana','valencia'],
+    'Extremadura':['extremadura'],'Galicia':['galicia','benvida'],
+    'Comunidad de Madrid':['madrid'],'Región de Murcia':['murcia'],
+    'Navarra':['navarra'],'País Vasco':['pais-vasco','euskadi'],
+    'La Rioja':['la-rioja','rioja'],'Ceuta':['ceuta'],'Melilla':['melilla']
+  };
+  function extract(html, regex) { return (html.match(regex) || [,''])[1] || ''; }
+  function clean(value) {
+    return value.replace(/<[^>]*>/g,' ').replace(/&(?:nbsp|amp|quot|lt|gt);/g, ' ')
+      .replace(/\s+/g,' ').trim();
+  }
+  const data = [];
+  for (const url of urls) {
+    const slug = url.slice(host.length).replace(/^\/|\/$/g,'');
+    const file = path.join(OUT, slug, 'index.html');
+    if (!fs.existsSync(file)) continue;
+    const html = fs.readFileSync(file,'utf8');
+    const title = clean(extract(html, /<title[^>]*>([\s\S]*?)<\/title>/i));
+    const description = clean(extract(html, /<meta\s+name=["']description["']\s+content=["']([^"']*)/i));
+    const h1 = clean(extract(html, /<h1[^>]*>([\s\S]*?)<\/h1>/i));
+    if (!title && !h1) continue;
+    const headings = [...html.matchAll(/<h2[^>]*>([\s\S]*?)<\/h2>/gi)].slice(0,12).map(m=>clean(m[1]));
+    const haystack = (slug + ' ' + title + ' ' + h1).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    const region = Object.entries(regions).find(([,words])=>words.some(w=>haystack.includes(w)))?.[0] || null;
+    const aid = /^(ayuda-|ayudas-|deduccion-|bono-|cheque-|tarxeta-benvida|complemento-ayuda|familias-(?:numerosas|monoparentales|ceuta|melilla)|compatibilidad-ayudas|parto-multiple-prestacion|comunicar-nuevo-hijo-imv|riesgo-embarazo-prestacion|riesgo-lactancia-natural)/.test(slug);
+    data.push({title:h1||title,description, url:'/'+slug+(slug?'/':''), region, aid, keywords:headings.join(' ').slice(0,750)});
+  }
+  fs.writeFileSync(path.join(OUT,'site-search-index.json'),JSON.stringify(data));
+  const rioja = data.find(x=>x.url==='/deduccion-nacimiento-la-rioja/');
+  if (!rioja || !rioja.aid || rioja.region!=='La Rioja') throw new Error('Buscador: falta deducción por nacimiento de La Rioja en índice de ayudas');
+  if (data.length < 80) throw new Error('Buscador: índice demasiado reducido ('+data.length+')');
+  console.log('Índice de búsqueda web y ayudas: '+data.length+' páginas canónicas.');
+}
+
 copyAll();
 generateEvergreenRegionalPages();
 generateSitemap();
+generateSiteSearchIndex();
 audit(OUT);
 validatePrioritySeo();
 validatePublishedSitemap();
