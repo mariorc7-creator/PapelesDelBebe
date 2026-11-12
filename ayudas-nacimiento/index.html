@@ -166,27 +166,45 @@ html{scroll-behavior:smooth}
  render();
 })();
 </script><script id="pb-ayudas-search-script">
-(function(){
-"use strict";
-var input=document.getElementById("pbAyudasSearchInput"),results=document.getElementById("pbAyudasSearchResults"),status=document.getElementById("pbAyudasSearchStatus");
-if(!input||!results||!status)return;
-var items=[
-["Pago único de 1.000 € por nacimiento","/ayuda-pago-unico-nacimiento-1000-euros-2026/","Ayuda para determinados supuestos familiares","1000 euros mil pago unico nacimiento adopcion"],
-["Complemento de Ayuda para la Infancia (CAPI)","/complemento-ayuda-infancia-imv-bebe/","Ayuda mensual por hijo según edad y requisitos","capi infancia 115 euros menores"],
-["Ingreso Mínimo Vital y nuevo hijo","/comunicar-nuevo-hijo-imv/","Cómo comunicar un nacimiento si ya cobras el IMV","imv renta minima vital bebe"],
-["Ayudas para familias con pocos ingresos","/ayudas-bajos-ingresos-bebe/","IMV, CAPI y otras prestaciones según la situación familiar","paro desempleo bajos ingresos pobreza"],
-["Deducción por maternidad","/deduccion-maternidad/","Requisitos y abono anticipado de la deducción","madre trabajadora 100 euros irpf hacienda"],
-["Deducción por gastos de guardería","/deduccion-guarderia-1000-euros-2026/","Incremento de la deducción por gastos de custodia","guarderia escuela infantil 1000 euros"],
-["Ayudas para familias monoparentales","/familias-monoparentales-ayudas-2026/","Prestaciones y beneficios para familias con un progenitor","monoparental madre soltera padre soltero"],
-["Título monoparental por comunidades","/familias-monoparentales-por-comunidades/","Dónde tramitar el reconocimiento autonómico","carnet titulo monoparental comunidades"],
-["Ayudas para familias numerosas","/familias-numerosas-ayudas-2026/","Prestaciones y beneficios para familias numerosas","familia numerosa tercer hijo"],
-["Permiso y prestación por nacimiento","/permiso-nacimiento-cuidado-menor/","Permiso retribuido y solicitud a la Seguridad Social","baja maternidad paternidad permiso semanas"],
-["Ayudas por comunidad autónoma","/comunidades/","Selecciona tu comunidad para encontrar ayudas territoriales","comunidad cataluna madrid andalucia valencia territorio"],
-["Buscador personalizado de ayudas","/herramientas/buscador-ayudas/","Responde unas preguntas para descubrir posibles ayudas","no se cuales corresponden encontrar descubrir"]
-];
-function norm(s){return(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim()}
-function render(){var q=norm(input.value),terms=q.split(" ").filter(Boolean);results.replaceChildren();if(!q){results.hidden=true;status.textContent="Busca por nombre de ayuda o por tu situación familiar.";return}var ranked=items.map(function(it){var title=norm(it[0]),hay=norm(it.join(" ")),score=terms.reduce(function(n,t){return n+(title.includes(t)?4:hay.includes(t)?1:0)},0);return{it:it,score:score}}).filter(function(x){return x.score>0&&terms.every(function(t){return norm(x.it.join(" ")).includes(t)})}).sort(function(a,b){return b.score-a.score}).slice(0,7);results.hidden=false;status.textContent=ranked.length?ranked.length+" resultado"+(ranked.length===1?"":"s")+" encontrado"+(ranked.length===1?"":"s"):"No encontramos una coincidencia exacta. Prueba con otra palabra o utiliza el buscador personalizado.";if(!ranked.length){var a=document.createElement("a");a.href="/herramientas/buscador-ayudas/";a.textContent="Descubrir qué ayudas me corresponden →";results.appendChild(a);return}ranked.forEach(function(x){var a=document.createElement("a"),strong=document.createElement("strong"),small=document.createElement("small");a.href=x.it[1];strong.textContent=x.it[0]+" →";small.textContent=x.it[2];a.append(strong,small);results.appendChild(a)})}
-input.addEventListener("input",render);
-document.querySelectorAll("[data-aid-query]").forEach(function(b){b.addEventListener("click",function(){input.value=b.getAttribute("data-aid-query");render();input.focus()})});
+(() => {
+  'use strict';
+  const input=document.getElementById('pbAyudasSearchInput');
+  const results=document.getElementById('pbAyudasSearchResults');
+  const status=document.getElementById('pbAyudasSearchStatus');
+  if(!input||!results||!status)return;
+  const norm=s=>(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+  let pages=[];
+  let loading=true;
+  function render(){
+    const q=norm(input.value),terms=q.split(' ').filter(Boolean);
+    results.replaceChildren();
+    if(!q){results.hidden=true;status.textContent='Busca por nombre de ayuda o por tu situación familiar.';return;}
+    results.hidden=false;
+    if(loading){status.textContent='Buscando en las guías publicadas…';return;}
+    const ranked=pages.map(p=>{
+      const title=norm(p.title);
+      const region=norm(p.region||'');
+      const hay=norm([p.title,p.description,p.keywords,p.url,p.region].join(' '));
+      if(!terms.every(t=>hay.includes(t)))return null;
+      const score=terms.reduce((n,t)=>n+(title.includes(t)?6:0)+(region.includes(t)?3:0)+(norm(p.url).includes(t)?3:0),0)+(p.aid?3:0);
+      return {p,score};
+    }).filter(Boolean).sort((a,b)=>b.score-a.score||a.p.title.localeCompare(b.p.title,'es')).slice(0,12);
+    status.textContent=ranked.length?ranked.length+' resultado'+(ranked.length===1?'':'s')+' encontrado'+(ranked.length===1?'':'s'):'No encontramos resultados. Prueba con menos palabras o selecciona tu comunidad.';
+    if(!ranked.length){const a=document.createElement('a');a.href='/herramientas/buscador-ayudas/';a.textContent='Descubrir qué ayudas me corresponden →';results.append(a);return;}
+    for(const {p} of ranked){
+      const a=document.createElement('a'),strong=document.createElement('strong'),small=document.createElement('small');
+      a.href=p.url;
+      strong.textContent=p.title+' →';
+      small.textContent=p.description||('Guía'+(p.region?' de '+p.region:'')+' en Papeles del Bebé');
+      a.append(strong,small);results.append(a);
+    }
+  }
+  input.addEventListener('input',render);
+  document.querySelectorAll('[data-aid-query]').forEach(b=>b.addEventListener('click',()=>{input.value=b.getAttribute('data-aid-query');render();input.focus();}));
+  fetch('/site-search-index.json',{cache:'no-cache'})
+    .then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json();})
+    .then(data=>{if(!Array.isArray(data))throw Error('Formato inválido');pages=data;})
+    .catch(()=>{status.textContent='No se pudo cargar el catálogo. Puedes usar el buscador personalizado.';})
+    .finally(()=>{loading=false;render();});
 })();
 </script></body></html>
