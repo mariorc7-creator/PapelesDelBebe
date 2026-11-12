@@ -132,6 +132,8 @@ function walk(dir, cb) {
   }
 }
 function shouldSkip(rel) {
+  // La URL histórica solo debe existir como redirección 301; no publicar su HTML duplicado.
+  if (rel === 'ayuda-nacimiento-cataluna-2026/index.html') return true;
   // Legacy sitemaps must never be published; only the generated sitemap.xml is authoritative.
   if (/^sitemap[^.]*\.xml$/i.test(rel)) return true;
   return rel.startsWith('.git/') || rel.startsWith('node_modules/') || rel.startsWith('dist/') || rel.startsWith('.vercel/');
@@ -322,6 +324,9 @@ function validatePrioritySeo() {
     if (redirects.some(r => r.source.replace(/\/$/, '') === '/' + slug)) errors.push(slug + ': redirige la URL canonica');
   }
   const oldCataluna = '/ayuda-nacimiento-cataluna-2026/';
+  if (fs.existsSync(path.join(OUT, 'ayuda-nacimiento-cataluna-2026', 'index.html'))) {
+    errors.push('Cataluña: HTML antiguo duplicado publicado en dist');
+  }
   if (!redirects.some(r => r.source === oldCataluna && r.destination === '/ayuda-nacimiento-cataluna/' && r.permanent === true)) {
     errors.push('Cataluña: falta redireccion permanente desde URL antigua');
   }
