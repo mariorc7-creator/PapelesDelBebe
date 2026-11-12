@@ -333,7 +333,7 @@ body.pb-aid-results-view #resultados{margin-top:26px}
     const terr = territorios[datos.comunidad];
     if (terr) {
       let href = terr.guia;
-      let titulo = `Ayudas y deducciones de ${datos.comunidad}`;
+      let titulo = paginasPublicadas.find(p=>canonicalPath(p.url)===canonicalPath(href))?.title || `Ayudas y deducciones de ${datos.comunidad}`;
       if (datos.multiple && terr.especialMultiple) {
         href = terr.especialMultiple;
         titulo = `Ayuda por nacimiento múltiple en ${datos.comunidad}`;
