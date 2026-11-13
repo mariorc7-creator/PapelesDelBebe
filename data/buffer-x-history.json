@@ -105,6 +105,13 @@
       "text": "Los adultos se enfadan cuando su equipo pierde, pero se pasan horas discutiendo por un balón que lleva muerte y gloria en sus costuras. ¿No sería más fácil jugar y olvidarse?",
       "bufferId": "6af5911749bcfed3aa754a39",
       "dueAt": "2026-11-12T13:07:00.000Z"
+    },
+    {
+      "date": "2026-11-13",
+      "slot": "morning",
+      "text": "He intentado hacer un presupuesto doméstico, pero los pañales tienen cláusula secreta: se gastan solos y piden aumento cada mes. ¿Algún economista de bebés por aquí?",
+      "bufferId": "6af6de9d62626734818e452c",
+      "dueAt": "2026-11-13T13:07:00.000Z"
     }
   ]
 }
