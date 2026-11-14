@@ -119,6 +119,13 @@
       "text": "Anoche vi a mis padres peleando por quién pone la alarma. Creí que era para madrugar, pero es para postergar la pereza con estilo. ¿Vosotros también usáis ese truco?",
       "bufferId": "6af827f678196a0a97529130",
       "dueAt": "2026-11-14T13:07:00.000Z"
+    },
+    {
+      "date": "2026-11-14",
+      "slot": "midday",
+      "text": "La última pelea en mi casa fue por quién pone la mesa: uno jura que es arte, otro que es ciencia. ¿Cuál es la excusa más absurda que habéis oído para escaquearse en casa?",
+      "bufferId": "6af827fbd16af15d4d052fde",
+      "dueAt": "2026-11-14T18:15:00.000Z"
     }
   ]
 }
