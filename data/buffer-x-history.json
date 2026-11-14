@@ -112,6 +112,13 @@
       "text": "He intentado hacer un presupuesto doméstico, pero los pañales tienen cláusula secreta: se gastan solos y piden aumento cada mes. ¿Algún economista de bebés por aquí?",
       "bufferId": "6af6de9d62626734818e452c",
       "dueAt": "2026-11-13T13:07:00.000Z"
+    },
+    {
+      "date": "2026-11-14",
+      "slot": "morning",
+      "text": "Anoche vi a mis padres peleando por quién pone la alarma. Creí que era para madrugar, pero es para postergar la pereza con estilo. ¿Vosotros también usáis ese truco?",
+      "bufferId": "6af827f678196a0a97529130",
+      "dueAt": "2026-11-14T13:07:00.000Z"
     }
   ]
 }
