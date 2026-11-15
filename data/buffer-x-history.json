@@ -133,6 +133,13 @@
       "text": "La guardería tiene un plan secreto: enseñar a los bebés a negociar. Ayer acepté un yogur; hoy piden mi merienda y mi siesta. ¿Quién firmó ese contrato?",
       "bufferId": "6af98085918fe79d2ed51913",
       "dueAt": "2026-11-15T13:07:00.000Z"
+    },
+    {
+      "date": "2026-11-15",
+      "slot": "midday",
+      "text": "¿Prefieres pasar un día entero sin móvil o con la batería al 1% y sin cargador? El drama es diferente, pero ambos acaban en llamada al rescate… ¿cuál penaliza más?",
+      "bufferId": "6af9808a918fe79d2ed519da",
+      "dueAt": "2026-11-15T18:15:00.000Z"
     }
   ]
 }
