@@ -95,8 +95,8 @@ def audit(root=ROOT):
     listed = set()
     if sitemap.exists():
         try:
-            root = ElementTree.parse(sitemap).getroot()
-            for e in root.iter():
+            xml_root = ElementTree.parse(sitemap).getroot()
+            for e in xml_root.iter():
                 if e.tag.endswith("loc") and e.text:
                     path = local_path(e.text, "sitemap.xml")
                     if path: listed.add(path)
