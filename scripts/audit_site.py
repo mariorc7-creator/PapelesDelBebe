@@ -72,18 +72,31 @@ def local_path(link, source):
     if not rel or rel.endswith("/"): rel += "index.html"
     return rel
 
-def audit():
+def audit(root=ROOT):
+    """Audit the deployed artifact, not uncompiled sources.
+
+    The build generates evergreen paths and applies redirects, so examining
+    source HTML directly would report genuine generated pages as missing.
+    """
+    root = Path(root).resolve()
+    config_path = (root.parent if root.name == "dist" else root) / "vercel.json"
+    config = json.loads(config_path.read_text(encoding="utf-8")) if config_path.exists() else {}
+    redirects = {}
+    for rule in config.get("redirects", []):
+        source, target = rule.get("source", ""), rule.get("destination", "")
+        if source.startswith("/") and ":" not in source and target.startswith("/"):
+            redirects[source.rstrip("/") or "/"] = target
     findings = []
     def flag(level, code, path, detail):
         findings.append({"severity":level, "code":code, "file":str(path), "detail":detail})
-    pages = sorted(p for p in ROOT.rglob("*.html") if not any(x in IGNORE for x in p.relative_to(ROOT).parts))
-    actual = {p.relative_to(ROOT).as_posix(): p for p in pages}
-    sitemap = ROOT / "sitemap.xml"
+    pages = sorted(p for p in root.rglob("*.html") if not any(x in IGNORE for x in p.relative_to(root).parts))
+    actual = {p.relative_to(root).as_posix(): p for p in pages}
+    sitemap = root / "sitemap.xml"
     listed = set()
     if sitemap.exists():
         try:
-            root = ElementTree.parse(sitemap).getroot()
-            for e in root.iter():
+            xml_root = ElementTree.parse(sitemap).getroot()
+            for e in xml_root.iter():
                 if e.tag.endswith("loc") and e.text:
                     path = local_path(e.text, "sitemap.xml")
                     if path: listed.add(path)
@@ -92,8 +105,11 @@ def audit():
     for path in sorted(listed - set(actual)):
         flag("error","SITEMAP_404",path,"La URL del sitemap no tiene index.html")
     for path in sorted(set(actual) - listed):
-        if path not in EXEMPT and not path.startswith("404"):
-            flag("warning","NOT_IN_SITEMAP",path,"Página HTML sin entrada en sitemap")
+        slug = "/" + path.removesuffix("index.html").rstrip("/")
+        html = actual[path].read_text(encoding="utf-8", errors="replace")
+        is_noindex = bool(re.search(r'<meta\\b[^>]*content=["\\x27][^"\\x27]*noindex', html, re.I))
+        if path not in EXEMPT and not path.startswith("404") and slug not in redirects and not is_noindex:
+            flag("warning","NOT_IN_SITEMAP",path,"Página HTML pública ausente del sitemap")
     inbound = Counter()
     for rel, file in actual.items():
         content = file.read_text(encoding="utf-8", errors="replace")
@@ -103,15 +119,17 @@ def audit():
         if not p.title or not "".join(p.title).strip(): flag("error","NO_TITLE",rel,"Falta title")
         if len(p.h1) != 1: flag("warning","H1_COUNT",rel,f"{len(p.h1)} encabezados H1")
         if len(p.descriptions) != 1: flag("warning","META_DESCRIPTION",rel,f"{len(p.descriptions)} metadescripciones")
-        if len(p.canonicals) != 1: flag("warning","CANONICAL_COUNT",rel,f"{len(p.canonicals)} canonical")
-        elif local_path(p.canonicals[0],rel) != rel: flag("error","CANONICAL_MISMATCH",rel,p.canonicals[0])
+        redirecting = ("/" + rel.removesuffix("index.html").rstrip("/")) in redirects
+        indexable = rel in listed and not any("noindex" in rule for rule in p.robots)
+        if indexable and len(p.canonicals) != 1: flag("warning","CANONICAL_COUNT",rel,f"{len(p.canonicals)} canonical")
+        elif indexable and local_path(p.canonicals[0],rel) != rel: flag("error","CANONICAL_MISMATCH",rel,p.canonicals[0])
         if len(p.crumbs) > 1: flag("warning","MULTIPLE_BREADCRUMBS",rel,str(len(p.crumbs)))
         if content.count("Última revisión") > 1: flag("warning","DUPLICATE_REVIEW",rel,"Fecha de revisión repetida")
         slug = rel.removesuffix("index.html")
         kind = category(slug)
         if p.mains and not p.mains[0].get("class"):
             declared = p.mains[0].get("data-page-kind")
-            if declared and kind in ("ayudas","tramites") and declared != kind:
+            if declared and kind in ("ayudas","tramites") and declared not in (kind, "tramite" if kind == "tramites" else kind):
                 flag("error","WRONG_CATEGORY",rel,f"data-page-kind={declared}, esperado {kind}")
             if kind == "ayudas" and p.crumbs and "Guías" in p.crumbs[0]:
                 flag("error","WRONG_BREADCRUMB",rel,"Ayuda clasificada como Guías")
@@ -120,13 +138,22 @@ def audit():
         for tag, link in p.links:
             target = local_path(link, rel)
             if target is None: continue
-            if tag == "a" and target in actual and not any("noindex" in rule for rule in p.robots) and target != rel:
-                inbound[target] += 1
             if target.startswith("../") or target.startswith("/"):
                 flag("warning","OUTSIDE_ROOT",rel,link); continue
-            candidate = ROOT / target
-            if not candidate.is_file():
-                flag("error","BROKEN_INTERNAL_LINK",rel,f"{tag}: {link} → {target}")
+            path_key = "/" + target.removesuffix("index.html").rstrip("/")
+            final_target = target
+            seen = set()
+            while path_key in redirects and path_key not in seen:
+                seen.add(path_key)
+                redirected = redirects[path_key]
+                resolved = local_path(redirected, rel)
+                if not resolved: break
+                final_target = resolved
+                path_key = "/" + final_target.removesuffix("index.html").rstrip("/")
+            if final_target in actual:
+                if tag == "a" and indexable and final_target != rel: inbound[final_target] += 1
+            elif not (root / final_target).is_file():
+                flag("error","BROKEN_INTERNAL_LINK",rel,f"{tag}: {link} → {final_target}")
     # Localiza páginas públicas que carecen de enlaces HTML entrantes.
     for rel in sorted(listed & set(actual)):
         if rel != "index.html" and inbound[rel] == 0:
@@ -136,9 +163,10 @@ def audit():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--strict",action="store_true",help="Fallará si hay errores")
+    ap.add_argument("--root",type=Path,default=ROOT,help="Directorio compilado (dist) a auditar")
     ap.add_argument("--report",default="site-audit-report.json")
     args = ap.parse_args()
-    pages,listed,issues = audit()
+    pages,listed,issues = audit(args.root)
     counts = Counter(i["severity"] for i in issues)
     report = {"html_pages":len(pages),"sitemap_urls":len(listed),"counts":dict(counts),"findings":issues}
     (ROOT/args.report).write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
