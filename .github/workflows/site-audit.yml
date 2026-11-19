@@ -16,8 +16,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Revisar todas las páginas HTML y el sitemap
-        run: python scripts/audit_site.py --report site-audit-report.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Compilar sitio real antes de auditar
+        run: node scripts/build-static.cjs
+      - name: Revisar rutas, enlaces, canonicals y sitemap de producción
+        run: python scripts/audit_site.py --root dist --strict --report site-audit-report.json
       - name: Resumen de la auditoría
         if: always()
         run: |
