@@ -13,7 +13,7 @@ function navMarkup(rel) {
     const isActive = href !== '/' && (slug === href || (
       href === '/guias-familias/' && /^\/(?:guias-|tarjeta-sanitaria-bebe-|titulo-familia-)/.test(slug)
     ));
-    return '<a href="' + href + '"' + (isActive ? ' aria-current="page"' : '') + '>' + label + '</a>';
+    return '<a href="' + href + '"' + (href === '/mi-panel/' ? ' data-pb-nav="panel"' : '') + (isActive ? ' aria-current="page"' : '') + '>' + label + '</a>';
   }).join('');
 }
 function standardizeNavigation(html, rel) {
