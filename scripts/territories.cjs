@@ -10,7 +10,7 @@ const TERRITORIES = [
   {slug:'castilla-y-leon',name:'Castilla y León',health:'castilla-y-leon',family:'castilla-y-leon',aids:['bono-nacimiento-castilla-leon-2026']},
   {slug:'cataluna',name:'Cataluña',health:'cataluna',family:'cataluna',aids:['ayuda-nacimiento-cataluna','ayudas-nacimiento-cataluna']},
   {slug:'ceuta',name:'Ceuta',health:null,family:'ceuta',aids:['familias-ceuta-2026']},
-  {slug:'comunidad-de-madrid',name:'Comunidad de Madrid',health:'madrid',family:'madrid',aids:['ayuda-natalidad-madrid','cheque-bebe-madrid-2026']},
+  {slug:'comunidad-de-madrid',name:'Comunidad de Madrid',health:'madrid',family:'madrid',aids:['ayuda-natalidad-madrid','cheque-bebe-madrid']},
   {slug:'comunidad-valenciana',name:'Comunitat Valenciana',health:'comunitat-valenciana',family:'comunitat-valenciana',aids:['ayuda-nacimiento-valencia','deduccion-nacimiento-comunitat-valenciana-2026']},
   {slug:'extremadura',name:'Extremadura',health:'extremadura',family:'extremadura',aids:['ayuda-natalidad-extremadura-2026']},
   {slug:'galicia',name:'Galicia',health:'galicia',family:'galicia',aids:['tarxeta-benvida']},
