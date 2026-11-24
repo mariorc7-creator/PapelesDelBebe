@@ -62,6 +62,8 @@
 
   function activeSection(href) {
     const p = location.pathname;
+    // Las fichas sanitarias regionales y los títulos familiares son guías editoriales.
+    if (/^\/(?:tarjeta-sanitaria-bebe-|titulo-familia-)/.test(p)) return href === '/guias-familias/';
     if (href === '/mi-panel/') return p.startsWith('/mi-panel/');
     if (href === '/herramientas/') return p.startsWith('/herramientas/');
     if (href === '/observatorio/') return p.startsWith('/observatorio/');
