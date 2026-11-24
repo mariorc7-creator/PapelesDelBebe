@@ -476,6 +476,84 @@ function generateSiteSearchIndex() {
   console.log('Índice de búsqueda web y ayudas: '+data.length+' páginas canónicas.');
 }
 
+function normalizeBuiltBreadcrumbs() {
+  const base = 'https://www.papelesdelbebe.es';
+  const escapeHtml = value => String(value).replace(/[&<>"']/g, x => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));
+  const counters = {checked:0, unified:0, created:0, skipped:0};
+  walk(OUT, full => {
+    if (!/\/index\.html$/i.test(full) && !full.endsWith('/index.html')) return;
+    let html = fs.readFileSync(full, 'utf8');
+    const rel = path.relative(OUT, full).replace(/\\/g,'/');
+    if (rel === 'index.html' || rel === '404/index.html') return;
+    const canonical = html.match(/<link\b[^>]*rel=["']canonical["'][^>]*href=["']([^"']+)["']/i)?.[1];
+    const route = '/' + rel.replace(/index\.html$/, '');
+    if (!canonical || canonical !== base + route ||
+        /<meta\b[^>]*name=["']robots["'][^>]*content=["'][^"']*noindex/i.test(html)) {
+      counters.skipped++; return;
+    }
+    counters.checked++;
+    if (!html.includes('href="/breadcrumbs.css"'))
+      html = html.replace(/<\/head>/i,'<link rel="stylesheet" href="/breadcrumbs.css">\n</head>');
+    // Several historical templates render the same semantic breadcrumbs with different classes.
+    const existing = /<(nav|div)\b([^>]*\bclass=["'][^"']*\b(?:pb-guide-crumb|tool-breadcrumb|breadcrumbs-visibles|crumb|mini)\b[^"']*["'][^>]*)>([\s\S]*?)<\/\1>/gi;
+    let normalized = false;
+    html = html.replace(existing, (match, tag, attrs, inner) => {
+      if (normalized) return match;
+      if (!/<a\b[^>]*href=["']\/["'][^>]*>/i.test(inner)) return match;
+      normalized = true;
+      const nextAttrs = attrs.replace(/\sstyle=["'][^"']*["']/gi,'')
+        .replace(/\bclass=(["'])([^"']*)\1/i, (_all, quote, classes) =>
+          'class=' + quote + (classes.includes('pb-breadcrumb-standard') ? classes : classes + ' pb-breadcrumb-standard') + quote)
+        .replace(/\saria-label=(["'])[^"']*\1/i,'');
+      const body = inner.replace(/<span\b[^>]*class=["']sep["'][^>]*>[\s\S]*?<\/span>/gi, ' › ')
+        .replace(/\s*›\s*/g,' <span class="pb-breadcrumb-sep" aria-hidden="true">›</span> ');
+      return '<nav' + nextAttrs + ' aria-label="Ruta de navegación">' + body + '</nav>';
+    });
+    if (normalized) {
+      counters.unified++;
+    } else if (/<main\b[^>]*>/i.test(html) && /<h1\b[^>]*>[\s\S]*?<\/h1>/i.test(html)) {
+      // Prefer the existing structured breadcrumb hierarchy to avoid contradicting JSON-LD.
+      let items = null;
+      for (const m of html.matchAll(/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)) {
+        try {
+          const value = JSON.parse(m[1]);
+          const candidates = Array.isArray(value) ? value : [value];
+          const breadcrumb = candidates.find(x => x && x['@type'] === 'BreadcrumbList');
+          if (breadcrumb && Array.isArray(breadcrumb.itemListElement)) {
+            items = breadcrumb.itemListElement.map(x=>({
+              name:String(x.name || x.item?.name || '').trim(),
+              url:typeof x.item === 'string' ? x.item : (x.item?.['@id'] || x.item?.url || '')
+            })).filter(x=>x.name);
+            break;
+          }
+        } catch (_) { /* another JSON-LD structure */ }
+      }
+      const h1 = html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/i)?.[1] || '';
+      const label = h1.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();
+      if (!items || items.length < 2 || items.at(-1).url !== canonical) {
+        items = [{name:'Inicio',url:base+'/'},{name:label,url:canonical}];
+      }
+      const parts = items.map((x,i)=> i === items.length-1
+        ? '<span aria-current="page">' + escapeHtml(x.name) + '</span>'
+        : '<a href="' + escapeHtml(x.url.startsWith(base) ? (x.url.slice(base.length)||'/') : x.url) + '">' + escapeHtml(x.name) + '</a>');
+      const nav = '<nav class="pb-breadcrumb-standard" aria-label="Ruta de navegación">' +
+        parts.join(' <span class="pb-breadcrumb-sep" aria-hidden="true">›</span> ') + '</nav>';
+      html = html.replace(/<main\b[^>]*>/i, match => match + '\n' + nav);
+      counters.created++;
+      // For a fallback without structured breadcrumb, match the simple visible hierarchy.
+      const hasBreadcrumbSchema = /"@type"\s*:\s*"BreadcrumbList"/.test(html);
+      if (!hasBreadcrumbSchema && items.length === 2) {
+        const data = {'@context':'https://schema.org','@type':'BreadcrumbList',
+          itemListElement:items.map((x,i)=>({'@type':'ListItem',position:i+1,name:x.name,item:x.url}))};
+        html = html.replace(/<\/head>/i,
+          '<script type="application/ld+json">' + JSON.stringify(data) + '</script>\n</head>');
+      }
+    }
+    fs.writeFileSync(full,html);
+  });
+  console.log('Breadcrumbs V4.2: ' + JSON.stringify(counters));
+}
+
 function validateSiteArchitecture() {
   const urls = [...fs.readFileSync(path.join(OUT, 'sitemap.xml'), 'utf8').matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]);
   const errors = [];
@@ -484,12 +562,17 @@ function validateSiteArchitecture() {
     const slug = url.replace('https://www.papelesdelbebe.es/', '').replace(/\/$/, '');
     const file = path.join(OUT, slug, 'index.html');
     const html = fs.readFileSync(file, 'utf8');
+    if (slug && slug !== '404') {
+      const matches = html.match(/<nav\b[^>]*class=["'][^"']*\bpb-breadcrumb-standard\b[^"']*["'][^>]*>/gi) || [];
+      if (matches.length !== 1 || !html.includes('href="/breadcrumbs.css"'))
+        errors.push(slug + ': falta breadcrumb único o estilo compartido');
+    }
     if (/<header\b/i.test(html)) {
       const nav = html.match(/<nav\b[^>]*class="nav-principal"[^>]*>[\s\S]*?<\/nav>/i)?.[0] || '';
       if (!nav || required.some(href => !nav.includes(href))) errors.push(slug + ': menú principal incompleto');
     }
     if (GUIDE_BREADCRUMBS[slug]) {
-      if (!html.includes('class="pb-guide-crumb"')) errors.push(slug + ': falta breadcrumb visible');
+      if (!/class=["'][^"']*\bpb-guide-crumb\b/.test(html)) errors.push(slug + ': falta breadcrumb visible');
       const schemas = [...html.matchAll(/<script\b[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi)];
       let validBreadcrumb = false;
       for (const [, contents] of schemas) {
@@ -511,6 +594,7 @@ function validateSiteArchitecture() {
 
 copyAll();
 generateEvergreenRegionalPages();
+normalizeBuiltBreadcrumbs();
 generateSitemap();
 generateSiteSearchIndex();
 audit(OUT);

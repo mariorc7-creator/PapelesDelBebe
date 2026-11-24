@@ -12,7 +12,9 @@ function link(slug, label) {
   return '<li><a href="/' + esc(slug) + '/">' + esc(label) + '</a></li>';
 }
 function sourceExists(root, slug) {
-  return fs.existsSync(path.join(root, slug, 'index.html'));
+  // Some evergreen URLs are generated from historical -2026 source pages.
+  return fs.existsSync(path.join(root, slug, 'index.html')) ||
+    fs.existsSync(path.join(root, slug + '-2026', 'index.html'));
 }
 function renderCompactTerritorySelector() {
   const options = TERRITORIES.map(t =>
@@ -38,7 +40,30 @@ function renderTerritorySelector(context) {
   const links = TERRITORIES.map(t => '<a href="' + regionalUrl(t.slug) + '">' + esc(t.name) + '<span aria-hidden="true">›</span></a>').join('');
   return '<section class="pb-territory-explorer" aria-labelledby="pb-territory-selector"><h2 id="pb-territory-selector">Información según tu comunidad autónoma</h2><p>' + intro + '</p><div class="pb-territory-grid">' + links + '</div></section>';
 }
-function renderTerritoryHub(t, root) {
+function foldDuplicateRegionalMenus(html, root) {
+  // Los módulos antiguos «GUÍAS DESTACADAS» duplican los enlaces del HUB V4.1.
+  // Conservamos los enlaces exclusivos dentro del HUB, sin borrar información legal.
+  const sections = /<section\b[^>]*class="contenido-informativo"[^>]*>[\s\S]*?<\/section>/gi;
+  const extras = [];
+  let removed = 0;
+  html = html.replace(sections, section => {
+    if (!/GUÍAS DESTACADAS/i.test(section)) return section;
+    removed++;
+    for (const m of section.matchAll(/<a\b[^>]*href="(\/[^"]+)"[^>]*>([\s\S]*?)<\/a>/gi)) {
+      const href = m[1].split('?')[0];
+      const slug = href.replace(/^\/|\/$/g, '');
+      if (!/^\/[a-z0-9/.-]+\/$/.test(href)) continue;
+      if (['comunidades','tramites-bebe','ayudas-nacimiento','herramientas/buscador-ayudas','checklist','mi-panel'].includes(slug)) continue;
+      if (!sourceExists(root, slug)) continue;
+      const label = m[2].replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();
+      if (label && !extras.some(x => x.slug === slug)) extras.push({slug,label});
+    }
+    return '';
+  });
+  if (removed > 1) throw Error('Más de un menú destacado previo en una comunidad');
+  return {html, extras, removed};
+}
+function renderTerritoryHub(t, root, extraLinks = []) {
   const aids = t.aids.filter(slug => sourceExists(root, slug))
     .map(slug => link(slug, slug.startsWith('deduccion-') ? 'Deducción por nacimiento: requisitos y aplicación' :
       slug.startsWith('familias-') ? 'Información y ayudas familiares en ' + t.name :
@@ -48,11 +73,19 @@ function renderTerritoryHub(t, root) {
     t.family && ['titulo-familia-numerosa-' + t.family, 'Título de familia numerosa']
   ].filter(Boolean).filter(([slug]) => sourceExists(root, slug))
     .map(([slug, label]) => link(slug, label));
+  // Enlaces relevantes que el menú antiguo tenía y aún no están representados.
+  const existing = new Set([
+    ...t.aids, ...(t.health ? ['tarjeta-sanitaria-bebe-' + t.health] : []),
+    ...(t.family ? ['titulo-familia-numerosa-' + t.family] : []),
+    'registro-civil-bebe','alta-bebe-seguridad-social','permiso-nacimiento-cuidado-menor'
+  ]);
+  const otherLinks = extraLinks.filter(x => !existing.has(x.slug))
+    .map(x => link(x.slug,x.label));
   const body = [
     '<div><h3>Ayudas y deducciones del territorio</h3>',
     aids.length ? '<ul>' + aids.join('') + '</ul>' : '<p>Consulta los recursos oficiales indicados en esta página y el buscador; no todas las ayudas existen en todas las comunidades.</p>',
     '</div><div><h3>Guías de ' + esc(t.name) + '</h3>',
-    guides.length ? '<ul>' + guides.join('') + '</ul>' : '<p>Consulta la información territorial existente y los trámites comunes para toda España.</p>',
+    guides.length || otherLinks.length ? '<ul>' + guides.concat(otherLinks).join('') + '</ul>' : '<p>Consulta la información territorial existente y los trámites comunes para toda España.</p>',
     '</div><div><h3>Trámites comunes a toda España</h3><ul>',
     link('registro-civil-bebe','Registro Civil: inscripción del nacimiento'),
     link('alta-bebe-seguridad-social','Alta del bebé en la Seguridad Social'),
@@ -106,8 +139,9 @@ function applyTerritorialArchitecture(html, rel, root) {
   if (slug.startsWith('comunidades/')) {
     const territory = TERRITORY_BY_SLUG[slug.slice('comunidades/'.length)];
     if (territory) {
-      html = addStyle(html);
-      return injectAfterIntro(html, renderTerritoryHub(territory, root), true);
+      const folded = foldDuplicateRegionalMenus(html, root);
+      html = addStyle(folded.html);
+      return injectAfterIntro(html, renderTerritoryHub(territory, root, folded.extras), true);
     }
   }
   const territorySlug = TERRITORY_BY_GUIDE[slug];
@@ -137,6 +171,7 @@ function validateTerritorialArchitecture(dist) {
       errors.push('HUB no es único: ' + t.slug);
     if (!html.includes('href="/regional-hubs.css"')) errors.push('CSS sin cargar: ' + t.slug);
     if (!html.includes('<h3>Trámites comunes a toda España</h3>')) errors.push('Faltan estatales: ' + t.slug);
+    if (/GUÍAS DESTACADAS/i.test(html)) errors.push('Menú editorial duplicado en ' + t.slug);
     const hubPosition = html.indexOf('class="pb-regional-guide"');
     const reviewPosition = html.indexOf('class="revision revision-sitio"');
     if (hubPosition <= html.indexOf('<h1') || (reviewPosition >= 0 && hubPosition >= reviewPosition))
