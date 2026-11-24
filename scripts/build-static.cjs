@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { NAV_ITEMS } = require('./site-architecture.cjs');
+const { NAV_ITEMS, GUIDE_BREADCRUMBS, BREADCRUMB_LABELS } = require('./site-architecture.cjs');
 
 const ROOT = process.cwd();
 const OUT = path.join(ROOT, 'dist');
@@ -26,6 +26,29 @@ function standardizeNavigation(html, rel) {
     return html.replace(/<\/header>/i, normalized + '</header>');
   }
   return html;
+}
+
+function appendExplicitBreadcrumbSchema(html, rel) {
+  const slug = rel.replace(/\/index\.html$/, '');
+  const ancestors = GUIDE_BREADCRUMBS[slug];
+  if (!ancestors || !html.includes('class="pb-guide-crumb"') || /"@type"\s*:\s*"BreadcrumbList"/.test(html)) return html;
+  const canonicalMatch = html.match(/<link\b[^>]*rel=["']canonical["'][^>]*href=["']([^"']+)/i);
+  const titleMatch = html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/i);
+  if (!canonicalMatch || !titleMatch) return html;
+  const canonical = canonicalMatch[1];
+  if (canonical !== 'https://www.papelesdelbebe.es/' + slug + '/') return html;
+  const label = titleMatch[1].replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+  const pages = [
+    ['Inicio', 'https://www.papelesdelbebe.es/'],
+    ...ancestors.map(key => [BREADCRUMB_LABELS[key], 'https://www.papelesdelbebe.es/' + key + '/']),
+    [label, canonical]
+  ];
+  const data = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: pages.map(([name, item], i) => ({ '@type': 'ListItem', position: i + 1, name, item }))
+  };
+  return html.replace(/<\/head>/i, '<script type="application/ld+json">' + JSON.stringify(data) + '</script>\n</head>');
 }
 
 function applyPageFixes(html, relPath) {
@@ -141,7 +164,7 @@ function applyPageFixes(html, relPath) {
     html = html.replace(/<script src="\/pack-empadronamiento\/(?:fix|review-v6|municipal-universal|capitales-only)\.js[^>]*><\/script>\s*/gi, '');
     html = html.replace(/<\/body>/i, '<script src="/pack-empadronamiento/review-v6.js?v=20261015-11" defer></script>\n<script src="/pack-empadronamiento/municipal-universal.js?v=20261016-2" defer></script>\n<script src="/pack-empadronamiento/capitales-only.js?v=20261016-1" defer></script>\n<script src="/pack-empadronamiento/capitales-ux.js?v=20261020-1" defer></script>\n</body>');
   }
-  return standardizeNavigation(html, rel);
+  return standardizeNavigation(appendExplicitBreadcrumbSchema(html, rel), rel);
 }
 
 function ensureDir(dir) { fs.mkdirSync(dir, { recursive: true }); }
