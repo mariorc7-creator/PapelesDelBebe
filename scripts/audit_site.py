@@ -139,10 +139,10 @@ def audit(root=ROOT):
         if len(p.crumbs) > 1: flag("warning","MULTIPLE_BREADCRUMBS",rel,str(len(p.crumbs)))
         if content.count("Última revisión") > 1: flag("warning","DUPLICATE_REVIEW",rel,"Fecha de revisión repetida")
         if rel in EDITORIAL_GUARDS:
-            main_match = re.search(r"<main\\b[^>]*>([\\s\\S]*?)</main>", content, re.I)
+            main_match = re.search(r"<main\b[^>]*>([\s\S]*?)</main>", content, re.I)
             main_html = main_match.group(1) if main_match else ""
-            editorial_dates = re.findall(r'<p\\b[^>]*class="[^"]*revision-sitio[^"]*"[^>]*>\\s*Última revisión:.*?</p>', main_html, re.I | re.S)
-            legacy_labels = re.findall(r"Revisado (?:el|:)\\s*\\d{1,2}/\\d{1,2}/\\d{4}", main_html, re.I)
+            editorial_dates = re.findall(r'<p\b[^>]*class="[^"]*revision-sitio[^"]*"[^>]*>\s*Última revisión:.*?</p>', main_html, re.I | re.S)
+            legacy_labels = re.findall(r"Revisado (?:el|:)\s*\d{1,2}/\d{1,2}/\d{4}", main_html, re.I)
             if len(editorial_dates) != 1 or legacy_labels:
                 flag("error", "REVIEW_DATE_DUPLICATE", rel, f"{len(editorial_dates)} revisión editorial; {len(legacy_labels)} fechas antiguas")
             elif not main_html.rstrip().endswith(editorial_dates[0]):
