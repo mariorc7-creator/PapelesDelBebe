@@ -55,12 +55,12 @@ function injectAfterIntro(html, section, territorial) {
   const h1 = html.indexOf('<h1', start);
   if (start < 0 || h1 < 0) throw Error('HUB sin main/h1');
   if (territorial) {
-    // En los 19 HUB: bloque después del CTA y antes del contenido editorial,
-    // sin situarlo tras la fecha de revisión o antes del H1.
-    const cta = /<a\b[^>]*class="cta-enlace"[^>]*>[\s\S]*?<\/a>/gi;
-    cta.lastIndex = h1;
-    const match = cta.exec(html);
-    if (!match) throw Error('HUB regional sin CTA reconocible');
+    // El build elimina CTA antiguos del checklist; el subtítulo permanece.
+    // Insertar después del H1 y del subtítulo, antes del resto del artículo.
+    const subtitle = /<p\b[^>]*class="subtitle"[^>]*>[\s\S]*?<\/p>/gi;
+    subtitle.lastIndex = h1;
+    const match = subtitle.exec(html);
+    if (!match) throw Error('HUB regional sin subtítulo reconocible');
     const at = match.index + match[0].length;
     return html.slice(0, at) + '\n' + section + html.slice(at);
   }
