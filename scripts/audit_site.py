@@ -141,7 +141,7 @@ def audit(root=ROOT):
         if rel in EDITORIAL_GUARDS:
             main_match = re.search(r"<main\\b[^>]*>([\\s\\S]*?)</main>", content, re.I)
             main_html = main_match.group(1) if main_match else ""
-            editorial_dates = re.findall(r"<p\\b[^>]*class=[\\x22\\x27][^\\x22\\x27]*\\brevision-sitio\\b[^\\x22\\x27]*[\\x22\\x27][^>]*>\\s*Última revisión:.*?</p>", main_html, re.I | re.S)
+            editorial_dates = re.findall(r'<p\\b[^>]*class="[^"]*revision-sitio[^"]*"[^>]*>\\s*Última revisión:.*?</p>', main_html, re.I | re.S)
             legacy_labels = re.findall(r"Revisado (?:el|:)\\s*\\d{1,2}/\\d{1,2}/\\d{4}", main_html, re.I)
             if len(editorial_dates) != 1 or legacy_labels:
                 flag("error", "REVIEW_DATE_DUPLICATE", rel, f"{len(editorial_dates)} revisión editorial; {len(legacy_labels)} fechas antiguas")
