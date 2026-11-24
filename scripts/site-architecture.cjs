@@ -6,7 +6,8 @@ const NAV_ITEMS = [
   ['/ayudas-nacimiento/', 'Ayudas'],
   ['/comunidades/', 'Comunidades'],
   ['/herramientas/', 'Herramientas'],
-  ['/preparativos-bebe/', 'Preparativos']
+  ['/preparativos-bebe/', 'Preparativos'],
+  ['/mi-panel/', 'Mi panel']
 ];
 const HUBS = {
   tramites: '/tramites-bebe/',
