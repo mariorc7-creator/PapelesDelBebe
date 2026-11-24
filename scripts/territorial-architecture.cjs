@@ -12,7 +12,9 @@ function link(slug, label) {
   return '<li><a href="/' + esc(slug) + '/">' + esc(label) + '</a></li>';
 }
 function sourceExists(root, slug) {
-  return fs.existsSync(path.join(root, slug, 'index.html'));
+  // Some evergreen URLs are generated from historical -2026 source pages.
+  return fs.existsSync(path.join(root, slug, 'index.html')) ||
+    fs.existsSync(path.join(root, slug + '-2026', 'index.html'));
 }
 function renderCompactTerritorySelector() {
   const options = TERRITORIES.map(t =>
