@@ -1,7 +1,7 @@
 // Arquitectura territorial V4.1. Las URL existentes no se mueven.
 // Enlaces definidos explícitamente para evitar recomendaciones cruzadas.
 const TERRITORIES = [
-  {slug:'andalucia',name:'Andalucía',health:'andalucia',family:'andalucia',aids:['ayuda-partos-multiples-andalucia-2026']},
+  {slug:'andalucia',name:'Andalucía',health:'andalucia',family:'andalucia',aids:['ayuda-partos-multiples-andalucia','deduccion-nacimiento-andalucia']},
   {slug:'aragon',name:'Aragón',health:'aragon',family:'aragon',aids:['ayuda-partos-multiples-aragon-2026']},
   {slug:'asturias',name:'Asturias',health:'asturias',family:'asturias',aids:['ayuda-nacimiento-asturias']},
   {slug:'canarias',name:'Canarias',health:'canarias',family:'canarias',aids:['deduccion-nacimiento-canarias-2026']},
