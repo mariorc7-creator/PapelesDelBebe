@@ -18,6 +18,19 @@ CATEGORIES = {
     "tramites": ("tarjeta-sanitaria-", "registro-civil-", "empadronar-", "alta-bebe-", "permiso-", "titulo-familia-", "documentos-tramites-", "documentacion-prestacion-", "comunicar-nuevo-hijo-", "certificado-", "autonomos-permiso-"),
 }
 EXEMPT = {"", "index.html", "404.html"}
+# Guides in the latest editorial batch. Keep these checks in future batches.
+EDITORIAL_GUARDS = {
+    "tarjeta-sanitaria-bebe-baleares/index.html",
+    "tarjeta-sanitaria-bebe-cantabria/index.html",
+    "tarjeta-sanitaria-bebe-castilla-la-mancha/index.html",
+    "tarjeta-sanitaria-bebe-extremadura/index.html",
+    "tarjeta-sanitaria-bebe-navarra/index.html",
+    "tarjeta-sanitaria-bebe-pais-vasco/index.html",
+    "titulo-familia-numerosa-cantabria/index.html",
+    "titulo-familia-numerosa-ceuta/index.html",
+    "titulo-familia-numerosa-melilla/index.html",
+    "titulo-familia-numerosa-pais-vasco/index.html",
+}
 class Page(HTMLParser):
     def __init__(self):
         super().__init__(convert_charrefs=True)
@@ -125,6 +138,19 @@ def audit(root=ROOT):
         elif indexable and local_path(p.canonicals[0],rel) != rel: flag("error","CANONICAL_MISMATCH",rel,p.canonicals[0])
         if len(p.crumbs) > 1: flag("warning","MULTIPLE_BREADCRUMBS",rel,str(len(p.crumbs)))
         if content.count("Última revisión") > 1: flag("warning","DUPLICATE_REVIEW",rel,"Fecha de revisión repetida")
+        if rel in EDITORIAL_GUARDS:
+            main_match = re.search(r"<main\b[^>]*>([\s\S]*?)</main>", content, re.I)
+            main_html = main_match.group(1) if main_match else ""
+            editorial_dates = re.findall(r'<p\b[^>]*class="[^"]*revision-sitio[^"]*"[^>]*>\s*Última revisión:.*?</p>', main_html, re.I | re.S)
+            legacy_labels = re.findall(r"Revisado (?:el|:)\s*\d{1,2}/\d{1,2}/\d{4}", main_html, re.I)
+            if len(editorial_dates) != 1 or legacy_labels:
+                flag("error", "REVIEW_DATE_DUPLICATE", rel, f"{len(editorial_dates)} revisión editorial; {len(legacy_labels)} fechas antiguas")
+            elif not main_html.rstrip().endswith(editorial_dates[0]):
+                flag("error", "CONTENT_AFTER_REVIEW_DATE", rel, "La revisión debe ser el último elemento dentro de main")
+            if "Resolver incidencias y preparar el trámite" in content:
+                flag("error", "EDITORIAL_OUTSIDE_TEMPLATE", rel, "Ampliación separada del cuerpo editorial")
+            if len(p.h1) != 1 or len(p.canonicals) != 1 or len(p.descriptions) != 1:
+                flag("error", "EDITORIAL_SEO_INTEGRITY", rel, "Debe conservar H1, canonical y meta description únicos")
         slug = rel.removesuffix("index.html")
         kind = category(slug)
         if p.mains and not p.mains[0].get("class"):
