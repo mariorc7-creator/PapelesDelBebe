@@ -3,15 +3,16 @@
   window.__papelesBebeGlobalUiInitialized = true;
   const MASTER_KEY = 'papelesbebe_que_me_falta_v1';
   const APP_COMPLETED_KEY = 'tramitesFacilesCompletados';
-  const HEADER_VERSION = '20261104-preparativos-clean';
+  const HEADER_VERSION = '20261124-menu-territorial-batch';
   const FOOTER_VERSION = '20261022-share5';
   const MASTER_KEYS = ['registro','seguridad-social','tarjeta-sanitaria','padron','prestacion','deduccion','ayudas'];
   const NAV_ITEMS = [
-    ['/mi-panel/', 'Mis trámites'],
+    ['/mi-panel/', 'Mi panel'],
+    ['/tramites-bebe/', 'Trámites'],
+    ['/guias-familias/', 'Guías'],
     ['/ayudas-nacimiento/', 'Ayudas'],
     ['/herramientas/', 'Herramientas'],
-    ['/guias-familias/', 'Guías'],
-    ['/preparativos-bebe/', '🧸 Preparativos']
+    ['/preparativos-bebe/', 'Preparativos']
   ];
 
   function readLocal(key, fallback) {
