@@ -505,8 +505,7 @@ function normalizeBuiltBreadcrumbs() {
         .replace(/\bclass=(["'])([^"']*)\1/i, (_all, quote, classes) =>
           'class=' + quote + (classes.includes('pb-breadcrumb-standard') ? classes : classes + ' pb-breadcrumb-standard') + quote)
         .replace(/\saria-label=(["'])[^"']*\1/i,'');
-      const body = inner.replace(/<span\b[^>]*class=["']sep["'][^>]*>[\s\S]*?<\/span>/gi,
-        '<span class="pb-breadcrumb-sep" aria-hidden="true">›</span>')
+      const body = inner.replace(/<span\b[^>]*class=["']sep["'][^>]*>[\s\S]*?<\/span>/gi, ' › ')
         .replace(/\s*›\s*/g,' <span class="pb-breadcrumb-sep" aria-hidden="true">›</span> ');
       return '<nav' + nextAttrs + ' aria-label="Ruta de navegación">' + body + '</nav>';
     });
