@@ -1,0 +1,20 @@
+/* Arquitectura territorial V4.1: componentes discretos, accesibles y responsive. */
+.pb-territory-explorer{max-width:1160px;margin:22px auto 30px;padding:22px;border:1px solid #e1e5f1;border-radius:16px;background:#f8faff;box-sizing:border-box}
+.pb-territory-explorer h2{font-size:clamp(1.2rem,2vw,1.55rem);margin:0 0 8px;color:#252c43}
+.pb-territory-explorer>p{color:#55647b;margin:0 0 15px;line-height:1.55}
+.pb-territory-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,185px),1fr));gap:10px}
+.pb-territory-grid a{display:flex;align-items:center;justify-content:space-between;min-height:50px;padding:12px 13px;border:1px solid #dbe1ef;border-radius:10px;background:white;color:#263b66;text-decoration:none;font-weight:700;box-sizing:border-box;line-height:1.35}
+.pb-territory-grid a:hover,.pb-territory-grid a:focus-visible{border-color:#7984d8;background:#f4f3ff;outline-offset:2px}
+.pb-territory-grid a span{color:#6673b8;margin-left:8px}
+.pb-regional-guide{max-width:1160px;margin:22px auto 26px;padding:20px;border:1px solid #e0e5f0;border-radius:15px;background:#fff;box-sizing:border-box}
+.pb-regional-guide>h2{font-size:clamp(1.15rem,2vw,1.5rem);margin:0 0 7px}
+.pb-regional-guide>p{margin:0 0 16px;color:#536278}
+.pb-regional-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,235px),1fr));gap:12px}
+.pb-regional-cards>div{background:#f9faff;border:1px solid #e1e5f1;border-radius:12px;padding:14px;min-width:0}
+.pb-regional-cards h3{font-size:1.05rem;margin:0 0 8px;color:#24324e}
+.pb-regional-cards ul{padding-left:19px;margin:0;display:grid;gap:8px}
+.pb-regional-cards a,.pb-regional-return a{color:#3549ad;text-underline-offset:2px}
+.pb-regional-cards p{margin:0;color:#596479;font-size:.9rem;line-height:1.5}
+.pb-regional-return{margin:22px 0 12px;font-size:.91rem}
+@media(max-width:600px){.pb-territory-explorer,.pb-regional-guide{margin:18px 0;padding:14px}.pb-territory-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.pb-territory-grid a{font-size:.87rem;padding:10px;min-height:48px}}
+@media(max-width:365px){.pb-territory-grid{grid-template-columns:1fr}}
