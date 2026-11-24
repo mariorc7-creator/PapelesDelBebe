@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { NAV_ITEMS, GUIDE_BREADCRUMBS, BREADCRUMB_LABELS } = require('./site-architecture.cjs');
+const { applyTerritorialArchitecture, validateTerritorialArchitecture } = require('./territorial-architecture.cjs');
 
 const ROOT = process.cwd();
 const OUT = path.join(ROOT, 'dist');
@@ -164,6 +165,7 @@ function applyPageFixes(html, relPath) {
     html = html.replace(/<script src="\/pack-empadronamiento\/(?:fix|review-v6|municipal-universal|capitales-only)\.js[^>]*><\/script>\s*/gi, '');
     html = html.replace(/<\/body>/i, '<script src="/pack-empadronamiento/review-v6.js?v=20261015-11" defer></script>\n<script src="/pack-empadronamiento/municipal-universal.js?v=20261016-2" defer></script>\n<script src="/pack-empadronamiento/capitales-only.js?v=20261016-1" defer></script>\n<script src="/pack-empadronamiento/capitales-ux.js?v=20261020-1" defer></script>\n</body>');
   }
+  html = applyTerritorialArchitecture(html, rel, ROOT);
   return standardizeNavigation(appendExplicitBreadcrumbSchema(html, rel), rel);
 }
 
@@ -515,3 +517,4 @@ audit(OUT);
 validatePrioritySeo();
 validatePublishedSitemap();
 validateSiteArchitecture();
+validateTerritorialArchitecture(OUT);
