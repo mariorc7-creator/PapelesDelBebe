@@ -225,7 +225,7 @@ function validateTerritorialArchitecture(dist) {
     if (html.includes('class="pb-territory-explorer"') ||
         (slug === 'guias-familias' && html.includes('id="guias-comunidades-titulo"')) ||
         (slug === 'ayudas-nacimiento' && (
-          html.includes('id="selectorComunidadHub"') || html.includes('pb-aid-featured-more')
+          /<select\b[^>]*id="selectorComunidadHub"/.test(html) || /<details\b[^>]*class="[^"]*pb-aid-featured-more/.test(html)
         )))
       errors.push(slug + ': quedan módulos regionales duplicados');
   }
