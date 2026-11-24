@@ -1,10 +1,32 @@
 const fs = require('fs');
 const path = require('path');
+const { NAV_ITEMS } = require('./site-architecture.cjs');
 
 const ROOT = process.cwd();
 const OUT = path.join(ROOT, 'dist');
 const GLOBAL_UI = '<script src="/global-ui.js?v=20261020-13" defer></script>';
 const FOOTER = `<footer class="pb-global-footer" data-pb-global-footer="1"><div class="footer-contenido"><div class="logo">Papeles del <span>Bebé</span></div><p>Menos papeleo. Más tiempo para tu bebé.</p><p class="metodologia-footer"><a href="/metodologia/">Metodología</a> · <a href="/privacidad/">Privacidad</a></p><p class="footer-copy">© 2026 Papeles del Bebé</p></div></footer>`;
+
+function navMarkup(rel) {
+  const slug = rel === 'index.html' ? '/' : '/' + rel.replace(/index\.html$/, '');
+  return NAV_ITEMS.map(([href, label]) => {
+    const isActive = href !== '/' && (slug === href || (
+      href === '/guias-familias/' && /^\/(?:guias-|tarjeta-sanitaria-bebe-|titulo-familia-)/.test(slug)
+    ));
+    return '<a href="' + href + '"' + (isActive ? ' aria-current="page"' : '') + '>' + label + '</a>';
+  }).join('');
+}
+function standardizeNavigation(html, rel) {
+  // Server-side HTML: crawlers and users without JS receive the same global menu.
+  const normalized = '<nav class="nav-principal" aria-label="Navegación principal">' + navMarkup(rel) + '</nav>';
+  if (/<nav\b[^>]*class=["'][^"']*\bnav-principal\b[^"']*["'][^>]*>[\s\S]*?<\/nav>/i.test(html)) {
+    return html.replace(/<nav\b[^>]*class=["'][^"']*\bnav-principal\b[^"']*["'][^>]*>[\s\S]*?<\/nav>/i, normalized);
+  }
+  if (/<header\b[^>]*>[\s\S]*?<\/header>/i.test(html)) {
+    return html.replace(/<\/header>/i, normalized + '</header>');
+  }
+  return html;
+}
 
 function applyPageFixes(html, relPath) {
   const rel = relPath.replace(/\\/g, '/');
@@ -119,7 +141,7 @@ function applyPageFixes(html, relPath) {
     html = html.replace(/<script src="\/pack-empadronamiento\/(?:fix|review-v6|municipal-universal|capitales-only)\.js[^>]*><\/script>\s*/gi, '');
     html = html.replace(/<\/body>/i, '<script src="/pack-empadronamiento/review-v6.js?v=20261015-11" defer></script>\n<script src="/pack-empadronamiento/municipal-universal.js?v=20261016-2" defer></script>\n<script src="/pack-empadronamiento/capitales-only.js?v=20261016-1" defer></script>\n<script src="/pack-empadronamiento/capitales-ux.js?v=20261020-1" defer></script>\n</body>');
   }
-  return html;
+  return standardizeNavigation(html, rel);
 }
 
 function ensureDir(dir) { fs.mkdirSync(dir, { recursive: true }); }
@@ -149,6 +171,14 @@ function copyAll() {
       if (!html.includes('/global-ui.js')) html = html.replace(/<\/body>/i, `${GLOBAL_UI}\n</body>`);
       html = applyPageFixes(html, rel);
       fs.writeFileSync(dest, html);
+    } else if (rel === 'global-ui.js') {
+      // Keep the client-side menu identical to the server-rendered navigation.
+      let js = fs.readFileSync(full, 'utf8');
+      const list = 'const NAV_ITEMS = ' + JSON.stringify(NAV_ITEMS) + ';';
+      const pattern = /const NAV_ITEMS = \[[\s\S]*?\];/;
+      if (!pattern.test(js)) throw new Error('No se ha encontrado la navegación del cliente');
+      js = js.replace(pattern, list);
+      fs.writeFileSync(dest, js);
     } else fs.copyFileSync(full, dest);
   });
 }
