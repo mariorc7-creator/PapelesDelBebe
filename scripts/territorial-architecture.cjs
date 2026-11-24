@@ -118,6 +118,10 @@ function validateTerritorialArchitecture(dist) {
       errors.push('HUB no es único: ' + t.slug);
     if (!html.includes('href="/regional-hubs.css"')) errors.push('CSS sin cargar: ' + t.slug);
     if (!html.includes('<h3>Trámites comunes a toda España</h3>')) errors.push('Faltan estatales: ' + t.slug);
+    const hubPosition = html.indexOf('class="pb-regional-guide"');
+    const reviewPosition = html.indexOf('class="revision revision-sitio"');
+    if (hubPosition <= html.indexOf('<h1') || (reviewPosition >= 0 && hubPosition >= reviewPosition))
+      errors.push('HUB fuera del artículo o después de la revisión: ' + t.slug);
     if (!html.includes('rel="canonical"') || !html.includes(regionalUrl(t.slug))) errors.push('Sin canonical: ' + t.slug);
   }
   for (const slug of ['guias-familias','ayudas-nacimiento','tramites-bebe']) {
