@@ -16,29 +16,68 @@ function sourceExists(root, slug) {
   return fs.existsSync(path.join(root, slug, 'index.html')) ||
     fs.existsSync(path.join(root, slug + '-2026', 'index.html'));
 }
-function renderCompactTerritorySelector() {
+// Un único selector compacto para Trámites, Guías y Ayudas.
+function renderCompactTerritorySelector(context) {
+  const variants = {
+    'tramites-bebe': {
+      title: 'Trámites según tu comunidad',
+      intro: 'Los siete pasos son comunes a toda España. Consulta aquí los detalles autonómicos.',
+      button: 'Ver trámites'
+    },
+    'guias-familias': {
+      title: 'Guías según tu comunidad',
+      intro: 'Elige tu comunidad para consultar las guías específicas de tu territorio.',
+      button: 'Ver guías'
+    },
+    'ayudas-nacimiento': {
+      title: 'Ayudas según tu comunidad',
+      intro: 'Consulta las ayudas y deducciones del territorio donde resides.',
+      button: 'Ver ayudas'
+    }
+  };
+  const current = variants[context];
+  if (!current) throw new Error('Selector territorial sin contexto: ' + context);
   const options = TERRITORIES.map(t =>
     '<option value="' + regionalUrl(t.slug) + '">' + esc(t.name) + '</option>'
   ).join('');
   return '<section class="pb-territory-compact" aria-labelledby="pb-choose-region">' +
-    '<h2 id="pb-choose-region">Trámites según tu comunidad</h2>' +
-    '<p>Los siete pasos son comunes a toda España. Consulta aquí los detalles autonómicos.</p>' +
+    '<h2 id="pb-choose-region">' + current.title + '</h2>' +
+    '<p>' + current.intro + '</p>' +
     '<div class="pb-territory-compact-controls">' +
     '<label for="pb-territory-select" class="pb-territory-label">Tu comunidad</label>' +
     '<select id="pb-territory-select" name="comunidad" aria-label="Selecciona tu comunidad">' +
     '<option value="">Selecciona tu comunidad</option>' + options + '</select>' +
-    '<button type="button" id="pb-territory-go">Ver trámites</button></div>' +
+    '<button type="button" id="pb-territory-go">' + current.button + '</button></div>' +
     '<a class="pb-territory-all" href="/comunidades/">Ver las 19 comunidades</a>' +
     '</section>';
 }
-function renderTerritorySelector(context) {
-  const intro = context === 'guias-familias' ?
-    'Elige dónde vives para consultar guías regionales. Las guías estatales siguen disponibles en esta página.' :
-    context === 'ayudas-nacimiento' ?
-    'Selecciona tu comunidad para localizar ayudas autonómicas y deducciones. Las prestaciones estatales se consultan también aquí.' :
-    'Encuentra trámites y documentación específicos de tu territorio. Los siete pasos generales siguen siendo comunes en toda España.';
-  const links = TERRITORIES.map(t => '<a href="' + regionalUrl(t.slug) + '">' + esc(t.name) + '<span aria-hidden="true">›</span></a>').join('');
-  return '<section class="pb-territory-explorer" aria-labelledby="pb-territory-selector"><h2 id="pb-territory-selector">Información según tu comunidad autónoma</h2><p>' + intro + '</p><div class="pb-territory-grid">' + links + '</div></section>';
+
+// Eliminar de la versión pública los listados redundantes que ya sustituye
+// el selector, sin afectar los demás módulos, fuentes ni contenido nacional.
+function stripOldTerritorialMenus(html, slug) {
+  if (slug === 'guias-familias') {
+    const pattern = /<section class="tool-panel" aria-labelledby="guias-comunidades-titulo">[\s\S]*?<\/section>/gi;
+    const count = (html.match(pattern) || []).length;
+    if (count !== 1) throw new Error('Guías: se esperaba exactamente un listado de comunidades previo');
+    return html.replace(pattern, '');
+  }
+  if (slug === 'ayudas-nacimiento') {
+    const oldSelector = /<section class="pb-hub-panel"><span class="tool-kicker" id="elegir-comunidad">[\s\S]*?<select id="selectorComunidadHub"[\s\S]*?<\/select><\/div><\/section>/gi;
+    const oldFeatured = /<details class="pb-hub-more pb-aid-featured-more">[\s\S]*?<\/section><\/div><\/details>/gi;
+    if ((html.match(oldSelector) || []).length !== 1 || (html.match(oldFeatured) || []).length !== 1) {
+      throw new Error('Ayudas: selectores/listas antiguos no identificados de forma unívoca');
+    }
+    const cleaned = html.replace(oldSelector, '').replace(oldFeatured, '');
+    const territoryAnchor = '<a href="/comunidades/">Consultar las 19 comunidades y ciudades autónomas</a>';
+    if (!cleaned.includes(territoryAnchor)) throw new Error('Ayudas: falta ancla editorial de comunidades');
+    // Tres enlaces directos prioritarios exigidos por SEO, junto a la explicación
+    // autonómica existente; no se crea un segundo listado de comunidades.
+    return cleaned.replace(territoryAnchor, territoryAnchor +
+      '. Ejemplos: <a href="/ayuda-nacimiento-cataluna/">ayuda por nacimiento en Cataluña</a>, ' +
+      '<a href="/ayuda-nacimiento-asturias/">ayuda por nacimiento en Asturias</a> y ' +
+      '<a href="/deduccion-nacimiento-la-rioja/">deducción por nacimiento en La Rioja</a>');
+  }
+  return html;
 }
 function foldDuplicateRegionalMenus(html, root) {
   // Los módulos antiguos «GUÍAS DESTACADAS» duplican los enlaces del HUB V4.1.
@@ -129,12 +168,10 @@ function injectAfterIntro(html, section, territorial) {
 function applyTerritorialArchitecture(html, rel, root) {
   const slug = rel.replace(/\/index\.html$/, '').replace(/index\.html$/, '');
   if (slug === 'guias-familias' || slug === 'ayudas-nacimiento' || slug === 'tramites-bebe') {
+    html = stripOldTerritorialMenus(html, slug);
     html = addStyle(html);
-    if (slug === 'tramites-bebe') {
-      html = html.replace(/<\/body>/i, '<script src="/regional-selector.js" defer></script></body>');
-      return injectAfterIntro(html, renderCompactTerritorySelector(), false);
-    }
-    return injectAfterIntro(html, renderTerritorySelector(slug), false);
+    html = html.replace(/<\/body>/i, '<script src="/regional-selector.js" defer></script></body>');
+    return injectAfterIntro(html, renderCompactTerritorySelector(slug), false);
   }
   if (slug.startsWith('comunidades/')) {
     const territory = TERRITORY_BY_SLUG[slug.slice('comunidades/'.length)];
@@ -180,14 +217,17 @@ function validateTerritorialArchitecture(dist) {
   }
   for (const slug of ['guias-familias','ayudas-nacimiento','tramites-bebe']) {
     const html = fs.readFileSync(path.join(dist, slug, 'index.html'), 'utf8');
-    const links = TERRITORIES.filter(t => !html.includes((slug === 'tramites-bebe' ? 'value="' : 'href="') + regionalUrl(t.slug) + '"'));
-    if (slug === 'tramites-bebe') {
-      if (!html.includes('id="pb-territory-select"') || !html.includes('src="/regional-selector.js"') ||
-          links.length || (html.match(/class="pb-territory-compact"/g) || []).length !== 1)
-        errors.push(slug + ': selector compacto incompleto');
-    } else if (links.length || (html.match(/class="pb-territory-explorer"/g) || []).length !== 1) {
-      errors.push(slug + ': selector incompleto');
-    }
+    const missing = TERRITORIES.filter(t => !html.includes('value="' + regionalUrl(t.slug) + '"'));
+    const count = (html.match(/class="pb-territory-compact"/g) || []).length;
+    if (missing.length || count !== 1 || !html.includes('id="pb-territory-select"') ||
+        !html.includes('src="/regional-selector.js"'))
+      errors.push(slug + ': selector compacto incompleto');
+    if (html.includes('class="pb-territory-explorer"') ||
+        (slug === 'guias-familias' && html.includes('id="guias-comunidades-titulo"')) ||
+        (slug === 'ayudas-nacimiento' && (
+          /<select\b[^>]*id="selectorComunidadHub"/.test(html) || /<details\b[^>]*class="[^"]*pb-aid-featured-more/.test(html)
+        )))
+      errors.push(slug + ': quedan módulos regionales duplicados');
   }
   if (errors.length) throw Error('Arquitectura territorial inválida:\n' + errors.join('\n'));
   console.log('Arquitectura territorial OK: 19 HUB y 3 selectores HTML.');
