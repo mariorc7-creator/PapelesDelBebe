@@ -39,3 +39,129 @@
 .pb-territory-compact select:focus-visible,.pb-territory-compact button:focus-visible,.pb-territory-all:focus-visible{outline:3px solid #818cf8;outline-offset:2px}
 .pb-territory-all{display:inline-block;margin-top:10px;font-size:.87rem;color:#4658ad}
 @media(max-width:600px){.pb-territory-compact{padding:15px;margin:16px 0}.pb-territory-compact-controls{align-items:stretch}.pb-territory-label{flex:1 0 100%}.pb-territory-compact select{flex:1 1 100%;max-width:none}.pb-territory-compact button{width:100%}}
+
+/* V4.2 · Acabado editorial de los 19 HUBs: mismo HTML y SEO, mejor lectura. */
+.pb-regional-guide{
+  position:relative!important;
+  padding:clamp(20px,3vw,32px)!important;
+  border:1px solid #e4e8f3!important;
+  border-radius:20px!important;
+  background:linear-gradient(180deg,#ffffff 0%,#fbfcff 100%)!important;
+  box-shadow:0 12px 34px rgba(33,47,94,.045)!important
+}
+.pb-regional-guide>h2{
+  max-width:780px;
+  margin:0 auto 10px!important;
+  color:#1d2d50!important;
+  font-size:clamp(1.42rem,2.6vw,1.9rem)!important;
+  line-height:1.22!important;
+  letter-spacing:-.025em!important;
+  text-align:center!important
+}
+.pb-regional-guide>p{
+  max-width:700px;
+  margin:0 auto 26px!important;
+  color:#65718a!important;
+  font-size:clamp(.92rem,1.3vw,1.01rem)!important;
+  line-height:1.65!important;
+  text-align:center!important
+}
+.pb-regional-guide .pb-regional-cards{gap:0!important}
+.pb-regional-guide .pb-regional-cards>div{
+  position:relative!important;
+  background:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+  padding:22px 0 24px!important
+}
+.pb-regional-guide .pb-regional-cards>div:first-child{padding-top:4px!important}
+.pb-regional-guide .pb-regional-cards>div+div{border-top:1px solid #e7eaf2!important}
+.pb-regional-guide .pb-regional-cards h3{
+  display:flex!important;
+  gap:11px!important;
+  align-items:center!important;
+  margin:0 0 14px!important;
+  color:#213354!important;
+  font-size:1.12rem!important;
+  font-weight:800!important;
+  letter-spacing:-.012em!important
+}
+.pb-regional-guide .pb-regional-cards h3::before{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  flex:0 0 36px!important;
+  width:36px!important;
+  height:36px!important;
+  border-radius:11px!important;
+  background:#eff0ff!important;
+  color:#5961d7!important;
+  font-size:1.05rem!important;
+  line-height:1!important;
+  content:"✦"!important
+}
+.pb-regional-guide .pb-regional-cards>div:nth-child(1) h3::before{
+  background:#eaf8f2!important;
+  color:#278462!important;
+  content:"€"!important;
+  font-weight:850!important
+}
+.pb-regional-guide .pb-regional-cards>div:nth-child(2) h3::before{content:"▤"!important}
+.pb-regional-guide .pb-regional-cards>div:nth-child(3) h3::before{
+  background:#fff2e7!important;
+  color:#bd7945!important;
+  content:"✓"!important
+}
+.pb-regional-guide .pb-regional-cards ul{
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,315px),1fr))!important;
+  gap:11px!important
+}
+.pb-regional-guide .pb-regional-cards li a{
+  position:relative!important;
+  padding:15px 44px 15px 17px!important;
+  min-height:62px!important;
+  border:1px solid #e4e8f2!important;
+  border-radius:13px!important;
+  background:#fff!important;
+  color:#29426f!important;
+  font-weight:680!important;
+  font-size:.98rem!important;
+  line-height:1.45!important;
+  box-shadow:0 3px 10px rgba(24,41,87,.025)!important;
+  transition:border-color .15s ease,background-color .15s ease,box-shadow .15s ease,transform .15s ease!important
+}
+.pb-regional-guide .pb-regional-cards li a::after{
+  position:absolute!important;
+  right:17px!important;
+  top:50%!important;
+  transform:translateY(-50%)!important;
+  content:"→"!important;
+  font-size:1.12rem!important;
+  font-weight:750!important;
+  color:#737be2!important
+}
+.pb-regional-guide .pb-regional-cards li a:hover{
+  background:#f8f9ff!important;
+  color:#3846a6!important;
+  border-color:#bfc6f5!important;
+  box-shadow:0 7px 18px rgba(65,77,159,.085)!important;
+  transform:translateY(-1px)!important
+}
+.pb-regional-guide .pb-regional-cards li a:focus-visible{
+  outline:3px solid #737be2!important;
+  outline-offset:3px!important
+}
+@media(max-width:600px){
+  .pb-regional-guide{padding:18px!important;border-radius:16px!important}
+  .pb-regional-guide>p{text-align:left!important;margin-bottom:15px!important}
+  .pb-regional-guide>h2{text-align:left!important}
+  .pb-regional-guide .pb-regional-cards>div{padding:18px 0!important}
+  .pb-regional-guide .pb-regional-cards>div:first-child{padding-top:5px!important}
+  .pb-regional-guide .pb-regional-cards h3{font-size:1rem!important}
+  .pb-regional-guide .pb-regional-cards ul{grid-template-columns:minmax(0,1fr)!important}
+  .pb-regional-guide .pb-regional-cards li a{padding:13px 40px 13px 14px!important;min-height:54px!important;font-size:.94rem!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .pb-regional-guide .pb-regional-cards li a{transition:none!important}
+  .pb-regional-guide .pb-regional-cards li a:hover{transform:none!important}
+}
