@@ -50,21 +50,45 @@ function addStyle(html) {
   return html.includes('href="/regional-hubs.css"') ? html :
     html.replace(/<\/head>/i, '<link rel="stylesheet" href="/regional-hubs.css">\n</head>');
 }
-function injectAfterH1(html, section) {
-  if (!/<main\b[^>]*>[\s\S]*?<h1\b[^>]*>[\s\S]*?<\/h1>/i.test(html)) throw Error('HUB sin main/h1');
-  return html.replace(/(<main\b[^>]*>[\s\S]*?<h1\b[^>]*>[\s\S]*?<\/h1>)/i, '$1\n' + section);
+function injectAfterIntro(html, section, territorial) {
+  const start = html.indexOf('<main');
+  const h1 = html.indexOf('<h1', start);
+  if (start < 0 || h1 < 0) throw Error('HUB sin main/h1');
+  if (territorial) {
+    // En los 19 HUB: bloque después del CTA y antes del contenido editorial,
+    // sin situarlo tras la fecha de revisión o antes del H1.
+    const cta = /<a\b[^>]*class="cta-enlace"[^>]*>[\s\S]*?<\/a>/gi;
+    cta.lastIndex = h1;
+    const match = cta.exec(html);
+    if (!match) throw Error('HUB regional sin CTA reconocible');
+    const at = match.index + match[0].length;
+    return html.slice(0, at) + '\n' + section + html.slice(at);
+  }
+  // En las tres páginas de entrada: colocar después del hero completo,
+  // nunca como contenido anidado dentro de su H1 o su hero.
+  const tags = /<\/?section\b[^>]*>/gi;
+  tags.lastIndex = h1;
+  let depth = 1;
+  for (const match of html.slice(h1).matchAll(/<\/?section\b[^>]*>/gi)) {
+    depth += match[0].startsWith('</') ? -1 : 1;
+    if (depth === 0) {
+      const at = h1 + match.index + match[0].length;
+      return html.slice(0, at) + '\n' + section + html.slice(at);
+    }
+  }
+  throw Error('No se ha encontrado cierre del hero');
 }
 function applyTerritorialArchitecture(html, rel, root) {
   const slug = rel.replace(/\/index\.html$/, '').replace(/index\.html$/, '');
   if (slug === 'guias-familias' || slug === 'ayudas-nacimiento' || slug === 'tramites-bebe') {
     html = addStyle(html);
-    return injectAfterH1(html, renderTerritorySelector(slug));
+    return injectAfterIntro(html, renderTerritorySelector(slug), false);
   }
   if (slug.startsWith('comunidades/')) {
     const territory = TERRITORY_BY_SLUG[slug.slice('comunidades/'.length)];
     if (territory) {
       html = addStyle(html);
-      return injectAfterH1(html, renderTerritoryHub(territory, root));
+      return injectAfterIntro(html, renderTerritoryHub(territory, root), true);
     }
   }
   const territorySlug = TERRITORY_BY_GUIDE[slug];
