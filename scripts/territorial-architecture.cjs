@@ -209,14 +209,17 @@ function validateTerritorialArchitecture(dist) {
   }
   for (const slug of ['guias-familias','ayudas-nacimiento','tramites-bebe']) {
     const html = fs.readFileSync(path.join(dist, slug, 'index.html'), 'utf8');
-    const links = TERRITORIES.filter(t => !html.includes((slug === 'tramites-bebe' ? 'value="' : 'href="') + regionalUrl(t.slug) + '"'));
-    if (slug === 'tramites-bebe') {
-      if (!html.includes('id="pb-territory-select"') || !html.includes('src="/regional-selector.js"') ||
-          links.length || (html.match(/class="pb-territory-compact"/g) || []).length !== 1)
-        errors.push(slug + ': selector compacto incompleto');
-    } else if (links.length || (html.match(/class="pb-territory-explorer"/g) || []).length !== 1) {
-      errors.push(slug + ': selector incompleto');
-    }
+    const missing = TERRITORIES.filter(t => !html.includes('value="' + regionalUrl(t.slug) + '"'));
+    const count = (html.match(/class="pb-territory-compact"/g) || []).length;
+    if (missing.length || count !== 1 || !html.includes('id="pb-territory-select"') ||
+        !html.includes('src="/regional-selector.js"'))
+      errors.push(slug + ': selector compacto incompleto');
+    if (html.includes('class="pb-territory-explorer"') ||
+        (slug === 'guias-familias' && html.includes('id="guias-comunidades-titulo"')) ||
+        (slug === 'ayudas-nacimiento' && (
+          html.includes('id="selectorComunidadHub"') || html.includes('pb-aid-featured-more')
+        )))
+      errors.push(slug + ': quedan módulos regionales duplicados');
   }
   if (errors.length) throw Error('Arquitectura territorial inválida:\n' + errors.join('\n'));
   console.log('Arquitectura territorial OK: 19 HUB y 3 selectores HTML.');
