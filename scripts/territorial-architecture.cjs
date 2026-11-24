@@ -103,10 +103,15 @@ function foldDuplicateRegionalMenus(html, root) {
   return {html, extras, removed};
 }
 function renderTerritoryHub(t, root, extraLinks = []) {
+  const aidLabels = {
+    'ayuda-natalidad-madrid': 'Ayuda autonómica de Madrid: 500 € al mes',
+    'cheque-bebe-madrid-2026': 'Cheque municipal del Ayuntamiento: 500, 750 o 1.000 €',
+    'cheque-bebe-madrid': 'Cheque municipal del Ayuntamiento: 500, 750 o 1.000 €'
+  };
   const aids = t.aids.filter(slug => sourceExists(root, slug))
-    .map(slug => link(slug, slug.startsWith('deduccion-') ? 'Deducción por nacimiento: requisitos y aplicación' :
+    .map(slug => link(slug, aidLabels[slug] || (slug.startsWith('deduccion-') ? 'Deducción por nacimiento: requisitos y aplicación' :
       slug.startsWith('familias-') ? 'Información y ayudas familiares en ' + t.name :
-      slug.startsWith('tarxeta-') ? 'Tarxeta Benvida: información y solicitud' : 'Ayuda autonómica: información y requisitos'));
+      slug.startsWith('tarxeta-') ? 'Tarxeta Benvida: información y solicitud' : 'Ayuda autonómica: información y requisitos')));
   const guides = [
     t.health && ['tarjeta-sanitaria-bebe-' + t.health, 'Tarjeta sanitaria del recién nacido'],
     t.family && ['titulo-familia-numerosa-' + t.family, 'Título de familia numerosa']
