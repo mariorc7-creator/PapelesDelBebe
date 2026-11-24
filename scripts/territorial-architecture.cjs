@@ -14,6 +14,21 @@ function link(slug, label) {
 function sourceExists(root, slug) {
   return fs.existsSync(path.join(root, slug, 'index.html'));
 }
+function renderCompactTerritorySelector() {
+  const options = TERRITORIES.map(t =>
+    '<option value="' + regionalUrl(t.slug) + '">' + esc(t.name) + '</option>'
+  ).join('');
+  return '<section class="pb-territory-compact" aria-labelledby="pb-choose-region">' +
+    '<h2 id="pb-choose-region">Trámites según tu comunidad</h2>' +
+    '<p>Los siete pasos son comunes a toda España. Consulta aquí los detalles autonómicos.</p>' +
+    '<div class="pb-territory-compact-controls">' +
+    '<label for="pb-territory-select" class="pb-territory-label">Tu comunidad</label>' +
+    '<select id="pb-territory-select" name="comunidad" aria-label="Selecciona tu comunidad">' +
+    '<option value="">Selecciona tu comunidad</option>' + options + '</select>' +
+    '<button type="button" id="pb-territory-go">Ver trámites</button></div>' +
+    '<a class="pb-territory-all" href="/comunidades/">Ver las 19 comunidades</a>' +
+    '</section>';
+}
 function renderTerritorySelector(context) {
   const intro = context === 'guias-familias' ?
     'Elige dónde vives para consultar guías regionales. Las guías estatales siguen disponibles en esta página.' :
@@ -82,6 +97,10 @@ function applyTerritorialArchitecture(html, rel, root) {
   const slug = rel.replace(/\/index\.html$/, '').replace(/index\.html$/, '');
   if (slug === 'guias-familias' || slug === 'ayudas-nacimiento' || slug === 'tramites-bebe') {
     html = addStyle(html);
+    if (slug === 'tramites-bebe') {
+      html = html.replace(/<\/body>/i, '<script src="/regional-selector.js" defer></script></body>');
+      return injectAfterIntro(html, renderCompactTerritorySelector(), false);
+    }
     return injectAfterIntro(html, renderTerritorySelector(slug), false);
   }
   if (slug.startsWith('comunidades/')) {
@@ -127,8 +146,13 @@ function validateTerritorialArchitecture(dist) {
   for (const slug of ['guias-familias','ayudas-nacimiento','tramites-bebe']) {
     const html = fs.readFileSync(path.join(dist, slug, 'index.html'), 'utf8');
     const links = TERRITORIES.filter(t => !html.includes('href="' + regionalUrl(t.slug) + '"'));
-    if (links.length || (html.match(/class="pb-territory-explorer"/g) || []).length !== 1)
+    if (slug === 'tramites-bebe') {
+      if (!html.includes('id="pb-territory-select"') || !html.includes('src="/regional-selector.js"') ||
+          links.length || (html.match(/class="pb-territory-compact"/g) || []).length !== 1)
+        errors.push(slug + ': selector compacto incompleto');
+    } else if (links.length || (html.match(/class="pb-territory-explorer"/g) || []).length !== 1) {
       errors.push(slug + ': selector incompleto');
+    }
   }
   if (errors.length) throw Error('Arquitectura territorial inválida:\n' + errors.join('\n'));
   console.log('Arquitectura territorial OK: 19 HUB y 3 selectores HTML.');
