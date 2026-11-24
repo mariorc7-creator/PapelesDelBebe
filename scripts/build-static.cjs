@@ -568,7 +568,7 @@ function validateSiteArchitecture() {
       if (!nav || required.some(href => !nav.includes(href))) errors.push(slug + ': menú principal incompleto');
     }
     if (GUIDE_BREADCRUMBS[slug]) {
-      if (!html.includes('class="pb-guide-crumb"')) errors.push(slug + ': falta breadcrumb visible');
+      if (!/class=["'][^"']*\bpb-guide-crumb\b/.test(html)) errors.push(slug + ': falta breadcrumb visible');
       const schemas = [...html.matchAll(/<script\b[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi)];
       let validBreadcrumb = false;
       for (const [, contents] of schemas) {
