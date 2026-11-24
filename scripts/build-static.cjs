@@ -562,6 +562,11 @@ function validateSiteArchitecture() {
     const slug = url.replace('https://www.papelesdelbebe.es/', '').replace(/\/$/, '');
     const file = path.join(OUT, slug, 'index.html');
     const html = fs.readFileSync(file, 'utf8');
+    if (slug && slug !== '404') {
+      const matches = html.match(/<nav\b[^>]*class=["'][^"']*\bpb-breadcrumb-standard\b[^"']*["'][^>]*>/gi) || [];
+      if (matches.length !== 1 || !html.includes('href="/breadcrumbs.css"'))
+        errors.push(slug + ': falta breadcrumb único o estilo compartido');
+    }
     if (/<header\b/i.test(html)) {
       const nav = html.match(/<nav\b[^>]*class="nav-principal"[^>]*>[\s\S]*?<\/nav>/i)?.[0] || '';
       if (!nav || required.some(href => !nav.includes(href))) errors.push(slug + ': menú principal incompleto');
