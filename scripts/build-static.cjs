@@ -1,10 +1,55 @@
 const fs = require('fs');
 const path = require('path');
+const { NAV_ITEMS, GUIDE_BREADCRUMBS, BREADCRUMB_LABELS } = require('./site-architecture.cjs');
 
 const ROOT = process.cwd();
 const OUT = path.join(ROOT, 'dist');
 const GLOBAL_UI = '<script src="/global-ui.js?v=20261020-13" defer></script>';
 const FOOTER = `<footer class="pb-global-footer" data-pb-global-footer="1"><div class="footer-contenido"><div class="logo">Papeles del <span>Bebé</span></div><p>Menos papeleo. Más tiempo para tu bebé.</p><p class="metodologia-footer"><a href="/metodologia/">Metodología</a> · <a href="/privacidad/">Privacidad</a></p><p class="footer-copy">© 2026 Papeles del Bebé</p></div></footer>`;
+
+function navMarkup(rel) {
+  const slug = rel === 'index.html' ? '/' : '/' + rel.replace(/index\.html$/, '');
+  return NAV_ITEMS.map(([href, label]) => {
+    const isActive = href !== '/' && (slug === href || (
+      href === '/guias-familias/' && /^\/(?:guias-|tarjeta-sanitaria-bebe-|titulo-familia-)/.test(slug)
+    ));
+    return '<a href="' + href + '"' + (href === '/mi-panel/' ? ' data-pb-nav="panel"' : '') + (isActive ? ' aria-current="page"' : '') + '>' + label + '</a>';
+  }).join('');
+}
+function standardizeNavigation(html, rel) {
+  // Server-side HTML: crawlers and users without JS receive the same global menu.
+  const normalized = '<nav class="nav-principal" aria-label="Navegación principal">' + navMarkup(rel) + '</nav>';
+  if (/<nav\b[^>]*class=["'][^"']*\bnav-principal\b[^"']*["'][^>]*>[\s\S]*?<\/nav>/i.test(html)) {
+    return html.replace(/<nav\b[^>]*class=["'][^"']*\bnav-principal\b[^"']*["'][^>]*>[\s\S]*?<\/nav>/i, normalized);
+  }
+  if (/<header\b[^>]*>[\s\S]*?<\/header>/i.test(html)) {
+    return html.replace(/<\/header>/i, normalized + '</header>');
+  }
+  return html;
+}
+
+function appendExplicitBreadcrumbSchema(html, rel) {
+  const slug = rel.replace(/\/index\.html$/, '');
+  const ancestors = GUIDE_BREADCRUMBS[slug];
+  if (!ancestors || !html.includes('class="pb-guide-crumb"') || /"@type"\s*:\s*"BreadcrumbList"/.test(html)) return html;
+  const canonicalMatch = html.match(/<link\b[^>]*rel=["']canonical["'][^>]*href=["']([^"']+)/i);
+  const titleMatch = html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/i);
+  if (!canonicalMatch || !titleMatch) return html;
+  const canonical = canonicalMatch[1];
+  if (canonical !== 'https://www.papelesdelbebe.es/' + slug + '/') return html;
+  const label = titleMatch[1].replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+  const pages = [
+    ['Inicio', 'https://www.papelesdelbebe.es/'],
+    ...ancestors.map(key => [BREADCRUMB_LABELS[key], 'https://www.papelesdelbebe.es/' + key + '/']),
+    [label, canonical]
+  ];
+  const data = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: pages.map(([name, item], i) => ({ '@type': 'ListItem', position: i + 1, name, item }))
+  };
+  return html.replace(/<\/head>/i, '<script type="application/ld+json">' + JSON.stringify(data) + '</script>\n</head>');
+}
 
 function applyPageFixes(html, relPath) {
   const rel = relPath.replace(/\\/g, '/');
@@ -119,7 +164,7 @@ function applyPageFixes(html, relPath) {
     html = html.replace(/<script src="\/pack-empadronamiento\/(?:fix|review-v6|municipal-universal|capitales-only)\.js[^>]*><\/script>\s*/gi, '');
     html = html.replace(/<\/body>/i, '<script src="/pack-empadronamiento/review-v6.js?v=20261015-11" defer></script>\n<script src="/pack-empadronamiento/municipal-universal.js?v=20261016-2" defer></script>\n<script src="/pack-empadronamiento/capitales-only.js?v=20261016-1" defer></script>\n<script src="/pack-empadronamiento/capitales-ux.js?v=20261020-1" defer></script>\n</body>');
   }
-  return html;
+  return standardizeNavigation(appendExplicitBreadcrumbSchema(html, rel), rel);
 }
 
 function ensureDir(dir) { fs.mkdirSync(dir, { recursive: true }); }
@@ -149,6 +194,14 @@ function copyAll() {
       if (!html.includes('/global-ui.js')) html = html.replace(/<\/body>/i, `${GLOBAL_UI}\n</body>`);
       html = applyPageFixes(html, rel);
       fs.writeFileSync(dest, html);
+    } else if (rel === 'global-ui.js') {
+      // Keep the client-side menu identical to the server-rendered navigation.
+      let js = fs.readFileSync(full, 'utf8');
+      const list = 'const NAV_ITEMS = ' + JSON.stringify(NAV_ITEMS) + ';';
+      const pattern = /const NAV_ITEMS = \[[\s\S]*?\];/;
+      if (!pattern.test(js)) throw new Error('No se ha encontrado la navegación del cliente');
+      js = js.replace(pattern, list);
+      fs.writeFileSync(dest, js);
     } else fs.copyFileSync(full, dest);
   });
 }
@@ -421,6 +474,39 @@ function generateSiteSearchIndex() {
   console.log('Índice de búsqueda web y ayudas: '+data.length+' páginas canónicas.');
 }
 
+function validateSiteArchitecture() {
+  const urls = [...fs.readFileSync(path.join(OUT, 'sitemap.xml'), 'utf8').matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]);
+  const errors = [];
+  const required = NAV_ITEMS.map(([href]) => 'href="' + href + '"');
+  for (const url of urls) {
+    const slug = url.replace('https://www.papelesdelbebe.es/', '').replace(/\/$/, '');
+    const file = path.join(OUT, slug, 'index.html');
+    const html = fs.readFileSync(file, 'utf8');
+    if (/<header\b/i.test(html)) {
+      const nav = html.match(/<nav\b[^>]*class="nav-principal"[^>]*>[\s\S]*?<\/nav>/i)?.[0] || '';
+      if (!nav || required.some(href => !nav.includes(href))) errors.push(slug + ': menú principal incompleto');
+    }
+    if (GUIDE_BREADCRUMBS[slug]) {
+      if (!html.includes('class="pb-guide-crumb"')) errors.push(slug + ': falta breadcrumb visible');
+      const schemas = [...html.matchAll(/<script\b[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi)];
+      let validBreadcrumb = false;
+      for (const [, contents] of schemas) {
+        try {
+          const schema = JSON.parse(contents);
+          if (schema['@type'] !== 'BreadcrumbList') continue;
+          const last = schema.itemListElement?.at(-1);
+          if (last?.item === url && schema.itemListElement.length === GUIDE_BREADCRUMBS[slug].length + 2) validBreadcrumb = true;
+        } catch { /* another script; covered by other SEO checks */ }
+      }
+      if (!validBreadcrumb) errors.push(slug + ': BreadcrumbList incompleto o distinto de canonical');
+    }
+  }
+  const ui = fs.readFileSync(path.join(OUT, 'global-ui.js'), 'utf8');
+  if (!ui.includes('const NAV_ITEMS = ' + JSON.stringify(NAV_ITEMS))) errors.push('Cliente y servidor no comparten navegación');
+  if (errors.length) throw new Error('Arquitectura V4 inválida:\n' + errors.slice(0, 30).join('\n'));
+  console.log('Arquitectura V4 OK: ' + urls.length + ' URLs, navegación y breadcrumbs explícitos.');
+}
+
 copyAll();
 generateEvergreenRegionalPages();
 generateSitemap();
@@ -428,3 +514,4 @@ generateSiteSearchIndex();
 audit(OUT);
 validatePrioritySeo();
 validatePublishedSitemap();
+validateSiteArchitecture();
