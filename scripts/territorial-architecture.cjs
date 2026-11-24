@@ -145,7 +145,7 @@ function validateTerritorialArchitecture(dist) {
   }
   for (const slug of ['guias-familias','ayudas-nacimiento','tramites-bebe']) {
     const html = fs.readFileSync(path.join(dist, slug, 'index.html'), 'utf8');
-    const links = TERRITORIES.filter(t => !html.includes('href="' + regionalUrl(t.slug) + '"'));
+    const links = TERRITORIES.filter(t => !html.includes((slug === 'tramites-bebe' ? 'value="' : 'href="') + regionalUrl(t.slug) + '"'));
     if (slug === 'tramites-bebe') {
       if (!html.includes('id="pb-territory-select"') || !html.includes('src="/regional-selector.js"') ||
           links.length || (html.match(/class="pb-territory-compact"/g) || []).length !== 1)
