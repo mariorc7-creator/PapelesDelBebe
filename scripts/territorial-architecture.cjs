@@ -67,7 +67,15 @@ function stripOldTerritorialMenus(html, slug) {
     if ((html.match(oldSelector) || []).length !== 1 || (html.match(oldFeatured) || []).length !== 1) {
       throw new Error('Ayudas: selectores/listas antiguos no identificados de forma unívoca');
     }
-    return html.replace(oldSelector, '').replace(oldFeatured, '');
+    const cleaned = html.replace(oldSelector, '').replace(oldFeatured, '');
+    const territoryAnchor = '<a href="/comunidades/">Consultar las 19 comunidades y ciudades autónomas</a>';
+    if (!cleaned.includes(territoryAnchor)) throw new Error('Ayudas: falta ancla editorial de comunidades');
+    // Tres enlaces directos prioritarios exigidos por SEO, junto a la explicación
+    // autonómica existente; no se crea un segundo listado de comunidades.
+    return cleaned.replace(territoryAnchor, territoryAnchor +
+      '. Ejemplos: <a href="/ayuda-nacimiento-cataluna/">ayuda por nacimiento en Cataluña</a>, ' +
+      '<a href="/ayuda-nacimiento-asturias/">ayuda por nacimiento en Asturias</a> y ' +
+      '<a href="/deduccion-nacimiento-la-rioja/">deducción por nacimiento en La Rioja</a>');
   }
   return html;
 }
