@@ -474,6 +474,39 @@ function generateSiteSearchIndex() {
   console.log('Índice de búsqueda web y ayudas: '+data.length+' páginas canónicas.');
 }
 
+function validateSiteArchitecture() {
+  const urls = [...fs.readFileSync(path.join(OUT, 'sitemap.xml'), 'utf8').matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]);
+  const errors = [];
+  const required = NAV_ITEMS.map(([href]) => 'href="' + href + '"');
+  for (const url of urls) {
+    const slug = url.replace('https://www.papelesdelbebe.es/', '').replace(/\/$/, '');
+    const file = path.join(OUT, slug, 'index.html');
+    const html = fs.readFileSync(file, 'utf8');
+    if (/<header\b/i.test(html)) {
+      const nav = html.match(/<nav\b[^>]*class="nav-principal"[^>]*>[\s\S]*?<\/nav>/i)?.[0] || '';
+      if (!nav || required.some(href => !nav.includes(href))) errors.push(slug + ': menú principal incompleto');
+    }
+    if (GUIDE_BREADCRUMBS[slug]) {
+      if (!html.includes('class="pb-guide-crumb"')) errors.push(slug + ': falta breadcrumb visible');
+      const schemas = [...html.matchAll(/<script\b[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi)];
+      let validBreadcrumb = false;
+      for (const [, contents] of schemas) {
+        try {
+          const schema = JSON.parse(contents);
+          if (schema['@type'] !== 'BreadcrumbList') continue;
+          const last = schema.itemListElement?.at(-1);
+          if (last?.item === url && schema.itemListElement.length === GUIDE_BREADCRUMBS[slug].length + 2) validBreadcrumb = true;
+        } catch { /* another script; covered by other SEO checks */ }
+      }
+      if (!validBreadcrumb) errors.push(slug + ': BreadcrumbList incompleto o distinto de canonical');
+    }
+  }
+  const ui = fs.readFileSync(path.join(OUT, 'global-ui.js'), 'utf8');
+  if (!ui.includes('const NAV_ITEMS = ' + JSON.stringify(NAV_ITEMS))) errors.push('Cliente y servidor no comparten navegación');
+  if (errors.length) throw new Error('Arquitectura V4 inválida:\n' + errors.slice(0, 30).join('\n'));
+  console.log('Arquitectura V4 OK: ' + urls.length + ' URLs, navegación y breadcrumbs explícitos.');
+}
+
 copyAll();
 generateEvergreenRegionalPages();
 generateSitemap();
@@ -481,3 +514,4 @@ generateSiteSearchIndex();
 audit(OUT);
 validatePrioritySeo();
 validatePublishedSitemap();
+validateSiteArchitecture();
