@@ -17,4 +17,23 @@ const HUBS = {
   herramientas: '/herramientas/',
   preparativos: '/preparativos-bebe/'
 };
-module.exports = { NAV_ITEMS, HUBS };
+// BreadcrumbList is only added where there is a matching visible breadcrumb.
+// Do not infer topic from a substring or invent folder URLs.
+const GUIDE_BREADCRUMBS = {
+  'tarjeta-sanitaria-bebe-baleares': ['guias-familias', 'guias-documentacion-bebe'],
+  'tarjeta-sanitaria-bebe-cantabria': ['guias-familias', 'guias-documentacion-bebe'],
+  'tarjeta-sanitaria-bebe-castilla-la-mancha': ['guias-familias', 'guias-documentacion-bebe'],
+  'tarjeta-sanitaria-bebe-extremadura': ['guias-familias', 'guias-documentacion-bebe'],
+  'tarjeta-sanitaria-bebe-navarra': ['guias-familias', 'guias-documentacion-bebe'],
+  'tarjeta-sanitaria-bebe-pais-vasco': ['guias-familias', 'guias-documentacion-bebe'],
+  'titulo-familia-numerosa-cantabria': ['guias-familias', 'guias-familias-territorios'],
+  'titulo-familia-numerosa-ceuta': ['guias-familias', 'guias-familias-territorios'],
+  'titulo-familia-numerosa-melilla': ['guias-familias', 'guias-familias-territorios'],
+  'titulo-familia-numerosa-pais-vasco': ['guias-familias', 'guias-familias-territorios']
+};
+const BREADCRUMB_LABELS = {
+  'guias-familias': 'Guías',
+  'guias-documentacion-bebe': 'Documentación del bebé',
+  'guias-familias-territorios': 'Guías por territorio'
+};
+module.exports = { NAV_ITEMS, HUBS, GUIDE_BREADCRUMBS, BREADCRUMB_LABELS };
