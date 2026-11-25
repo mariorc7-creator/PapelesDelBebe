@@ -103,10 +103,22 @@ function foldDuplicateRegionalMenus(html, root) {
   return {html, extras, removed};
 }
 function renderTerritoryHub(t, root, extraLinks = []) {
+  const aidLabels = {
+    'ayuda-nacimiento-cataluna': 'Prestación catalana de 650/750 €: requisitos y solicitud',
+    'ayudas-nacimiento-cataluna': 'Guía general de ayudas por nacimiento en Cataluña',
+    'ayuda-natalidad-madrid': 'Ayuda autonómica de Madrid: 500 € al mes',
+    'cheque-bebe-madrid-2026': 'Cheque municipal del Ayuntamiento: 500, 750 o 1.000 €',
+    'cheque-bebe-madrid': 'Cheque municipal del Ayuntamiento: 500, 750 o 1.000 €',
+    'ayuda-nacimiento-asturias': 'Ayuda por nacimiento Asturias 2026: 1.200 a 2.200 €',
+    'ayuda-partos-multiples-andalucia': 'Partos múltiples: ayuda de 1.200 a 4.800 € de cuantía base',
+    'deduccion-nacimiento-andalucia': 'Deducción en IRPF por nacimiento: 200 o 400 €',
+    'ayuda-nacimiento-valencia': 'Ayuda municipal del Ayuntamiento de València: 400 €',
+    'deduccion-nacimiento-comunitat-valenciana': 'Deducción autonómica en IRPF: 600, 750 o 900 €'
+  };
   const aids = t.aids.filter(slug => sourceExists(root, slug))
-    .map(slug => link(slug, slug.startsWith('deduccion-') ? 'Deducción por nacimiento: requisitos y aplicación' :
+    .map(slug => link(slug, aidLabels[slug] || (slug.startsWith('deduccion-') ? 'Deducción por nacimiento: requisitos y aplicación' :
       slug.startsWith('familias-') ? 'Información y ayudas familiares en ' + t.name :
-      slug.startsWith('tarxeta-') ? 'Tarxeta Benvida: información y solicitud' : 'Ayuda autonómica: información y requisitos'));
+      slug.startsWith('tarxeta-') ? 'Tarxeta Benvida: información y solicitud' : 'Ayuda autonómica: información y requisitos')));
   const guides = [
     t.health && ['tarjeta-sanitaria-bebe-' + t.health, 'Tarjeta sanitaria del recién nacido'],
     t.family && ['titulo-familia-numerosa-' + t.family, 'Título de familia numerosa']
