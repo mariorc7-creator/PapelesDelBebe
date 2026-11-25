@@ -8,6 +8,8 @@ on:
   pull_request:
     paths:
       - '.github/workflows/superagente-safe-watch.yml'
+      - 'scripts/superagente_territorial_audit.py'
+      - 'superagente/territorial-editorial-policy.json'
 
 permissions:
   contents: read
@@ -29,6 +31,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Auditar contrato territorial de la rama evaluada
+        uses: actions/checkout@v4
+        with:
+          path: territorial-review
+          persist-credentials: false
+      - name: Revisar enlaces territoriales sin editar páginas
+        run: python territorial-review/scripts/superagente_territorial_audit.py --root territorial-review --output superagente/territorial-audit.json
       - name: Vigilar las fuentes oficiales (sin editar la web)
         run: python scripts/superagente_official_watch.py --workers 4
       - name: Clasificar novedades con modo rapido
@@ -95,6 +104,7 @@ jobs:
           retention-days: 14
           if-no-files-found: warn
           path: |
+            superagente/territorial-audit.json
             superagente/official-watch-report.json
             superagente/official-content-tasks.json
             superagente/official-text-snapshots.json

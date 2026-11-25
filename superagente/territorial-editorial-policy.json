@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "publication_allowed": false,
+  "editorial_standard": "docs/ESTANDAR-HUB-TERRITORIAL-V5.md",
+  "territories": {
+    "cataluna": [
+      "ayudas-nacimiento-cataluna-2026",
+      "ayuda-nacimiento-cataluna",
+      "tarjeta-sanitaria-bebe-cataluna"
+    ],
+    "comunidad-de-madrid": [
+      "ayuda-natalidad-madrid",
+      "cheque-bebe-madrid-2026",
+      "tarjeta-sanitaria-bebe-madrid",
+      "titulo-familia-numerosa-madrid"
+    ],
+    "andalucia": [
+      "deduccion-nacimiento-andalucia",
+      "ayuda-partos-multiples-andalucia-2026",
+      "tarjeta-sanitaria-bebe-andalucia",
+      "titulo-familia-numerosa-andalucia"
+    ],
+    "asturias": [
+      "ayuda-nacimiento-asturias",
+      "tarjeta-sanitaria-bebe-asturias"
+    ],
+    "comunidad-valenciana": [
+      "deduccion-nacimiento-comunitat-valenciana-2026",
+      "ayuda-nacimiento-valencia",
+      "tarjeta-sanitaria-bebe-comunitat-valenciana"
+    ],
+    "cantabria": [
+      "deduccion-nacimiento-cantabria-2026",
+      "tarjeta-sanitaria-bebe-cantabria",
+      "titulo-familia-numerosa-cantabria"
+    ],
+    "castilla-y-leon": [
+      "bono-nacimiento-castilla-leon-2026",
+      "tarjeta-sanitaria-bebe-castilla-y-leon",
+      "titulo-familia-numerosa-castilla-y-leon"
+    ],
+    "la-rioja": [
+      "deduccion-nacimiento-la-rioja-2026",
+      "tarjeta-sanitaria-bebe-la-rioja",
+      "titulo-familia-numerosa-la-rioja"
+    ]
+  },
+  "public_aliases": {
+    "ayudas-nacimiento-cataluna-2026": "ayudas-nacimiento-cataluna",
+    "cheque-bebe-madrid-2026": "cheque-bebe-madrid",
+    "ayuda-partos-multiples-andalucia-2026": "ayuda-partos-multiples-andalucia",
+    "deduccion-nacimiento-comunitat-valenciana-2026": "deduccion-nacimiento-comunitat-valenciana",
+    "deduccion-nacimiento-cantabria-2026": "deduccion-nacimiento-cantabria",
+    "bono-nacimiento-castilla-leon-2026": "bono-nacimiento-castilla-leon",
+    "deduccion-nacimiento-la-rioja-2026": "deduccion-nacimiento-la-rioja"
+  }
+}

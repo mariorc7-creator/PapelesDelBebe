@@ -9,6 +9,10 @@ on:
       - 'scripts/build-static.cjs'
       - 'scripts/batch_release_check.py'
       - 'scripts/test_batch_release_check.py'
+      - 'scripts/superagente_territorial_audit.py'
+      - 'scripts/test_superagente_territorial_audit.py'
+      - 'superagente/territorial-editorial-policy.json'
+      - 'docs/ESTANDAR-HUB-TERRITORIAL-V5.md'
       - '.github/workflows/batch-content-release.yml'
   workflow_dispatch:
 permissions:
@@ -45,6 +49,10 @@ jobs:
           else
             echo 'Sin HTML editado: se comprueba el proceso pero no se simula un lote vacío.'
           fi
+      - name: Validar contrato editorial territorial
+        run: |
+          python -m unittest discover -s scripts -p 'test_superagente_territorial_audit.py' -v
+          python scripts/superagente_territorial_audit.py --output /tmp/territorial-audit.json --strict
       - name: Compilar una sola vez y auditar sitemap, canonical y redirecciones
         run: node scripts/build-static.cjs
       - name: Confirmar que la compilación no cambia código fuente
