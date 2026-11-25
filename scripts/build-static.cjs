@@ -536,6 +536,7 @@ function normalizeBuiltBreadcrumbs() {
     const ownRegion=slug.startsWith('comunidades/')&&TERRITORY_BY_SLUG[slug.slice(12)];
     if(ownRegion) items=[{name:'Inicio',url:base+'/'},{name:'Comunidades',url:base+'/comunidades/'},{name:ownRegion.name,url:canonical}];
     for(const m of old) {html=html.replace(m[0],'');counters.removed++;}
+    if(slug==='ayudas-nacimiento') items=[{name:'Inicio',url:base+'/'},{name:'Ayudas',url:canonical}];
     const parts=items.map((x,i)=>i===items.length-1?'<span aria-current="page">'+escapeHtml(x.name)+'</span>':'<a href="'+escapeHtml(x.url.startsWith(base+'/')?x.url.slice(base.length):x.url)+'">'+escapeHtml(x.name)+'</a>');
     const nav='<nav class="pb-guide-crumb pb-breadcrumb-standard" aria-label="Ruta de navegación">'+parts.join(' <span class="pb-breadcrumb-sep" aria-hidden="true">›</span> ')+'</nav>';
     html=html.replace(/<main\b[^>]*>/i,m=>m+'\n'+nav);

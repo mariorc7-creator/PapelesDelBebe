@@ -151,7 +151,8 @@ function addStyle(html) {
 }
 function injectAfterIntro(html, section, territorial) {
   const start = html.indexOf('<main');
-  const h1 = html.indexOf('<h1', start);
+  const welcome = !territorial ? html.indexOf('<section class="pb-aid-welcome"', start) : -1;
+  const h1 = welcome >= 0 ? html.indexOf('<h2', welcome) : html.indexOf('<h1', start);
   if (start < 0 || h1 < 0) throw Error('HUB sin main/h1');
   if (territorial) {
     // El build elimina CTA antiguos del checklist; el subtítulo permanece.
