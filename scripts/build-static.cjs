@@ -476,84 +476,76 @@ function generateSiteSearchIndex() {
   console.log('Índice de búsqueda web y ayudas: '+data.length+' páginas canónicas.');
 }
 
+// V4.3: a single visible breadcrumb and a matching JSON-LD hierarchy.
+function breadcrumbNodes(html) {
+  const pattern = /<(nav|div|p|ol)\b([^>]*)>([\s\S]*?)<\/\1>/gi;
+  // Match the opening tag before consuming its contents (avoid swallowing wrappers).
+  const opening = /<(nav|div|p|ol)\b([^>]*?(?:\bclass=["'][^"']*(?:breadcrumb|pb-guide-crumb|\bcrumbs?\b|\bmini\b)[^"']*["']|\baria-label=["'](?:Migas de pan|Ruta de navegación|Breadcrumbs?)["'])[^>]*)>([\s\S]*?)<\/\1>/gi;
+  return [...html.matchAll(opening)].filter(m => /<a\b[^>]*href=["'](?:\/|https:\/\/www\.papelesdelbebe\.es\/)["']/i.test(m[3]));
+}
 function normalizeBuiltBreadcrumbs() {
   const base = 'https://www.papelesdelbebe.es';
+  const { TERRITORY_BY_GUIDE, TERRITORY_BY_SLUG } = require('./territories.cjs');
+  const territoryMap = {...TERRITORY_BY_GUIDE, 'titulo-familia-monoparental-cataluna':'cataluna','ca/ajut-naixement-catalunya':'cataluna'};
+  for (const [oldSlug,newSlug] of EVERGREEN_MOVES) if (territoryMap[oldSlug]) territoryMap[newSlug]=territoryMap[oldSlug];
   const escapeHtml = value => String(value).replace(/[&<>"']/g, x => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));
-  const counters = {checked:0, unified:0, created:0, skipped:0};
+  const clean = value => String(value || '').replace(/<[^>]*>/g,' ').replace(/&amp;/g,'&').replace(/&nbsp;/g,' ').replace(/\s+/g,' ').trim();
+  const counters = {checked:0,removed:0,regional:0};
   walk(OUT, full => {
-    if (!/\/index\.html$/i.test(full) && !full.endsWith('/index.html')) return;
-    let html = fs.readFileSync(full, 'utf8');
-    const rel = path.relative(OUT, full).replace(/\\/g,'/');
-    if (rel === 'index.html' || rel === '404/index.html') return;
+    if (!full.endsWith('/index.html')) return;
+    let html = fs.readFileSync(full,'utf8');
+    const rel = path.relative(OUT,full).replace(/\\/g,'/');
+    const slug = rel.replace(/\/index\.html$/,'');
+    if (rel === 'index.html' || slug === '404') return;
     const canonical = html.match(/<link\b[^>]*rel=["']canonical["'][^>]*href=["']([^"']+)["']/i)?.[1];
-    const route = '/' + rel.replace(/index\.html$/, '');
-    if (!canonical || canonical !== base + route ||
-        /<meta\b[^>]*name=["']robots["'][^>]*content=["'][^"']*noindex/i.test(html)) {
-      counters.skipped++; return;
-    }
+    if (canonical !== base+'/'+slug+'/' || /<meta\b[^>]*name=["']robots["'][^>]*content=["'][^"']*noindex/i.test(html)) return;
+    if (!/<main\b[^>]*>/i.test(html)) return;
     counters.checked++;
-    if (!html.includes('href="/breadcrumbs.css"'))
-      html = html.replace(/<\/head>/i,'<link rel="stylesheet" href="/breadcrumbs.css">\n</head>');
-    // Several historical templates render the same semantic breadcrumbs with different classes.
-    const existing = /<(nav|div)\b([^>]*\bclass=["'][^"']*\b(?:pb-guide-crumb|tool-breadcrumb|breadcrumbs-visibles|crumb|mini)\b[^"']*["'][^>]*)>([\s\S]*?)<\/\1>/gi;
-    let normalized = false;
-    html = html.replace(existing, (match, tag, attrs, inner) => {
-      if (normalized) return match;
-      if (!/<a\b[^>]*href=["']\/["'][^>]*>/i.test(inner)) return match;
-      normalized = true;
-      const nextAttrs = attrs.replace(/\sstyle=["'][^"']*["']/gi,'')
-        .replace(/\bclass=(["'])([^"']*)\1/i, (_all, quote, classes) =>
-          'class=' + quote + (classes.includes('pb-breadcrumb-standard') ? classes : classes + ' pb-breadcrumb-standard') + quote)
-        .replace(/\saria-label=(["'])[^"']*\1/i,'');
-      const body = inner.replace(/<span\b[^>]*class=["']sep["'][^>]*>[\s\S]*?<\/span>/gi, ' › ')
-        .replace(/\s*›\s*/g,' <span class="pb-breadcrumb-sep" aria-hidden="true">›</span> ');
-      return '<nav' + nextAttrs + ' aria-label="Ruta de navegación">' + body + '</nav>';
+    const h1=clean(html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/i)?.[1]);
+    let prior=null;
+    // Remove only breadcrumb nodes; keep WebPage, FAQ, Article and all other schemas.
+    const prune = node => {
+      if (Array.isArray(node)) return node.map(prune).filter(x=>x!==null);
+      if (!node || typeof node!=='object') return node;
+      if (node['@type']==='BreadcrumbList') {
+        if (!prior && Array.isArray(node.itemListElement)) prior=node.itemListElement.map(x=>({name:clean(x.name||x.item?.name),url:typeof x.item==='string'?x.item:(x.item?.['@id']||x.item?.url||'')}));
+        return null;
+      }
+      const out={...node};
+      if (out['@graph']) out['@graph']=prune(out['@graph']);
+      return out;
+    };
+    html=html.replace(/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi,(all,body)=>{
+      try {const data=JSON.parse(body),next=prune(data);return next===null?'':all.replace(body,()=>JSON.stringify(next));} catch(_){return all;}
     });
-    if (normalized) {
-      counters.unified++;
-    } else if (/<main\b[^>]*>/i.test(html) && /<h1\b[^>]*>[\s\S]*?<\/h1>/i.test(html)) {
-      // Prefer the existing structured breadcrumb hierarchy to avoid contradicting JSON-LD.
-      let items = null;
-      for (const m of html.matchAll(/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)) {
-        try {
-          const value = JSON.parse(m[1]);
-          const candidates = Array.isArray(value) ? value : [value];
-          const breadcrumb = candidates.find(x => x && x['@type'] === 'BreadcrumbList');
-          if (breadcrumb && Array.isArray(breadcrumb.itemListElement)) {
-            items = breadcrumb.itemListElement.map(x=>({
-              name:String(x.name || x.item?.name || '').trim(),
-              url:typeof x.item === 'string' ? x.item : (x.item?.['@id'] || x.item?.url || '')
-            })).filter(x=>x.name);
-            break;
-          }
-        } catch (_) { /* another JSON-LD structure */ }
-      }
-      const h1 = html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/i)?.[1] || '';
-      const label = h1.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();
-      if (!items || items.length < 2 || items.at(-1).url !== canonical) {
-        items = [{name:'Inicio',url:base+'/'},{name:label,url:canonical}];
-      }
-      const parts = items.map((x,i)=> i === items.length-1
-        ? '<span aria-current="page">' + escapeHtml(x.name) + '</span>'
-        : '<a href="' + escapeHtml(x.url.startsWith(base) ? (x.url.slice(base.length)||'/') : x.url) + '">' + escapeHtml(x.name) + '</a>');
-      const nav = '<nav class="pb-breadcrumb-standard" aria-label="Ruta de navegación">' +
-        parts.join(' <span class="pb-breadcrumb-sep" aria-hidden="true">›</span> ') + '</nav>';
-      html = html.replace(/<main\b[^>]*>/i, match => match + '\n' + nav);
-      counters.created++;
-      // For a fallback without structured breadcrumb, match the simple visible hierarchy.
-      const hasBreadcrumbSchema = /"@type"\s*:\s*"BreadcrumbList"/.test(html);
-      if (!hasBreadcrumbSchema && items.length === 2) {
-        const data = {'@context':'https://schema.org','@type':'BreadcrumbList',
-          itemListElement:items.map((x,i)=>({'@type':'ListItem',position:i+1,name:x.name,item:x.url}))};
-        html = html.replace(/<\/head>/i,
-          '<script type="application/ld+json">' + JSON.stringify(data) + '</script>\n</head>');
-      }
+    const old=breadcrumbNodes(html);
+    let items=prior;
+    if (!items || items.length<2 || items.at(-1).url!==canonical) {
+      const best=old.sort((a,b)=>b[3].length-a[3].length)[0];
+      const links=best?[...best[3].matchAll(/<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi)].map(x=>({name:clean(x[2]),url:x[1].startsWith('/')?base+x[1]:x[1]})):[];
+      items=links.length&&links[0].url===base+'/'?links:[{name:'Inicio',url:base+'/'}];
+      items=items.filter(x=>x.url!==canonical);
+      items.push({name:h1,url:canonical});
     }
+    const region=territoryMap[slug];
+    if(region){
+      const label=slug.startsWith('titulo-familia-numerosa-')?'Título de familia numerosa':slug.startsWith('titulo-familia-monoparental-')?'Título de familia monoparental':slug.startsWith('tarjeta-sanitaria-bebe-')?'Tarjeta sanitaria del bebé':(items.at(-1)?.name||h1);
+      items=[{name:'Inicio',url:base+'/'},{name:'Comunidades',url:base+'/comunidades/'},{name:TERRITORY_BY_SLUG[region].name,url:base+'/comunidades/'+region+'/'},{name:label,url:canonical}];
+      counters.regional++;
+    }
+    const ownRegion=slug.startsWith('comunidades/')&&TERRITORY_BY_SLUG[slug.slice(12)];
+    if(ownRegion) items=[{name:'Inicio',url:base+'/'},{name:'Comunidades',url:base+'/comunidades/'},{name:ownRegion.name,url:canonical}];
+    for(const m of old) {html=html.replace(m[0],'');counters.removed++;}
+    const parts=items.map((x,i)=>i===items.length-1?'<span aria-current="page">'+escapeHtml(x.name)+'</span>':'<a href="'+escapeHtml(x.url.startsWith(base+'/')?x.url.slice(base.length):x.url)+'">'+escapeHtml(x.name)+'</a>');
+    const nav='<nav class="pb-guide-crumb pb-breadcrumb-standard" aria-label="Ruta de navegación">'+parts.join(' <span class="pb-breadcrumb-sep" aria-hidden="true">›</span> ')+'</nav>';
+    html=html.replace(/<main\b[^>]*>/i,m=>m+'\n'+nav);
+    if(!html.includes('href="/breadcrumbs.css"')) html=html.replace(/<\/head>/i,'<link rel="stylesheet" href="/breadcrumbs.css">\n</head>');
+    const schema={'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:items.map((x,i)=>({'@type':'ListItem',position:i+1,name:x.name,item:x.url}))};
+    html=html.replace(/<\/head>/i,'<script type="application/ld+json">'+JSON.stringify(schema).replace(/</g,'\\u003c')+'</script>\n</head>');
     fs.writeFileSync(full,html);
   });
-  console.log('Breadcrumbs V4.2: ' + JSON.stringify(counters));
+  console.log('Breadcrumbs V4.3: '+JSON.stringify(counters));
 }
-
 function validateSiteArchitecture() {
   const urls = [...fs.readFileSync(path.join(OUT, 'sitemap.xml'), 'utf8').matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]);
   const errors = [];
@@ -563,8 +555,8 @@ function validateSiteArchitecture() {
     const file = path.join(OUT, slug, 'index.html');
     const html = fs.readFileSync(file, 'utf8');
     if (slug && slug !== '404') {
-      const matches = html.match(/<nav\b[^>]*class=["'][^"']*\bpb-breadcrumb-standard\b[^"']*["'][^>]*>/gi) || [];
-      if (matches.length !== 1 || !html.includes('href="/breadcrumbs.css"'))
+      const matches = breadcrumbNodes(html);
+      if (matches.length !== 1 || !matches[0][0].includes('pb-breadcrumb-standard') || !html.includes('href="/breadcrumbs.css"'))
         errors.push(slug + ': falta breadcrumb único o estilo compartido');
     }
     if (/<header\b/i.test(html)) {
